@@ -16,4 +16,4 @@ app.use(async ctx => {
   throw new Error('hello there');
 });
 
-app.listen(3000);
+app.listen(process.env.PORT);
