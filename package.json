@@ -1,0 +1,33 @@
+{
+  "name": "backend-project-lvl4",
+  "version": "1.0.0",
+  "description": "hexlet nodejs backend project lvl 4",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alex-popov-tech/backend-project-lvl4.git"
+  },
+  "keywords": [
+    "hexlet",
+    "nodejs",
+    "backend"
+  ],
+  "author": "Alexander Popov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alex-popov-tech/backend-project-lvl4/issues"
+  },
+  "homepage": "https://github.com/alex-popov-tech/backend-project-lvl4#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "koa": "^2.13.0",
+    "rollbar": "^2.18.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
