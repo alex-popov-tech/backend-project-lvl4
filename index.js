@@ -13,7 +13,7 @@ const rollbar = new Rollbar({
 
 app.on('error', err => rollbar.error(err));
 app.use(async ctx => {
-  throw new Error('hello there');
+  ctx.body = 'Hello world!';
 });
 
 app.listen(process.env.PORT);
