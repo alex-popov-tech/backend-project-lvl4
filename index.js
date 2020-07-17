@@ -35,7 +35,7 @@ const logError = (error) => {
 app.on('error', logError);
 
 app.use(async ctx => {
-  await ctx.render('welcome/index');
+  await ctx.render('index');
 });
 
 app.listen(process.env.PORT);
