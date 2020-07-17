@@ -1,8 +1,16 @@
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import Koa from 'koa';
+import Logger from 'koa-logger';
+import Pug from 'koa-pug';
+import _ from 'lodash';
+import path from 'path';
 import Rollbar from 'rollbar';
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 dotenv.config();
+
 const app = new Koa();
 const rollbar = new Rollbar({
   accessToken: process.env.ROLLBAR_TOKEN,
@@ -10,10 +18,25 @@ const rollbar = new Rollbar({
   captureUnhandledRejections: true
 });
 
+const pug = new Pug({
+  viewPath: path.resolve(__dirname, 'views'),
+  basedir: path.join(__dirname, 'views'),
+});
+pug.use(app);
 
-app.on('error', err => rollbar.error(err));
+app.use(Logger());
+const logError = (error) => {
+  if (process.env.ENVIRONMENT === 'DEVELOPMENT') {
+    console.error(error);
+  } else {
+    rollbar.error(error);
+  }
+}
+app.on('error', logError);
+
 app.use(async ctx => {
-  ctx.body = 'Hello world!';
+  await ctx.render('welcome/index');
 });
 
 app.listen(process.env.PORT);
+console.log('STARTED!')
