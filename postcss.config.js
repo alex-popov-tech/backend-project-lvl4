@@ -1,8 +1,5 @@
-import precss from 'precss';
-import autoprefixer from 'autoprefixer';
-export default {
+module.exports = {
   plugins: [
-    precss,
-    autoprefixer
+    require('autoprefixer')
   ]
-};
+}

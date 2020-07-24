@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "hexlet nodejs backend project lvl 4",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-    "start": "node index.js",
+    "start": "NODE_ENV=production webpack -p && babel server --out-dir dist/server && cp -r server/views dist/server/views && node dist/server/bin/index.js",
     "test": "jest"
   },
   "repository": {
@@ -24,24 +23,34 @@
   },
   "homepage": "https://github.com/alex-popov-tech/backend-project-lvl4#readme",
   "dependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.10.5",
+    "@babel/node": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
+    "babel-eslint": "^10.1.0",
     "bootstrap": "^4.5.0",
     "dotenv": "^8.2.0",
-    "koa": "^2.13.0",
-    "koa-logger": "^3.2.1",
-    "koa-pug": "^4.0.4",
+    "fastify": "^3.1.1",
+    "fastify-error-page": "^4.0.0",
+    "fastify-static": "^3.2.0",
+    "point-of-view": "^4.2.0",
     "lodash": "^4.17.19",
     "precss": "^4.0.0",
+    "pug": "^3.0.0",
     "rollbar": "^2.18.0"
   },
   "devDependencies": {
     "autoprefixer": "^9.8.5",
     "css-loader": "^3.6.0",
-    "eslint": "^7.4.0",
+    "eslint": "^7.5.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
     "jest": "^26.1.0",
     "nodemon": "^2.0.4",
     "postcss-loader": "^3.0.0",
     "style-loader": "^1.2.1",
     "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.12"
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
   }
 }

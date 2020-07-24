@@ -1,8 +1,9 @@
 setup:
 	rm -rf node_modules; npm install
-start:
-	npm run start
-dev:
-	npx nodemon --verbose index.js
-dev-webpack:
-	npx webpack-dev-server --mode=development
+watch-lint:
+	npx nodemon --exec npx eslint server
+dev: dev-backend
+dev-backend:
+	npx nodemon --exec npx babel-node server/bin/index.js
+dev-frontend:
+	npx webpack-dev-server

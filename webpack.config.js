@@ -1,30 +1,22 @@
-import webpack from 'webpack';
-import path from 'path';
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const path = require('path');
+require('dotenv').config();
 
-export default {
-  entry: './src/index.js',
+module.exports = {
+  mode: process.env.ENVIRONMENT,
+  entry: path.join(__dirname, 'src', 'index.js'),
   output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist'),
+    path: path.join(__dirname, 'dist', 'public'),
+    publicPath: '/assets/',
+  },
+  devServer: {
+    host: 'localhost',
+    port: 5001
   },
   module: {
     rules: [
       {
         test: /\.css$/,
-        exclude: /node_modules/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: {
-              importLoaders: 1
-            }
-          },
-          'postcss-loader'
-        ]
+        use: ['style-loader', 'css-loader', 'postcss-loader']
       }
     ]
   }
