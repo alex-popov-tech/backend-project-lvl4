@@ -1,8 +1,10 @@
 const path = require('path');
 require('dotenv').config();
 
+const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+
 module.exports = {
-  mode: process.env.ENVIRONMENT,
+  mode,
   entry: path.join(__dirname, 'src', 'index.js'),
   output: {
     path: path.join(__dirname, 'dist', 'public'),

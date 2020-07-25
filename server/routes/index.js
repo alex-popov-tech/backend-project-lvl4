@@ -8,4 +8,7 @@ export default async (app) => {
   app.get('/500', (req, reply) => {
     reply.code(500).view('500');
   });
+  app.get('/favicon.ico', (req, reply) => {
+    reply.code(200).send();
+  });
 };
