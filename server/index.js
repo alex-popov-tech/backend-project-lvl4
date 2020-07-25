@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import fastify from 'fastify';
 import fastifyErrorPage from 'fastify-error-page';
 import fastifyStatic from 'fastify-static';
-import fastifyWebpackHMR from 'fastify-webpack-hmr'
+import fastifyWebpackHMR from 'fastify-webpack-hmr';
 import path from 'path';
 import pointOfView from 'point-of-view';
 import pug from 'pug';
@@ -41,7 +41,7 @@ export default () => {
   if (process.env.NODE_ENV === 'production') {
     app.register(fastifyStatic, { root: path.join(__dirname, '..', 'public'), prefix: '/assets/' });
   } else {
-    app.register(fastifyWebpackHMR , { config: path.join(__dirname, '..', 'webpack.config.js') })
+    app.register(fastifyWebpackHMR, { config: path.join(__dirname, '..', 'webpack.config.js') });
   }
   errorHandler(app);
   app.register(routes);
