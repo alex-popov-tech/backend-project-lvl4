@@ -16,8 +16,8 @@ jobs:
         with:
           node-version: '13.x'
       - name: Install
-        run: make setup
+        run: npm install
       - name: Build
-        run: make build
+        run: npm run-script build
       - name: Lint
-        run: make lint
+        run: npx eslint server
