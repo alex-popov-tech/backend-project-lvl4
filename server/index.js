@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import fastify from 'fastify';
 import fastifyErrorPage from 'fastify-error-page';
 import fastifyStatic from 'fastify-static';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import fastifyWebpackHMR from 'fastify-webpack-hmr';
 import path from 'path';
 import pointOfView from 'point-of-view';
@@ -13,18 +14,30 @@ dotenv.config();
 
 const errorHandler = (app) => {
   app.setNotFoundHandler((req, reply) => reply.redirect('/404'));
+  app.setErrorHandler((req, reply) => reply.redirect('/500'));
   if (process.env.NODE_ENV === 'development') {
     app.register(fastifyErrorPage);
   } else {
-    app.setErrorHandler((req, reply) => reply.redirect('/500'));
     const rollbar = new Rollbar({
       accessToken: process.env.ROLLBAR_TOKEN,
       captureUncaught: true,
       captureUnhandledRejections: true,
     });
-    app.addHook('onError', async (err) => {
-      rollbar.error(err);
-    });
+    app.addHook('onError', async (err) => rollbar.error(err));
+  }
+};
+
+const templatesEngine = (app) => app.register(pointOfView, {
+  engine: { pug },
+  includeViewExtension: true,
+  root: path.join(__dirname, 'views'),
+});
+
+const assets = (app) => {
+  if (process.env.NODE_ENV === 'production') {
+    app.register(fastifyStatic, { root: path.join(__dirname, '..', 'public'), prefix: '/assets/' });
+  } else {
+    app.register(fastifyWebpackHMR, { config: path.join(__dirname, '..', 'webpack.config.js') });
   }
 };
 
@@ -33,17 +46,10 @@ export default () => {
     logger: true,
   });
 
-  app.register(pointOfView, {
-    engine: { pug },
-    includeViewExtension: true,
-    root: path.join(__dirname, 'views'),
-  });
-  if (process.env.NODE_ENV === 'production') {
-    app.register(fastifyStatic, { root: path.join(__dirname, '..', 'public'), prefix: '/assets/' });
-  } else {
-    app.register(fastifyWebpackHMR, { config: path.join(__dirname, '..', 'webpack.config.js') });
-  }
+  templatesEngine(app);
+  assets(app);
   errorHandler(app);
-  app.register(routes);
+  routes(app);
+
   return app;
 };

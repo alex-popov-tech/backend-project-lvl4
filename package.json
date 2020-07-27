@@ -7,8 +7,7 @@
     "build:client": "NODE_ENV=production webpack -p",
     "build:server": "NODE_ENV=production babel server --out-dir dist/server && cp -r server/views dist/server/views",
     "build": "npm run build:client && npm run build:server",
-    "start:production": "NODE_ENV=production node dist/server/bin/index.js",
-    "start": "npx nodemon --exec npx babel-node server/bin/index.js"
+    "start": "NODE_ENV=production node dist/server/bin/index.js"
   },
   "repository": {
     "type": "git",
@@ -31,7 +30,6 @@
     "fastify": "^3.1.1",
     "fastify-error-page": "^4.0.0",
     "fastify-static": "^3.2.0",
-    "fastify-webpack-hmr": "^3.0.0",
     "lodash": "^4.17.19",
     "point-of-view": "^4.2.0",
     "precss": "^4.0.0",
@@ -41,6 +39,7 @@
   "devDependencies": {
     "@babel/cli": "^7.10.5",
     "@babel/core": "^7.10.5",
+    "fastify-webpack-hmr": "^3.0.0",
     "@babel/node": "^7.10.5",
     "@babel/preset-env": "^7.10.4",
     "autoprefixer": "^9.8.5",
