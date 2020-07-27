@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 import fastify from 'fastify';
 import fastifyErrorPage from 'fastify-error-page';
 import fastifyStatic from 'fastify-static';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import fastifyWebpackHMR from 'fastify-webpack-hmr';
 import path from 'path';
 import pointOfView from 'point-of-view';
