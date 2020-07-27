@@ -4,8 +4,11 @@
   "description": "hexlet nodejs backend project lvl 4",
   "main": "index.js",
   "scripts": {
-    "start": "NODE_ENV=production webpack -p && babel server --out-dir dist/server && cp -r server/views dist/server/views && node dist/server/bin/index.js",
-    "start-dev": "npx nodemon --exec npx babel-node server/bin/index.js"
+    "build:client": "NODE_ENV=production webpack -p",
+    "build:server": "NODE_ENV=production babel server --out-dir dist/server && cp -r server/views dist/server/views",
+    "build": "npm run build:client && npm run build:server",
+    "start:production": "NODE_ENV=production node dist/server/bin/index.js",
+    "start": "npx nodemon --exec npx babel-node server/bin/index.js"
   },
   "repository": {
     "type": "git",
@@ -23,24 +26,25 @@
   },
   "homepage": "https://github.com/alex-popov-tech/backend-project-lvl4#readme",
   "dependencies": {
-    "@babel/cli": "^7.10.5",
-    "@babel/core": "^7.10.5",
-    "@babel/node": "^7.10.5",
-    "@babel/preset-env": "^7.10.4",
-    "babel-eslint": "^10.1.0",
     "bootstrap": "^4.5.0",
     "dotenv": "^8.2.0",
     "fastify": "^3.1.1",
     "fastify-error-page": "^4.0.0",
     "fastify-static": "^3.2.0",
-    "point-of-view": "^4.2.0",
+    "fastify-webpack-hmr": "^3.0.0",
     "lodash": "^4.17.19",
+    "point-of-view": "^4.2.0",
     "precss": "^4.0.0",
     "pug": "^3.0.0",
     "rollbar": "^2.18.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.10.5",
+    "@babel/node": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
     "autoprefixer": "^9.8.5",
+    "babel-eslint": "^10.1.0",
     "css-loader": "^3.6.0",
     "eslint": "^7.5.0",
     "eslint-config-airbnb-base": "^14.2.0",

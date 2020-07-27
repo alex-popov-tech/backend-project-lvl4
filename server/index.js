@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import fastify from 'fastify';
 import fastifyErrorPage from 'fastify-error-page';
 import fastifyStatic from 'fastify-static';
+import fastifyWebpackHMR from 'fastify-webpack-hmr';
 import path from 'path';
 import pointOfView from 'point-of-view';
 import pug from 'pug';
@@ -12,7 +13,7 @@ dotenv.config();
 
 const errorHandler = (app) => {
   app.setNotFoundHandler((req, reply) => reply.redirect('/404'));
-  if (process.env.ENVIRONMENT === 'development') {
+  if (process.env.NODE_ENV === 'development') {
     app.register(fastifyErrorPage);
   } else {
     app.setErrorHandler((req, reply) => reply.redirect('/500'));
@@ -37,7 +38,11 @@ export default () => {
     includeViewExtension: true,
     root: path.join(__dirname, 'views'),
   });
-  app.register(fastifyStatic, { root: path.join(__dirname, '..', 'dist/public'), prefix: '/assets/' });
+  if (process.env.NODE_ENV === 'production') {
+    app.register(fastifyStatic, { root: path.join(__dirname, '..', 'public'), prefix: '/assets/' });
+  } else {
+    app.register(fastifyWebpackHMR, { config: path.join(__dirname, '..', 'webpack.config.js') });
+  }
   errorHandler(app);
   app.register(routes);
   return app;
