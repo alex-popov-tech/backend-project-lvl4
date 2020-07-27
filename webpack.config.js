@@ -7,7 +7,7 @@ module.exports = {
   mode,
   entry: path.join(__dirname, 'src', 'index.js'),
   output: {
-    path: path.join(__dirname, 'dist', 'public'),
+    path: path.join(__dirname, 'dist', 'assets'),
     publicPath: '/assets/',
   },
   devServer: {
