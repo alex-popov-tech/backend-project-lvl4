@@ -1,1 +1,1 @@
-app: make dev
+web: npm build && npm start
