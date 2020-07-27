@@ -34,7 +34,7 @@ const templatesEngine = (app) => app.register(pointOfView, {
 
 const assets = (app) => {
   if (process.env.NODE_ENV === 'production') {
-    app.register(fastifyStatic, { root: path.join(__dirname, '..', 'public'), prefix: '/' });
+    app.register(fastifyStatic, { root: path.join(__dirname, '..', 'assets'), prefix: '/assets' });
   } else {
     app.register(fastifyWebpackHMR, { config: path.join(__dirname, '..', 'webpack.config.js') });
   }
