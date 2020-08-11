@@ -77,25 +77,23 @@ const session = (app) => {
     }
   });
   app.addHook('preHandler', async (req) => {
-    console.log('============')
-    console.log(`REQ - ${req.method} ${req.url} ${ JSON.stringify(req.body) }`)
-    console.log('------------')
+    console.log('============');
+    console.log(`REQ - ${req.method} ${req.url} ${JSON.stringify(req.body)}`);
+    console.log('------------');
   });
   app.addHook('onSend', async (req, reply, payload) => {
     if (!req.url.includes('assets')) {
-      console.log(`RES - ${req.method} ${req.url} ${reply.statusCode}\n${payload}`)
-      console.log('============')
+      console.log(`RES - ${req.method} ${req.url} ${reply.statusCode}\n${payload}`);
+      console.log('============');
     }
-  })
+  });
 };
 
 export default () => {
   const app = fastify({
     logger: {
       prettyPrint: true,
-      level: 'error'
-      // base: null,
-      // timestamp: false,
+      level: 'error',
     },
   });
 
@@ -103,7 +101,7 @@ export default () => {
   session(app);
   templatesEngine(app);
   assets(app);
-  // errorHandler(app);
+  errorHandler(app);
   routes(app);
   database(app);
 
