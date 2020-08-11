@@ -1,0 +1,12 @@
+extends ../layouts/application.pug
+
+block header
+  ='Registration'
+
+block content
+  +formFor()(action='/users' method='post')
+    +input('firstName', data.firstName, errors.firstName)(type="text")
+    +input('lastName', data.lastName, errors.lastName)(type="text")
+    +input('email', data.email, errors.email)(type="text")
+    +input('password', data.password, errors.password)(type="password")
+    +submit()(value='Save')

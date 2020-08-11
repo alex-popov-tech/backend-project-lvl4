@@ -3,8 +3,6 @@ setup:
 lint:
 	npx eslint server
 watch-lint:
-	npx nodemon --exec npx eslint server
-watch-test:
-	npx jest --watch
+	npx esw -w server
 dev:
 	npx nodemon --exec npx babel-node server/bin/index.js
