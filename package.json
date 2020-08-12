@@ -10,6 +10,9 @@
     "build": "npm run clean && npm run build:client && npm run build:server && npm run migrate",
     "start": "NODE_ENV=production node dist/server/bin/index.js"
   },
+  "jest": {
+    "testEnvironment": "node"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alex-popov-tech/backend-project-lvl4.git"
@@ -50,7 +53,6 @@
     "sqlite3": "^5.0.0"
   },
   "devDependencies": {
-    "del-cli": "^3.0.1",
     "@babel/cli": "^7.10.5",
     "@babel/core": "^7.11.1",
     "@babel/node": "^7.10.5",
@@ -58,9 +60,11 @@
     "autoprefixer": "^9.8.6",
     "babel-eslint": "^10.1.0",
     "css-loader": "^3.6.0",
+    "del-cli": "^3.0.1",
     "eslint": "^7.6.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.0",
+    "jest": "^26.4.0",
     "nodemon": "^2.0.4",
     "postcss-loader": "^3.0.0",
     "style-loader": "^1.2.1",
