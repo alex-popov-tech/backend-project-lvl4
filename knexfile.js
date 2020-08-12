@@ -22,4 +22,14 @@ module.exports = {
     seeds,
   },
 
+  production: {
+    client: 'sqlite3',
+    connection: {
+      filename: 'prod.sqlite3',
+    },
+    useNullAsDefault: true,
+    migrations,
+    seeds,
+  },
+
 };

@@ -4,7 +4,6 @@ block header
   ='Edit'
 
 block content
-  label=JSON.stringify(data)
   +formFor()(action='/users' method='post')
     +input('firstName', data.firstName, errors.firstName)(type="text")
     +input('lastName', data.lastName, errors.lastName)(type="text")
