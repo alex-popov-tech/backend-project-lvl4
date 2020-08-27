@@ -1,5 +1,4 @@
 import User from './user';
+import Status from './status';
 
-export default [
-  User,
-];
+export default [User, Status];

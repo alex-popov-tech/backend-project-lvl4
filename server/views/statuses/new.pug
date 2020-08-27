@@ -1,0 +1,10 @@
+extends ../layouts/application.pug
+
+block header
+  ='Add new Status'
+
+block content
+  +formFor()(action='/statuses' method='post')
+    +input('name', data.name, errors.name)(type="name")
+    +submit()(value='Add Status')
+
