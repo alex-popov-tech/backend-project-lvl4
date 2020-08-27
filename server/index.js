@@ -19,7 +19,6 @@ import routes from './routes';
 dotenv.config();
 
 const mode = process.env.NODE_ENV || 'development';
-const isProduction = mode === 'production';
 const isDevelopment = mode === 'development';
 const isTest = mode === 'test';
 
