@@ -4,5 +4,7 @@ lint:
 	npx eslint server
 lint-watch:
 	npx nodemon --exec npx eslint server
+test-watch:
+	npx jest --watch
 dev:
 	npx nodemon --exec npx babel-node server/bin/index.js

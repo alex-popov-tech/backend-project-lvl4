@@ -19,10 +19,16 @@ import routes from './routes';
 dotenv.config();
 
 const mode = process.env.NODE_ENV || 'development';
+const isProduction = mode === 'production';
+const isDevelopment = mode === 'development';
+const isTest = mode === 'test';
 
-const errorHandler = (app) => {
-  if (process.env.NODE_ENV === 'development') {
-    app.register(fastifyErrorsProperties);
+const errorHandler = async (app) => {
+  if (isTest) {
+    return;
+  }
+  if (isDevelopment) {
+    await app.register(fastifyErrorsProperties);
   } else {
     const rollbar = new Rollbar({
       accessToken: process.env.ROLLBAR_TOKEN,
@@ -32,41 +38,49 @@ const errorHandler = (app) => {
     app.addHook('onError', async (err) => rollbar.error(err));
   }
 };
-
-const templatesEngine = (app) => {
-  app.register(pointOfView, {
-    engine: { pug },
+const templatesEngine = async (app) => {
+  await app.register(pointOfView, {
+    engine: {
+      pug,
+    },
     includeViewExtension: true,
     root: path.join(__dirname, 'views'),
     defaultContext: _,
   });
   app.decorateReply('render', function render(viewPath, locals) {
-    return this.view(viewPath, { ...locals, reply: this });
+    return this.view(viewPath, {
+      ...locals,
+      reply: this,
+    });
   });
 };
-
-const assets = (app) => {
-  if (process.env.NODE_ENV === 'production') {
-    app.register(fastifyStatic, { root: path.join(__dirname, '..', 'assets'), prefix: '/assets' });
+const assets = async (app) => {
+  if (isTest) {
+    return;
+  }
+  if (isDevelopment) {
+    await app.register(fastifyWebpackHMR, {
+      config: path.join(__dirname, '..', 'webpack.config.js'),
+    });
   } else {
-    app.register(fastifyWebpackHMR, { config: path.join(__dirname, '..', 'webpack.config.js') });
+    await app.register(fastifyStatic, {
+      root: path.join(__dirname, '..', 'assets'),
+      prefix: '/assets',
+    });
   }
 };
-
-const database = (app) => {
-  app.register(fastifyObjection, {
+const database = async (app) => {
+  await app.register(fastifyObjection, {
     knexConfig: knexConfig[mode],
     models,
   });
 };
-
-const plugins = (app) => {
-  app.register(fastifyFormbody);
-  app.register(fastifyMethodOverride);
+const plugins = async (app) => {
+  await app.register(fastifyFormbody);
+  await app.register(fastifyMethodOverride);
 };
-
-const session = (app) => {
-  app.register(fastifySecureSession, {
+const session = async (app) => {
+  await app.register(fastifySecureSession, {
     secret: 'averylogphrasebiggerthanthirtytwochars',
     salt: 'mq9hDxBVDbspDR6n',
   });
@@ -89,21 +103,20 @@ const session = (app) => {
   });
 };
 
-export default () => {
+export default async () => {
   const app = fastify({
     logger: {
       prettyPrint: true,
       level: 'error',
     },
   });
-
-  plugins(app);
-  session(app);
-  templatesEngine(app);
-  assets(app);
-  errorHandler(app);
+  await plugins(app);
+  await session(app);
+  await templatesEngine(app);
+  await assets(app);
+  await errorHandler(app);
+  await database(app);
   routes(app);
-  database(app);
 
   return app;
 };
