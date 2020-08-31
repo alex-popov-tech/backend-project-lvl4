@@ -6,12 +6,7 @@ const migrations = {
   directory: path.resolve('server', 'migrations'),
 };
 
-const seeds = {
-  directory: path.resolve('server', 'seeds'),
-};
-
 module.exports = {
-
   development: {
     client: 'sqlite3',
     connection: {
@@ -19,19 +14,13 @@ module.exports = {
     },
     useNullAsDefault: true,
     migrations,
-    seeds,
   },
 
   test: {
     client: 'sqlite3',
-    // connection: ':memory:',
-    connection: {
-      filename: 'test.sqlite3',
-    },
-
+    connection: 'memory',
     useNullAsDefault: true,
     migrations,
-    seeds,
   },
 
   production: {
@@ -41,7 +30,5 @@ module.exports = {
     },
     useNullAsDefault: true,
     migrations,
-    seeds,
   },
-
 };

@@ -1,3 +1,4 @@
+import { internet } from 'faker';
 import knex from 'knex';
 import config from '../knexfile';
 import app from '../server';
@@ -5,16 +6,17 @@ import app from '../server';
 describe('Signup', () => {
   let db;
   let server;
+  let user;
 
   beforeAll(async () => {
     db = knex(config.test);
     await db.migrate.latest();
     server = await app();
     await server.objection.models.user.query().delete();
-    await server.objection.models.user.query().insert({
+    user = await server.objection.models.user.query().insert({
       firstName: 'foo',
       lastName: 'bar',
-      email: 'test@test.com',
+      email: internet.email(),
       password: 'test',
     });
   });
@@ -41,6 +43,19 @@ describe('Signup', () => {
   });
 
   describe('when using invalid credentials', () => {
+    it('returns 400 when existing email', async () => {
+      const res = await server.inject({
+        method: 'post',
+        url: '/users',
+        body: {
+          email: user.email,
+          password: 'test',
+          firstName: 'test',
+          lastName: 'test',
+        },
+      });
+      expect(res.statusCode).toBe(400);
+    });
     it('returns 400 when empty email', async () => {
       const res = await server.inject({
         method: 'post',
@@ -112,4 +127,3 @@ describe('Signup', () => {
     });
   });
 });
-

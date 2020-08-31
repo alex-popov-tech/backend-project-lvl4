@@ -1,20 +1,22 @@
 import knex from 'knex';
+import { internet } from 'faker';
 import config from '../knexfile';
 import app from '../server';
 
-describe('Signin', () => {
+describe('Session', () => {
   let db;
   let server;
+  let user;
 
   beforeAll(async () => {
     db = knex(config.test);
     await db.migrate.latest();
     server = await app();
     await server.objection.models.user.query().delete();
-    await server.objection.models.user.query().insert({
+    user = await server.objection.models.user.query().insert({
       firstName: 'foo',
       lastName: 'bar',
-      email: 'test@test.com',
+      email: internet.email(),
       password: 'test',
     });
   });
@@ -29,7 +31,7 @@ describe('Signin', () => {
       const res = await server.inject({
         method: 'post',
         url: '/session',
-        body: { email: 'test@test.com', password: 'test' },
+        body: { email: user.email, password: 'test' },
       });
       expect(res.statusCode).toBe(302);
       expect(res.headers['set-cookie']).toBeTruthy();

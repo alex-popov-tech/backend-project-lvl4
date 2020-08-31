@@ -1,4 +1,5 @@
 import knex from 'knex';
+import { random } from 'faker';
 import config from '../knexfile';
 import app from '../server';
 
@@ -16,7 +17,7 @@ describe('Status', () => {
   beforeEach(async () => {
     await server.objection.models.status.query().delete();
     existingStatus = await server.objection.models.status.query().insert({
-      name: 'test',
+      name: random.word(),
     });
   });
 

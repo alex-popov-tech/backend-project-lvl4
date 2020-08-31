@@ -8,7 +8,8 @@
     "build:server": "NODE_ENV=production babel server --out-dir dist/server && cp -r server/views dist/server/views && cp knexfile.js dist/knexfile.js",
     "migrate": "NODE_ENV=production npx knex migrate:latest",
     "build": "npm run clean && npm run build:client && npm run build:server && npm run migrate",
-    "start": "NODE_ENV=production node dist/server/bin/index.js"
+    "start": "NODE_ENV=production node dist/server/bin/index.js",
+    "test": "jest"
   },
   "jest": {
     "testEnvironment": "node"
@@ -57,6 +58,7 @@
     "@babel/cli": "^7.10.5",
     "@babel/core": "^7.11.1",
     "@babel/node": "^7.10.5",
+    "@babel/plugin-syntax-class-properties": "^7.10.4",
     "@babel/preset-env": "^7.11.0",
     "autoprefixer": "^9.8.6",
     "babel-eslint": "^10.1.0",
@@ -65,6 +67,7 @@
     "eslint": "^7.6.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.0",
+    "faker": "^5.1.0",
     "jest": "^26.4.0",
     "nodemon": "^2.0.4",
     "postcss-loader": "^3.0.0",

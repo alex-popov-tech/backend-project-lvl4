@@ -24,12 +24,10 @@ export default (app) => {
       try {
         const { id, name } = req.body;
         const updatedStatus = await app.objection.models.status.fromJson({ name });
-        console.log(await app.objection.models.status.query());
         const existingStatus = await app.objection.models.status.query().findById(id);
         await existingStatus.$query().patch(updatedStatus);
         await reply.redirect('/statuses');
       } catch ({ message, data }) {
-        console.log(message);
         await reply.code(400).render('statuses/edit', { status: req.body, errors: data });
       }
     })

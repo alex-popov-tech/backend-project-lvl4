@@ -17,7 +17,8 @@ block content
           td= user.lastName
           if currentUser
             td
-              a(href='/users/edit')='Edit'
+              +formFor()(action=`/users/edit` )
+                input(class='btn btn-primary' type='submit' value='Edit')
               +formFor()(action='/users' method='post')
                 input(name="_method" type="hidden" value="delete")
                 input(name="id" type="hidden" value=user.id)

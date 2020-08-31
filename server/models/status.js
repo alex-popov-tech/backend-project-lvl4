@@ -22,4 +22,8 @@ export default class Status extends unique(Model) {
       },
     };
   }
+
+  toString() {
+    return this.name;
+  }
 }

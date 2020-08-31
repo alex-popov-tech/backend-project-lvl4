@@ -2,18 +2,19 @@ extends ../layouts/application.pug
 
 block content
   table.table.table-striped
-    a(href='/statuses/new')= 'Add Status'
+    +formFor()(action='/tasks/add' )
+      input(class='btn btn-primary' type='submit' value='Add')
     thead
       tr
         th= 'Status Name'
-        if currentUser
-          th= 'Action'
+        th= 'Action'
     tbody
       each status in statuses
         tr
           td= status.name
           td
-            a(href=`/statuses/edit/${status.id}`)='Edit'
+            +formFor()(action=`/statuses/edit/${status.id}` )
+              input(class='btn btn-primary' type='submit' value='Edit')
             +formFor()(action='/statuses' method='post')
               input(name="_method" type="hidden" value="delete")
               input(name="id" type="hidden" value=status.id)

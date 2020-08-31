@@ -1,0 +1,29 @@
+extends ../layouts/application.pug
+
+block content
+  table.table.table-striped
+    +formFor()(action='/tasks/add' )
+      input(class='btn btn-primary' type='submit' value='Add')
+    thead
+      tr
+        th= 'Name'
+        th= 'Description'
+        th= 'Status'
+        th= 'Creator'
+        th= 'Assignee'
+        th= 'Action'
+    tbody
+      each task in tasks
+        tr
+          td= task.name
+          td= task.description
+          td= task.status.name
+          td= `${task.creator.firstName} ${task.creator.lastName}`
+          td= task.assigned ? `${task.assigned.firstName} ${task.assigned.lastName}` : 'none'
+          td
+            +formFor()(action=`/tasks/edit/${task.id}` )
+              input(class='btn btn-primary' type='submit' value='Edit')
+            +formFor()(action='/tasks' method='post')
+              input(name="_method" type="hidden" value="delete")
+              input(name="id" type="hidden" value=task.id)
+              +submit()(value='Delete')
