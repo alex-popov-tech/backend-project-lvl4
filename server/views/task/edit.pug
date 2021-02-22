@@ -1,14 +1,15 @@
 extends ../layouts/application.pug
 
 block header
-  ='Add new Task'
+  ='Edit'
 
 block content
-  +formFor()(action='/tasks' method='post')
-    +input('Name', data.name, errors.name)(name='name')
-    +input('Description', data.description, errors.description)(name='description')
+  +formFor()(action='/task' method='post')
+    +input('Name', data.task.name, errors.name)(name="name")
+    +input('Description', data.task.description, errors.description)(name='description')
     +select('Status', data.statuses, errors.status_id)(name='status_id')
     +select('Creator', data.users, errors.creator_id)(name='creator_id')
     +select('Assigned', data.users, errors.assigned_id)(name='assigned_id')
+    input(name="id" type="hidden" value= data.task.id)
+    input(name="_method" type="hidden" value="PUT")
     +submit()(value='Save')
-

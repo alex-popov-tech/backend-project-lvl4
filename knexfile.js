@@ -14,6 +14,9 @@ module.exports = {
     },
     useNullAsDefault: true,
     migrations,
+    seeds: {
+        directory: path.resolve('server', 'seeds'),
+    },
   },
 
   test: {

@@ -38,6 +38,7 @@
     "fastify-formbody": "^4.0.3",
     "fastify-method-override": "^1.4.1",
     "fastify-objectionjs": "^0.2.2",
+    "fastify-passport": "^0.4.1",
     "fastify-secure-session": "^2.2.1",
     "fastify-static": "^3.2.0",
     "fastify-webpack-hmr": "^3.0.0",

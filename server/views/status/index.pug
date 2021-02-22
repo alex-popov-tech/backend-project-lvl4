@@ -2,7 +2,7 @@ extends ../layouts/application.pug
 
 block content
   table.table.table-striped
-    +formFor()(action='/tasks/add' )
+    +formFor()(action='/status/new' )
       input(class='btn btn-primary' type='submit' value='Add')
     thead
       tr
@@ -13,9 +13,9 @@ block content
         tr
           td= status.name
           td
-            +formFor()(action=`/statuses/edit/${status.id}` )
+            +formFor()(action=`/status/edit/${status.id}` )
               input(class='btn btn-primary' type='submit' value='Edit')
-            +formFor()(action='/statuses' method='post')
+            +formFor()(action='/status' method='post')
               input(name="_method" type="hidden" value="delete")
               input(name="id" type="hidden" value=status.id)
               +submit()(value='Delete')

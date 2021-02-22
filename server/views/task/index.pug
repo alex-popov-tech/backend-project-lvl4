@@ -2,7 +2,7 @@ extends ../layouts/application.pug
 
 block content
   table.table.table-striped
-    +formFor()(action='/tasks/add' )
+    +formFor()(action='/task/new' )
       input(class='btn btn-primary' type='submit' value='Add')
     thead
       tr
@@ -21,9 +21,9 @@ block content
           td= `${task.creator.firstName} ${task.creator.lastName}`
           td= task.assigned ? `${task.assigned.firstName} ${task.assigned.lastName}` : 'none'
           td
-            +formFor()(action=`/tasks/edit/${task.id}` )
+            +formFor()(action=`/task/edit/${task.id}` )
               input(class='btn btn-primary' type='submit' value='Edit')
-            +formFor()(action='/tasks' method='post')
+            +formFor()(action='/task' method='post')
               input(name="_method" type="hidden" value="delete")
               input(name="id" type="hidden" value=task.id)
               +submit()(value='Delete')
