@@ -1,153 +1,156 @@
 import { internet } from 'faker';
-import knex from 'knex';
-import config from '../knexfile';
-import app from '../server';
+import { launchApp, shutdownApp, clear } from './base.js';
 
 describe('Task', () => {
   let db;
-  let server;
+  let app;
   let status;
   let user;
-  let task;
 
   beforeAll(async () => {
-    db = knex(config.test);
-    await db.migrate.latest();
-    server = await app();
+    ({ app, db } = await launchApp());
+  });
+
+  afterAll(async () => {
+    await shutdownApp(app, db);
   });
 
   beforeEach(async () => {
-    await server.objection.models.task.query().delete();
-    await server.objection.models.status.query().delete();
-    await server.objection.models.user.query().delete();
-    user = await server.objection.models.user.query().insert({
+    await clear(app);
+    user = await app.objection.models.user.query().insert({
       firstName: 'foo',
       lastName: 'bar',
       email: internet.email(),
       password: 'test',
     });
-    status = await server.objection.models.status.query().insert({
-      name: 'test',
+    status = await app.objection.models.status.query().insert({
+      name: 'test status',
     });
-    task = await server.objection.models.task.query().insert({
-      name: 'test',
-      description: 'test',
-      status_id: status.id,
-      creator_id: user.id,
-    });
-  });
-
-  afterAll(async () => {
-    await server.close();
-    await db.destroy();
   });
 
   describe('read', () => {
     it('should return 200', async () => {
-      const res = await server.inject({
+      const { statusCode } = await app.inject({
         method: 'get',
-        url: '/tasks',
+        url: '/task',
       });
-      expect(res.statusCode).toBe(200);
+      expect(statusCode).toBe(200);
     });
   });
 
   describe('create', () => {
     describe('when using valid data', () => {
       it('should return 302', async () => {
-        const res = await server.inject({
+        const name = 'test task';
+        const description = 'test description';
+        const { statusCode } = await app.inject({
           method: 'post',
-          url: '/tasks',
+          url: '/task',
           body: {
-            name: 'test',
-            description: 'test',
+            name,
+            description,
             status_id: status.id,
             creator_id: user.id,
             assigned_id: null,
           },
         });
-        expect(res.statusCode).toBe(302);
+        expect(statusCode).toBe(302);
+
+        const tasks = await app.objection.models.task.query();
+        expect(tasks).toHaveLength(1);
+        expect(tasks[0]).toMatchObject({
+          name,
+          description,
+          statusId: status.id,
+          creatorId: user.id,
+        });
       });
     });
-    describe.skip('when using invalid data', () => {
+
+    describe('when using invalid data', () => {
       [
-        { name: 'name', body: { description: 'test', status_id: status.id, creator_id: user.id } },
-        { name: 'description', body: { name: 'test', status_id: status.id, creator_id: user.id } },
-        { name: 'status', body: { name: 'test', description: 'test', creator_id: user.id } },
-        { name: 'creator', body: { name: 'test', description: 'test', status_id: status.id } },
-      ].forEach(({ name, body }) => {
+        { name: 'name', data: () => ({ description: 'test', status_id: status.id, creator_id: user.id }) },
+        { name: 'description', data: () => ({ name: 'test', status_id: status.id, creator_id: user.id }) },
+        { name: 'status', data: () => ({ name: 'test', description: 'test', creator_id: user.id }) },
+        { name: 'creator', data: () => ({ name: 'test', description: 'test', status_id: status.id }) },
+      ].forEach(({ name, data }) => {
         it(`should return 400 when missing required field ${name}`, async () => {
-          const res = await server.inject({
+          const { statusCode } = await app.inject({
             method: 'post',
-            url: '/tasks',
-            body,
+            url: '/task',
+            body: data(),
           });
-          expect(res.statusCode).toBe(400);
+          expect(statusCode).toBe(400);
+          const tasks = await app.objection.models.task.query();
+          expect(tasks).toHaveLength(0);
         });
       });
     });
   });
 
   describe('update', () => {
-    describe('when using valid data', () => {
-      it('should return 302', async () => {
-        const newStatus = await server.objection.models.status.query().insert({
-          name: 'test updated',
-        });
-        const res = await server.inject({
-          method: 'put',
-          url: '/tasks',
-          body: {
-            id: task.id,
-            name: 'new name',
-            description: 'new desrcription',
-            status_id: newStatus.id,
-            creator_id: user.id,
-            assigned_id: user.id,
-          },
-        });
-        expect(res.statusCode).toBe(302);
+    let existingTask;
+    beforeEach(async () => {
+      existingTask = await app.objection.models.task.query().insert({
+        name: 'test',
+        description: 'test',
+        status_id: status.id,
+        creator_id: user.id,
       });
     });
-    // describe('when using existing name', () => {
-    //   it('should return 302', async () => {
-    //     const res = await server.inject({
-    //       method: 'put',
-    //       url: '/statuses',
-    //       body: {
-    //         id: status.id,
-    //         name: status.name,
-    //       },
-    //     });
-    //     expect(res.statusCode).toBe(302);
-    //   });
-    // });
+
+    it('should return 302 when using valid data', async () => {
+      const updatedStatus = await app.objection.models.status.query().insert({
+        name: 'test updated',
+      });
+      const updatedTask = {
+        id: existingTask.id,
+        name: 'updated-name',
+        description: 'updated-descr',
+        status_id: updatedStatus.id,
+        creator_id: user.id,
+        assigned_id: user.id,
+      };
+      const { statusCode } = await app.inject({
+        method: 'put',
+        url: '/task',
+        body: updatedTask,
+      });
+      expect(statusCode).toBe(302);
+      const tasks = await app.objection.models.task.query();
+      expect(tasks).toHaveLength(1);
+      expect(tasks[0]).toMatchObject({
+        id: updatedTask.id,
+        name: updatedTask.name,
+        description: updatedTask.description,
+        statusId: updatedTask.status_id,
+        creatorId: updatedTask.creator_id,
+        assignedId: updatedTask.assigned_id,
+      });
+    });
   });
 
-  // describe('delete', () => {
-  //   describe('when using valid id', () => {
-  //     it('should return 302', async () => {
-  //       const res = await server.inject({
-  //         method: 'delete',
-  //         url: '/statuses',
-  //         body: {
-  //           id: status.id,
-  //         },
-  //       });
-  //       expect(res.statusCode).toBe(302);
-  //     });
-  //   });
-  //   describe('when using invalid id', () => {
-  //     it('should return 302', async () => {
-  //       const res = await server.inject({
-  //         method: 'delete',
-  //         url: '/statuses',
-  //         body: {
-  //           id: -1,
-  //         },
-  //       });
-  //       expect(res.statusCode).toBe(302);
-  //     });
-  //   });
-  // });
+  describe('delete', () => {
+    let existingTask;
+    beforeEach(async () => {
+      existingTask = await app.objection.models.task.query().insert({
+        name: 'test',
+        description: 'test',
+        status_id: status.id,
+        creator_id: user.id,
+      });
+    });
+    it('should return 302', async () => {
+      const { statusCode } = await app.inject({
+        method: 'delete',
+        url: '/task',
+        body: {
+          id: existingTask.id,
+        },
+      });
+      expect(statusCode).toBe(302);
+      const tasks = await app.objection.models.task.query();
+      expect(tasks).toHaveLength(0);
+    });
+  });
 });
