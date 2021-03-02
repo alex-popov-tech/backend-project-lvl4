@@ -24,7 +24,7 @@ describe('Session', () => {
     await shutdownApp(app, db);
   });
 
-  it('returns 302 and a cookie when using valid credentials', async () => {
+  it('should return 302 and a cookie when using valid credentials', async () => {
     const res = await app.inject({
       method: 'post',
       url: '/session',
@@ -41,7 +41,7 @@ describe('Session', () => {
       { name: 'email not exist', body: { email: 'not@exist.com', password: 'test' } },
       { name: 'empty password', body: { email: 'a@a.com', password: 'test' } },
       { name: 'password does not match', body: { email: 'test@test.com', password: 'invalid' } },
-    ].forEach(({ name, body }) => it(`returns 404 when ${name}`, async () => {
+    ].forEach(({ name, body }) => it(`should return 404 when ${name}`, async () => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/session',

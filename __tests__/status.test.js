@@ -17,16 +17,6 @@ describe('Status', () => {
     await clear(app);
   });
 
-  describe('read', () => {
-    it('should return 200', async () => {
-      const { statusCode } = await app.inject({
-        method: 'get',
-        url: '/status',
-      });
-      expect(statusCode).toBe(200);
-    });
-  });
-
   describe('create', () => {
     it('should return 302 when using valid name', async () => {
       const status = {

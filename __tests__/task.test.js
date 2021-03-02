@@ -4,8 +4,8 @@ import { launchApp, shutdownApp, clear } from './base.js';
 describe('Task', () => {
   let db;
   let app;
-  let status;
-  let user;
+  let existingStatus;
+  let existingUser;
 
   beforeAll(async () => {
     ({ app, db } = await launchApp());
@@ -17,24 +17,14 @@ describe('Task', () => {
 
   beforeEach(async () => {
     await clear(app);
-    user = await app.objection.models.user.query().insert({
+    existingUser = await app.objection.models.user.query().insert({
       firstName: 'foo',
       lastName: 'bar',
       email: internet.email(),
       password: 'test',
     });
-    status = await app.objection.models.status.query().insert({
+    existingStatus = await app.objection.models.status.query().insert({
       name: 'test status',
-    });
-  });
-
-  describe('read', () => {
-    it('should return 200', async () => {
-      const { statusCode } = await app.inject({
-        method: 'get',
-        url: '/task',
-      });
-      expect(statusCode).toBe(200);
     });
   });
 
@@ -49,8 +39,8 @@ describe('Task', () => {
           body: {
             name,
             description,
-            status_id: status.id,
-            creator_id: user.id,
+            status_id: existingStatus.id,
+            creator_id: existingUser.id,
             assigned_id: null,
           },
         });
@@ -61,18 +51,18 @@ describe('Task', () => {
         expect(tasks[0]).toMatchObject({
           name,
           description,
-          statusId: status.id,
-          creatorId: user.id,
+          statusId: existingStatus.id,
+          creatorId: existingUser.id,
         });
       });
     });
 
     describe('when using invalid data', () => {
       [
-        { name: 'name', data: () => ({ description: 'test', status_id: status.id, creator_id: user.id }) },
-        { name: 'description', data: () => ({ name: 'test', status_id: status.id, creator_id: user.id }) },
-        { name: 'status', data: () => ({ name: 'test', description: 'test', creator_id: user.id }) },
-        { name: 'creator', data: () => ({ name: 'test', description: 'test', status_id: status.id }) },
+        { name: 'name', data: () => ({ description: 'test', status_id: existingStatus.id, creator_id: existingUser.id }) },
+        { name: 'description', data: () => ({ name: 'test', status_id: existingStatus.id, creator_id: existingUser.id }) },
+        { name: 'status', data: () => ({ name: 'test', description: 'test', creator_id: existingUser.id }) },
+        { name: 'creator', data: () => ({ name: 'test', description: 'test', status_id: existingStatus.id }) },
       ].forEach(({ name, data }) => {
         it(`should return 400 when missing required field ${name}`, async () => {
           const { statusCode } = await app.inject({
@@ -94,8 +84,8 @@ describe('Task', () => {
       existingTask = await app.objection.models.task.query().insert({
         name: 'test',
         description: 'test',
-        status_id: status.id,
-        creator_id: user.id,
+        status_id: existingStatus.id,
+        creator_id: existingUser.id,
       });
     });
 
@@ -108,8 +98,8 @@ describe('Task', () => {
         name: 'updated-name',
         description: 'updated-descr',
         status_id: updatedStatus.id,
-        creator_id: user.id,
-        assigned_id: user.id,
+        creator_id: existingUser.id,
+        assigned_id: existingUser.id,
       };
       const { statusCode } = await app.inject({
         method: 'put',
@@ -136,8 +126,8 @@ describe('Task', () => {
       existingTask = await app.objection.models.task.query().insert({
         name: 'test',
         description: 'test',
-        status_id: status.id,
-        creator_id: user.id,
+        status_id: existingStatus.id,
+        creator_id: existingUser.id,
       });
     });
     it('should return 302', async () => {

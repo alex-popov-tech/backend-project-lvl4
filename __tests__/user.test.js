@@ -17,7 +17,7 @@ describe('Signup', () => {
   });
 
   describe('create', () => {
-    it('returns 302 when using valid data', async () => {
+    it('should return 302 when using valid data', async () => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/user',
@@ -39,7 +39,7 @@ describe('Signup', () => {
     });
 
     describe('when using invalid data', () => {
-      it('returns 400 when existing email', async () => {
+      it('should return 400 when existing email', async () => {
         await app.objection.models.user.query().insert({
           firstName: 'foo',
           lastName: 'bar',
@@ -108,7 +108,7 @@ describe('Signup', () => {
           firstName: 'test',
           lastName: '',
         },
-      }].forEach(({ name, body }) => it(`returns 400 when ${name}`, async () => {
+      }].forEach(({ name, body }) => it(`should return 400 when ${name}`, async () => {
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/user',
