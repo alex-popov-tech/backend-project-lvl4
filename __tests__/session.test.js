@@ -1,19 +1,14 @@
-import knex from 'knex';
 import { internet } from 'faker';
-import config from '../knexfile';
-import app from '../server';
+import { launchApp, shutdownApp, clear } from './base.js';
 
 describe('Session', () => {
   let db;
-  let server;
+  let app;
   let user;
 
-  beforeAll(async () => {
-    db = knex(config.test);
-    await db.migrate.latest();
-    server = await app();
-    await server.objection.models.user.query().delete();
-    user = await server.objection.models.user.query().insert({
+  beforeEach(async () => {
+    await clear(app);
+    user = await app.objection.models.user.query().insert({
       firstName: 'foo',
       lastName: 'bar',
       email: internet.email(),
@@ -21,67 +16,38 @@ describe('Session', () => {
     });
   });
 
-  afterAll(async () => {
-    await server.close();
-    await db.destroy();
+  beforeAll(async () => {
+    ({ app, db } = await launchApp());
   });
 
-  describe('when using valid credentials', () => {
-    it('returns 302 and a cookie', async () => {
-      const res = await server.inject({
-        method: 'post',
-        url: '/session',
-        body: { email: user.email, password: 'test' },
-      });
-      expect(res.statusCode).toBe(302);
-      expect(res.headers['set-cookie']).toBeTruthy();
+  afterAll(async () => {
+    await shutdownApp(app, db);
+  });
+
+  it('returns 302 and a cookie when using valid credentials', async () => {
+    const res = await app.inject({
+      method: 'post',
+      url: '/session',
+      body: { email: user.email, password: 'test' },
     });
+    expect(res.statusCode).toBe(302);
+    expect(res.headers['set-cookie']).toBeTruthy();
   });
 
   describe('when using invalid credentials', () => {
-    it('returns 404 when empty email', async () => {
-      const res = await server.inject({
+    [
+      { name: 'empty email', body: { email: '', password: 'test' } },
+      { name: 'email does not match pattern', body: { email: 'aa.com', password: 'test' } },
+      { name: 'email not exist', body: { email: 'not@exist.com', password: 'test' } },
+      { name: 'empty password', body: { email: 'a@a.com', password: 'test' } },
+      { name: 'password does not match', body: { email: 'test@test.com', password: 'invalid' } },
+    ].forEach(({ name, body }) => it(`returns 404 when ${name}`, async () => {
+      const { statusCode } = await app.inject({
         method: 'post',
         url: '/session',
-        body: { email: '', password: 'test' },
+        body,
       });
-      expect(res.statusCode).toBe(404);
-    });
-
-    it('returns 404 when empty password', async () => {
-      const res = await server.inject({
-        method: 'post',
-        url: '/session',
-        body: { email: 'test@test.com', password: '' },
-      });
-      expect(res.statusCode).toBe(404);
-    });
-
-    it('returns 404 when email does not match pattern', async () => {
-      const res = await server.inject({
-        method: 'post',
-        url: '/session',
-        body: { email: 'aa.com', password: 'test' },
-      });
-      expect(res.statusCode).toBe(404);
-    });
-
-    it('returns 404 when user not found', async () => {
-      const res = await server.inject({
-        method: 'post',
-        url: '/session',
-        body: { email: 'invalid@user.com', password: 'test' },
-      });
-      expect(res.statusCode).toBe(404);
-    });
-
-    it('returns 404 when password do not match', async () => {
-      const res = await server.inject({
-        method: 'post',
-        url: '/session',
-        body: { email: 'test@test.com', password: 'invalid' },
-      });
-      expect(res.statusCode).toBe(404);
-    });
+      expect(statusCode).toBe(404);
+    }));
   });
 });

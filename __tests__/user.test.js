@@ -1,36 +1,26 @@
-import { internet } from 'faker';
-import knex from 'knex';
-import config from '../knexfile';
-import app from '../server';
+import { launchApp, shutdownApp, clear } from './base.js';
 
 describe('Signup', () => {
   let db;
-  let server;
-  let user;
+  let app;
+
+  beforeEach(async () => {
+    await clear(app);
+  });
 
   beforeAll(async () => {
-    db = knex(config.test);
-    await db.migrate.latest();
-    server = await app();
-    await server.objection.models.user.query().delete();
-    user = await server.objection.models.user.query().insert({
-      firstName: 'foo',
-      lastName: 'bar',
-      email: internet.email(),
-      password: 'test',
-    });
+    ({ app, db } = await launchApp());
   });
 
   afterAll(async () => {
-    await server.close();
-    await db.destroy();
+    await shutdownApp(app, db);
   });
 
-  describe('when using valid credentials', () => {
-    it('returns 302', async () => {
-      const res = await server.inject({
+  describe('create', () => {
+    it('returns 302 when using valid data', async () => {
+      const { statusCode } = await app.inject({
         method: 'post',
-        url: '/users',
+        url: '/user',
         body: {
           email: 'new@test.com',
           password: 'test',
@@ -38,92 +28,96 @@ describe('Signup', () => {
           lastName: 'test',
         },
       });
-      expect(res.statusCode).toBe(302);
-    });
-  });
-
-  describe('when using invalid credentials', () => {
-    it('returns 400 when existing email', async () => {
-      const res = await server.inject({
-        method: 'post',
-        url: '/users',
-        body: {
-          email: user.email,
-          password: 'test',
-          firstName: 'test',
-          lastName: 'test',
-        },
+      expect(statusCode).toBe(302);
+      const users = await app.objection.models.user.query();
+      expect(users).toHaveLength(1);
+      expect(users[0]).toMatchObject({
+        email: 'new@test.com',
+        firstName: 'test',
+        lastName: 'test',
       });
-      expect(res.statusCode).toBe(400);
     });
-    it('returns 400 when empty email', async () => {
-      const res = await server.inject({
-        method: 'post',
-        url: '/users',
+
+    describe('when using invalid data', () => {
+      it('returns 400 when existing email', async () => {
+        await app.objection.models.user.query().insert({
+          firstName: 'foo',
+          lastName: 'bar',
+          email: 'a@a.com',
+          password: 'test',
+        });
+        const { statusCode } = await app.inject({
+          method: 'post',
+          url: '/user',
+          body: {
+            email: 'a@a.com',
+            password: 'test',
+            firstName: 'test',
+            lastName: 'test',
+          },
+        });
+        expect(statusCode).toBe(400);
+        const users = await app.objection.models.user.query();
+        expect(users).toHaveLength(1);
+        expect(users[0]).toMatchObject({
+          email: 'a@a.com',
+          firstName: 'foo',
+          lastName: 'bar',
+        });
+      });
+
+      [{
+        name: 'empty email',
         body: {
           email: '',
           password: 'test',
           firstName: 'test',
           lastName: 'test',
         },
-      });
-      expect(res.statusCode).toBe(400);
-    });
-
-    it('returns 400 when empty password', async () => {
-      const res = await server.inject({
-        method: 'post',
-        url: '/users',
-        body: {
-          email: 'new@test.com',
-          password: 'test',
-          firstName: 'test',
-          lastName: 'test',
-        },
-      });
-      expect(res.statusCode).toBe(400);
-    });
-
-    it('returns 400 when email does not match pattern', async () => {
-      const res = await server.inject({
-        method: 'post',
-        url: '/users',
+      },
+      {
+        name: 'email does not match pattern',
         body: {
           email: 'newtest.com',
           password: 'test',
           firstName: 'test',
           lastName: 'test',
         },
-      });
-      expect(res.statusCode).toBe(400);
-    });
-
-    it('returns 400 when firstName is empty', async () => {
-      const res = await server.inject({
-        method: 'post',
-        url: '/users',
+      },
+      {
+        name: 'password empty',
+        body: {
+          email: 'new@test.com',
+          password: '',
+          firstName: 'test',
+          lastName: 'test',
+        },
+      }, {
+        name: 'firstName is empty',
         body: {
           email: 'new@test.com',
           password: 'test',
           firstName: '',
           lastName: 'test',
         },
-      });
-      expect(res.statusCode).toBe(400);
-    });
-
-    it('returns 400 when lastName is empty', async () => {
-      const res = await server.inject({
-        method: 'post',
-        url: '/users',
+      }, {
+        name: 'lastName is empty',
         body: {
           email: 'new@test.com',
           password: 'test',
           firstName: 'test',
           lastName: '',
         },
-      });
-      expect(res.statusCode).toBe(400);
+      }].forEach(({ name, body }) => it(`returns 400 when ${name}`, async () => {
+        const { statusCode } = await app.inject({
+          method: 'post',
+          url: '/user',
+          body,
+        });
+        expect(statusCode).toBe(400);
+        const users = await app.objection.models.user.query();
+        expect(users).toHaveLength(0);
+      }));
     });
   });
 });

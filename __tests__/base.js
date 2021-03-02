@@ -18,7 +18,7 @@ export const shutdownApp = async (server, db) => {
 };
 
 export const clear = async (server) => {
-    await server.objection.models.task.query().delete();
-    await server.objection.models.status.query().delete();
-    await server.objection.models.user.query().delete();
-}
+  await server.objection.models.task.query().delete();
+  await server.objection.models.status.query().delete();
+  await server.objection.models.user.query().delete();
+};
