@@ -35,19 +35,19 @@ describe('Session', () => {
   });
 
   describe('when using invalid credentials', () => {
-    [
-      { name: 'empty email', body: { email: '', password: 'test' } },
-      { name: 'email does not match pattern', body: { email: 'aa.com', password: 'test' } },
-      { name: 'email not exist', body: { email: 'not@exist.com', password: 'test' } },
-      { name: 'empty password', body: { email: 'a@a.com', password: 'test' } },
-      { name: 'password does not match', body: { email: 'test@test.com', password: 'invalid' } },
-    ].forEach(({ name, body }) => it(`should return 404 when ${name}`, async () => {
+    it.each([
+      ['empty email',{ email: '', password: 'test' } ],
+      ['email does not match pattern',{ email: 'aa.com', password: 'test' } ],
+      ['email not exist',{ email: 'not@exist.com', password: 'test' } ],
+      ['empty password',{ email: 'a@a.com', password: 'test' } ],
+      ['password does not match',{ email: 'test@test.com', password: 'invalid' } ],
+    ])('should return 404 when %s', async (_, body) => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/session',
         body,
       });
       expect(statusCode).toBe(404);
-    }));
+    });
   });
 });

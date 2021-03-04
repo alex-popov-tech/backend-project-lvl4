@@ -66,49 +66,24 @@ describe('Signup', () => {
         });
       });
 
-      [{
-        name: 'empty email',
-        body: {
-          email: '',
-          password: 'test',
-          firstName: 'test',
-          lastName: 'test',
+      it.each([
+        ['empty email', {
+          email: '', password: 'test', firstName: 'test', lastName: 'test',
+        }],
+        ['email does not match pattern', {
+          email: 'newtest.com', password: 'test', firstName: 'test', lastName: 'test',
         },
-      },
-      {
-        name: 'email does not match pattern',
-        body: {
-          email: 'newtest.com',
-          password: 'test',
-          firstName: 'test',
-          lastName: 'test',
+        ],
+        ['password empty', {
+          email: 'new@test.com', password: '', firstName: 'test', lastName: 'test',
         },
-      },
-      {
-        name: 'password empty',
-        body: {
-          email: 'new@test.com',
-          password: '',
-          firstName: 'test',
-          lastName: 'test',
+        ], ['firstName is empty', {
+          email: 'new@test.com', password: 'test', firstName: '', lastName: 'test',
         },
-      }, {
-        name: 'firstName is empty',
-        body: {
-          email: 'new@test.com',
-          password: 'test',
-          firstName: '',
-          lastName: 'test',
+        ], ['lastName is empty', {
+          email: 'new@test.com', password: 'test', firstName: 'test', lastName: '',
         },
-      }, {
-        name: 'lastName is empty',
-        body: {
-          email: 'new@test.com',
-          password: 'test',
-          firstName: 'test',
-          lastName: '',
-        },
-      }].forEach(({ name, body }) => it(`should return 400 when ${name}`, async () => {
+        ]])('should return 400 when %s', async (_, body) => {
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/user',
@@ -117,7 +92,7 @@ describe('Signup', () => {
         expect(statusCode).toBe(400);
         const users = await app.objection.models.user.query();
         expect(users).toHaveLength(0);
-      }));
+      });
     });
   });
 });
