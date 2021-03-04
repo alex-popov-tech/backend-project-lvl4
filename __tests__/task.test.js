@@ -32,7 +32,7 @@ describe('Task', () => {
     describe('when using valid data', () => {
       it('should return 302', async () => {
         const name = 'test task';
-        const description = 'test description';
+          const description= 'test description';
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/task',
@@ -58,22 +58,20 @@ describe('Task', () => {
     });
 
     describe('when using invalid data', () => {
-      [
-        { name: 'name', data: () => ({ description: 'test', status_id: existingStatus.id, creator_id: existingUser.id }) },
-        { name: 'description', data: () => ({ name: 'test', status_id: existingStatus.id, creator_id: existingUser.id }) },
-        { name: 'status', data: () => ({ name: 'test', description: 'test', creator_id: existingUser.id }) },
-        { name: 'creator', data: () => ({ name: 'test', description: 'test', status_id: existingStatus.id }) },
-      ].forEach(({ name, data }) => {
-        it(`should return 400 when missing required field ${name}`, async () => {
-          const { statusCode } = await app.inject({
-            method: 'post',
-            url: '/task',
-            body: data(),
-          });
-          expect(statusCode).toBe(400);
-          const tasks = await app.objection.models.task.query();
-          expect(tasks).toHaveLength(0);
+      it.each([
+        ['name', () => ({ description: 'test', status_id: existingStatus.id, creator_id: existingUser.id })],
+        ['description', () => ({ name: 'test', status_id: existingStatus.id, creator_id: existingUser.id })],
+        ['status', () => ({ name: 'test', description: 'test', creator_id: existingUser.id })],
+        ['creator', () => ({ name: 'test', description: 'test', status_id: existingStatus.id })],
+      ])('should return 400 when missing required field %s', async (_, data) => {
+        const { statusCode } = await app.inject({
+          method: 'post',
+          url: '/task',
+          body: data(),
         });
+        expect(statusCode).toBe(400);
+        const tasks = await app.objection.models.task.query();
+        expect(tasks).toHaveLength(0);
       });
     });
   });
