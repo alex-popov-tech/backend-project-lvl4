@@ -23,14 +23,23 @@ describe('Session', () => {
     await shutdownApp(app);
   });
 
-  it('should return 302 and a cookie when using valid credentials', async () => {
-    const res = await app.inject({
+  it('should login and logout when using valid credentials', async () => {
+    let res = await app.inject({
       method: 'post',
       url: '/session',
       body: { email: user.email, password: 'test' },
     });
     expect(res.statusCode).toBe(302);
-    expect(res.headers['set-cookie']).toBeTruthy();
+    const cookie = res.headers['set-cookie'];
+    expect(typeof cookie).toBe('string');
+    res = await app.inject({
+      method: 'delete',
+      url: '/session',
+      headers: {
+        Cookie: cookie
+      }
+    });
+    expect(res.statusCode).toBe(302);
   });
 
   describe('when using invalid credentials', () => {
