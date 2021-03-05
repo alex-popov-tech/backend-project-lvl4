@@ -39,9 +39,9 @@ describe('Task', () => {
           body: {
             name,
             description,
-            status_id: existingStatus.id,
-            creator_id: existingUser.id,
-            assigned_id: null,
+            statusId: existingStatus.id,
+            creatorId: existingUser.id,
+            assignedId: null,
           },
         });
         expect(statusCode).toBe(302);
@@ -59,10 +59,10 @@ describe('Task', () => {
 
     describe('when using invalid data', () => {
       it.each([
-        ['name', () => ({ description: 'test', status_id: existingStatus.id, creator_id: existingUser.id })],
-        ['description', () => ({ name: 'test', status_id: existingStatus.id, creator_id: existingUser.id })],
-        ['status', () => ({ name: 'test', description: 'test', creator_id: existingUser.id })],
-        ['creator', () => ({ name: 'test', description: 'test', status_id: existingStatus.id })],
+        ['name', () => ({ description: 'test', statusId: existingStatus.id, creatorId: existingUser.id })],
+        ['description', () => ({ name: 'test', statusId: existingStatus.id, creatorId: existingUser.id })],
+        ['status', () => ({ name: 'test', description: 'test', creatorId: existingUser.id })],
+        ['creator', () => ({ name: 'test', description: 'test', statusId: existingStatus.id })],
       ])('should return 400 when missing required field %s', async (_, data) => {
         const { statusCode } = await app.inject({
           method: 'post',
@@ -82,8 +82,8 @@ describe('Task', () => {
       existingTask = await app.objection.models.task.query().insert({
         name: 'test',
         description: 'test',
-        status_id: existingStatus.id,
-        creator_id: existingUser.id,
+        statusId: existingStatus.id,
+        creatorId: existingUser.id,
       });
     });
 
@@ -95,9 +95,9 @@ describe('Task', () => {
         id: existingTask.id,
         name: 'updated-name',
         description: 'updated-descr',
-        status_id: updatedStatus.id,
-        creator_id: existingUser.id,
-        assigned_id: existingUser.id,
+        statusId: updatedStatus.id,
+        creatorId: existingUser.id,
+        assignedId: existingUser.id,
       };
       const { statusCode } = await app.inject({
         method: 'put',
@@ -107,14 +107,7 @@ describe('Task', () => {
       expect(statusCode).toBe(302);
       const tasks = await app.objection.models.task.query();
       expect(tasks).toHaveLength(1);
-      expect(tasks[0]).toMatchObject({
-        id: updatedTask.id,
-        name: updatedTask.name,
-        description: updatedTask.description,
-        statusId: updatedTask.status_id,
-        creatorId: updatedTask.creator_id,
-        assignedId: updatedTask.assigned_id,
-      });
+      expect(tasks[0]).toMatchObject(updatedTask);
     });
   });
 
@@ -124,8 +117,8 @@ describe('Task', () => {
       existingTask = await app.objection.models.task.query().insert({
         name: 'test',
         description: 'test',
-        status_id: existingStatus.id,
-        creator_id: existingUser.id,
+        statusId: existingStatus.id,
+        creatorId: existingUser.id,
       });
     });
     it('should return 302', async () => {
