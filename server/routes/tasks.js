@@ -1,7 +1,8 @@
 export default (app) => {
   app
     .get('/task', async (req, reply) => {
-      const tasks = await app.objection.models.task.query().withGraphJoined('[status, creator, assigned]');
+      const filter = String(req.query.filter ?? '');
+      const tasks = await app.objection.models.task.query().where('tasks.name', 'like', `%${filter}%`).withGraphJoined('[status, creator, assigned]');
       await reply.render('task/index', { tasks });
     })
     .get('/task/new', async (req, reply) => {
