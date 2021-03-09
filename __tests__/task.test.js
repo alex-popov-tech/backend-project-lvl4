@@ -1,5 +1,5 @@
 import { internet } from 'faker';
-import { launchApp, shutdownApp, clear } from './base.js';
+import { launchApp, shutdownApp, clear } from './helpers.js';
 
 describe('Task', () => {
   let db;
