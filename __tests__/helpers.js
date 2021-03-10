@@ -18,7 +18,6 @@ export const shutdownApp = async (app, db) => {
 };
 
 export const clear = async (app) => {
-  await app.objection.models.task.query().delete();
-  await app.objection.models.status.query().delete();
-  await app.objection.models.user.query().delete();
+  await app.objection.knex.migrate.rollback();
+  await app.objection.knex.migrate.latest();
 };

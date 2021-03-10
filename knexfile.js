@@ -22,7 +22,7 @@ module.exports = {
   test: {
     client: 'sqlite3',
     connection: {
-      filename: 'file:memory?mode=memory',
+      filename: ':memory:',
     },
     useNullAsDefault: true,
     migrations,
