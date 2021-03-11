@@ -2,7 +2,6 @@ import { internet } from 'faker';
 import { launchApp, shutdownApp, clear } from './helpers.js';
 
 describe('Session', () => {
-  let db;
   let app;
   let user;
 
@@ -17,11 +16,11 @@ describe('Session', () => {
   });
 
   beforeAll(async () => {
-    ({ app, db } = await launchApp());
+    app = await launchApp();
   });
 
   afterAll(async () => {
-    await shutdownApp(app, db);
+    await shutdownApp(app);
   });
 
   it('should return 302 and a cookie when using valid credentials', async () => {
