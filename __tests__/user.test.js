@@ -1,7 +1,6 @@
 import { launchApp, shutdownApp, clear } from './helpers.js';
 
 describe('Signup', () => {
-  let db;
   let app;
 
   beforeEach(async () => {
@@ -9,11 +8,11 @@ describe('Signup', () => {
   });
 
   beforeAll(async () => {
-    ({ app, db } = await launchApp());
+    app = await launchApp();
   });
 
   afterAll(async () => {
-    await shutdownApp(app, db);
+    await shutdownApp(app);
   });
 
   describe('create', () => {
