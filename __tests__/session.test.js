@@ -36,8 +36,8 @@ describe('Session', () => {
       method: 'delete',
       url: '/session',
       headers: {
-        Cookie: cookie
-      }
+        Cookie: cookie,
+      },
     });
     expect(res.statusCode).toBe(302);
   });
