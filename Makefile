@@ -6,6 +6,8 @@ lint-fix:
 	npx eslint --fix .
 lint-watch:
 	npx nodemon --exec npx eslint .
+test:
+	npx jest
 test-watch:
 	npx jest --watch
 dev:
