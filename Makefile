@@ -1,9 +1,13 @@
 setup:
 	rm -rf node_modules; npm install
 lint:
-	npx eslint server
+	npx eslint .
+lint-fix:
+	npx eslint --fix .
 lint-watch:
-	npx nodemon --exec npx eslint server
+	npx nodemon --exec npx eslint .
+test:
+	npx jest
 test-watch:
 	npx jest --watch
 dev:

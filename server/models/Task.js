@@ -1,6 +1,6 @@
 import { Model } from 'objection';
-import Status from './status';
-import User from './user';
+import Status from './Status';
+import User from './User';
 
 export default class Task extends Model {
   static tableName = 'tasks';

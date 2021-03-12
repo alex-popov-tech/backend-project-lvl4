@@ -12,14 +12,14 @@ module.exports = {
   },
   devServer: {
     host: 'localhost',
-    port: 5001
+    port: 5001,
   },
   module: {
     rules: [
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader', 'postcss-loader']
-      }
-    ]
-  }
+        use: ['style-loader', 'css-loader', 'postcss-loader'],
+      },
+    ],
+  },
 };
