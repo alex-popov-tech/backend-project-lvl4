@@ -15,7 +15,7 @@ module.exports = {
     useNullAsDefault: true,
     migrations,
     seeds: {
-        directory: path.resolve('server', 'seeds'),
+      directory: path.resolve('server', 'seeds'),
     },
   },
 
