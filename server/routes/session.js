@@ -7,7 +7,7 @@ export default (app) => {
       const existingUser = await app.objection.models.user.query().findOne({
         email: req.body.email,
       });
-      console.log(existingUser)
+      console.log(existingUser);
 
       if (!existingUser) {
         await reply.code(404).render('session/new', {
