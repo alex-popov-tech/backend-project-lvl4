@@ -31,7 +31,7 @@ describe('Task', () => {
     describe('when using valid data', () => {
       it('should return 302', async () => {
         const name = 'test task';
-          const description= 'test description';
+        const description = 'test description';
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/task',
