@@ -18,15 +18,15 @@ export default (app) => {
     .post('/task', async (req, reply) => {
       try {
         const { name, description } = req.body;
-        const statusId = Number(req.body.status_id);
-        const creatorId = Number(req.body.creator_id);
-        const assignedId = Number(req.body.assigned_id);
+        const statusId = Number(req.body.statusId);
+        const creatorId = Number(req.body.creatorId);
+        const assignedId = Number(req.body.assignedId);
         const newTask = await app.objection.models.task.fromJson({
           name,
           description,
-          status_id: statusId,
-          creator_id: creatorId,
-          assigned_id: assignedId,
+          statusId,
+          creatorId,
+          assignedId,
         });
         await app.objection.models.task.query().insert(newTask);
         await reply.redirect('/task');
@@ -39,15 +39,15 @@ export default (app) => {
     .put('/task', async (req, reply) => {
       try {
         const { name, description } = req.body;
-        const statusId = Number(req.body.status_id);
-        const creatorId = Number(req.body.creator_id);
-        const assignedId = Number(req.body.assigned_id);
+        const statusId = Number(req.body.statusId);
+        const creatorId = Number(req.body.creatorId);
+        const assignedId = Number(req.body.assignedId);
         const updatedTask = await app.objection.models.task.fromJson({
           name,
           description,
-          status_id: statusId,
-          creator_id: creatorId,
-          assigned_id: assignedId,
+          statusId,
+          creatorId,
+          assignedId,
         });
         const existingtask = await app.objection.models.task.query().findById(req.body.id);
         await existingtask.$query().patch(updatedTask);

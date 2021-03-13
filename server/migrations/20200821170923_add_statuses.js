@@ -8,5 +8,5 @@ exports.up = function (knex) {
 };
 
 exports.down = function (knex) {
-  return knex.schema.dropTable('status_types');
+  return knex.schema.dropTable('statuses');
 };

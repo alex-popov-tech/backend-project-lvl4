@@ -36,14 +36,14 @@ export default class Task extends Model {
 
   static jsonSchema = {
     type: 'object',
-    required: ['name', 'description', 'status_id', 'creator_id'],
+    required: ['name', 'description', 'statusId', 'creatorId'],
     properties: {
       id: { type: 'integer' },
       name: { type: 'string', minLength: 3 },
       description: { type: 'string', minLength: 3 },
-      status_id: { type: 'integer' },
-      creator_id: { type: 'integer' },
-      assigned_id: { type: ['integer', 'null'] },
+      statusId: { type: 'integer' },
+      creatorId: { type: 'integer' },
+      assignedId: { type: ['integer', 'null'] },
     },
   };
 }

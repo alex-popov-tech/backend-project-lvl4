@@ -1,121 +1,104 @@
-import knex from 'knex';
 import { random } from 'faker';
-import config from '../knexfile';
-import app from '../server';
+import { launchApp, shutdownApp, clear } from './helpers.js';
 
 describe('Status', () => {
-  let db;
-  let server;
-  let existingStatus;
+  let app;
 
   beforeAll(async () => {
-    db = knex(config.test);
-    await db.migrate.latest();
-    server = await app();
-  });
-
-  beforeEach(async () => {
-    await server.objection.models.status.query().delete();
-    existingStatus = await server.objection.models.status.query().insert({
-      name: random.word(),
-    });
+    app = await launchApp();
   });
 
   afterAll(async () => {
-    await server.close();
-    await db.destroy();
+    await shutdownApp(app);
   });
 
-  describe('read', () => {
-    it('should return 200', async () => {
-      const res = await server.inject({
-        method: 'get',
-        url: '/statuses',
-      });
-      expect(res.statusCode).toBe(200);
-    });
+  beforeEach(async () => {
+    await clear(app);
   });
 
   describe('create', () => {
-    describe('when using valid name', () => {
-      it('should return 302', async () => {
-        const res = await server.inject({
-          method: 'post',
-          url: '/statuses',
-          body: {
-            name: 'name',
-          },
-        });
-        expect(res.statusCode).toBe(302);
+    it('should return 302 when using valid name', async () => {
+      const status = {
+        name: random.word(),
+      };
+      const { statusCode } = await app.inject({
+        method: 'post',
+        url: '/status',
+        body: status,
       });
+      expect(statusCode).toBe(302);
+      const statuses = await app.objection.models.status.query();
+      expect(statuses).toHaveLength(1);
+      expect(statuses[0]).toMatchObject(status);
     });
-    describe('when using existing name', () => {
-      it('should return 400', async () => {
-        const res = await server.inject({
-          method: 'post',
-          url: '/statuses',
-          body: {
-            name: existingStatus.name,
-          },
-        });
-        expect(res.statusCode).toBe(400);
+
+    it('should return 400 when using existing name', async () => {
+      const existingStatus = await app.objection.models.status.query().insert({
+        name: random.word(),
       });
+      const { statusCode } = await app.inject({
+        method: 'post',
+        url: '/status',
+        body: {
+          name: existingStatus.name,
+        },
+      });
+      expect(statusCode).toBe(400);
+      const statuses = await app.objection.models.status.query();
+      expect(statuses).toHaveLength(1);
     });
   });
 
   describe('update', () => {
-    describe('when using valid name', () => {
-      it('should return 302', async () => {
-        const res = await server.inject({
-          method: 'put',
-          url: '/statuses',
-          body: {
-            id: existingStatus.id,
-            name: 'new name',
-          },
-        });
-        expect(res.statusCode).toBe(302);
+    let existingStatus;
+    beforeEach(async () => {
+      existingStatus = await app.objection.models.status.query().insert({
+        name: random.word(),
       });
     });
-    describe('when using existing name', () => {
-      it('should return 302', async () => {
-        const res = await server.inject({
-          method: 'put',
-          url: '/statuses',
-          body: {
-            id: existingStatus.id,
-            name: existingStatus.name,
-          },
-        });
-        expect(res.statusCode).toBe(302);
+
+    it('should return 302 when using valid name', async () => {
+      const { statusCode } = await app.inject({
+        method: 'put',
+        url: '/status',
+        body: {
+          id: existingStatus.id,
+          name: 'new name',
+        },
       });
+      expect(statusCode).toBe(302);
+      const statuses = await app.objection.models.status.query();
+      expect(statuses).toHaveLength(1);
+      expect(statuses[0]).toMatchObject({ name: 'new name' });
     });
   });
 
   describe('delete', () => {
-    describe('when using valid id', () => {
-      it('should return 302', async () => {
-        const res = await server.inject({
-          method: 'delete',
-          url: '/statuses',
-          body: {
-            id: existingStatus.id,
-          },
-        });
-        expect(res.statusCode).toBe(302);
+    it('should return 302 when using valid id', async () => {
+      const existingStatus = await app.objection.models.status.query().insert({
+        name: random.word(),
       });
-    });
-    describe('when using invalid id', () => {
-      it('should return 302', async () => {
-        const res = await server.inject({
-          method: 'delete',
-          url: '/statuses',
-          body: {
-            id: -1,
-          },
-        });
-        expect(res.statusCode).toBe(302);
+      const { statusCode } = await app.inject({
+        method: 'delete',
+        url: '/status',
+        body: {
+          id: existingStatus.id,
+        },
       });
+      expect(statusCode).toBe(302);
+      const statuses = await app.objection.models.status.query();
+      expect(statuses).toHaveLength(0);
     });
+  });
+
+  it('should return 302 when using invalid id', async () => {
+    const res = await app.inject({
+      method: 'delete',
+      url: '/status',
+      body: {
+        id: -1,
+      },
+    });
+    expect(res.statusCode).toBe(302);
   });
 });
