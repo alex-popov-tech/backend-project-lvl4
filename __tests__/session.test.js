@@ -1,12 +1,12 @@
 import { internet } from 'faker';
-import { launchApp, shutdownApp, clear } from './helpers.js';
+import { launchApp, shutdownApp, clearDatabaseState } from './helpers.js';
 
 describe('Session', () => {
   let app;
   let user;
 
   beforeEach(async () => {
-    await clear(app);
+    await clearDatabaseState(app);
     user = await app.objection.models.user.query().insert({
       firstName: 'foo',
       lastName: 'bar',
