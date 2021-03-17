@@ -1,5 +1,5 @@
 import { random } from 'faker';
-import { launchApp, shutdownApp, clear } from './helpers.js';
+import { launchApp, shutdownApp, clearDatabaseState } from './helpers.js';
 
 describe('Status', () => {
   let app;
@@ -13,7 +13,7 @@ describe('Status', () => {
   });
 
   beforeEach(async () => {
-    await clear(app);
+    await clearDatabaseState(app);
   });
 
   describe('create', () => {

@@ -1,10 +1,10 @@
-import { launchApp, shutdownApp, clear } from './helpers.js';
+import { launchApp, shutdownApp, clearDatabaseState } from './helpers.js';
 
 describe('Signup', () => {
   let app;
 
   beforeEach(async () => {
-    await clear(app);
+    await clearDatabaseState(app);
   });
 
   beforeAll(async () => {

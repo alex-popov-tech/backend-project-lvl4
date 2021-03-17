@@ -11,7 +11,8 @@ export const shutdownApp = async (app) => {
   await app.objection.knex.destroy();
 };
 
-export const clear = async (app) => {
+export const clearDatabaseState = async (app) => {
+  // rollback and migrate to prune database
   await app.objection.knex.migrate.rollback();
   await app.objection.knex.migrate.latest();
 };
