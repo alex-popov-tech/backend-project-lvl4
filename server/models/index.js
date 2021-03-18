@@ -1,5 +1,6 @@
 import User from './User';
 import Status from './Status';
-import Task from './Task';
+import Label from './label';
+import Task from './task';
 
-export default [User, Status, Task];
+export default [User, Status, Label, Task];

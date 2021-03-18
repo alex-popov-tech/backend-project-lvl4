@@ -1,58 +1,71 @@
 export default (app) => {
   app
     .get('/task', async (req, reply) => {
-      const tasks = await app.objection.models.task.query().withGraphJoined('[status, creator, assigned]');
+      const tasks = await app.objection.models.task.query().withGraphJoined('[status, creator, assigned, labels]');
       await reply.render('task/index', { tasks });
     })
     .get('/task/new', async (req, reply) => {
       const statuses = await app.objection.models.status.query();
+      const labels = await app.objection.models.label.query();
       const users = await app.objection.models.user.query();
-      await reply.render('task/new', { data: { statuses, users }, errors: [] });
+      await reply.render('task/new', { data: { statuses, users, labels }, errors: [] });
     })
     .get('/task/edit/:id', async (req, reply) => {
       const task = await app.objection.models.task.query().findById(req.params.id);
       const statuses = await app.objection.models.status.query();
+      const labels = await app.objection.models.label.query();
       const users = await app.objection.models.user.query();
-      await reply.render('task/edit', { data: { statuses, users, task }, errors: [] });
+      await reply.render('task/edit', {
+        data: {
+          statuses, users, task, labels,
+        },
+        errors: [],
+      });
     })
     .post('/task', async (req, reply) => {
       try {
-        const { name, description } = req.body;
-        const statusId = Number(req.body.statusId);
-        const creatorId = Number(req.body.creatorId);
-        const assignedId = Number(req.body.assignedId);
-        const newTask = await app.objection.models.task.fromJson({
-          name,
-          description,
-          statusId,
-          creatorId,
-          assignedId,
+        await app.objection.models.task.query().insertGraph({
+          name: req.body.name,
+          description: req.body.description,
+          statusId: Number(req.body.statusId),
+          labels: [req.body.labelIds].flat()
+            .filter((it) => !!it)
+            .map((labelId) => ({ id: Number(labelId) })),
+          creatorId: Number(req.body.creatorId),
+          assignedId: Number(req.body.assignedId),
+        }, {
+          relate: true,
         });
-        await app.objection.models.task.query().insert(newTask);
         await reply.redirect('/task');
       } catch ({ message, data }) {
+        console.log(message, JSON.stringify(data));
         const statuses = await app.objection.models.status.query();
         const users = await app.objection.models.user.query();
-        await reply.code(400).render('task/new', { data: { ...req.body, statuses, users }, errors: data });
+        const labels = await app.objection.models.label.query();
+        await reply.code(400).render('task/new', {
+          data: {
+            ...req.body, statuses, users, labels,
+          },
+          errors: data,
+        });
       }
     })
     .put('/task', async (req, reply) => {
       try {
-        const { name, description } = req.body;
-        const statusId = Number(req.body.statusId);
-        const creatorId = Number(req.body.creatorId);
-        const assignedId = Number(req.body.assignedId);
-        const updatedTask = await app.objection.models.task.fromJson({
-          name,
-          description,
-          statusId,
-          creatorId,
-          assignedId,
-        });
-        const existingtask = await app.objection.models.task.query().findById(req.body.id);
-        await existingtask.$query().patch(updatedTask);
+        await app.objection.models.task.query().upsertGraph({
+          id: Number(req.body.id),
+          name: req.body.name,
+          description: req.body.description,
+          statusId: Number(req.body.statusId),
+          labels: [req.body.labelIds].flat()
+            .filter((it) => !!it)
+            .map((labelId) => ({ id: Number(labelId) })),
+          creatorId: Number(req.body.creatorId),
+          assignedId: Number(req.body.assignedId),
+        }, { relate: true, unrelate: true });
         await reply.redirect('/task');
       } catch ({ message, data }) {
+        console.log(message, JSON.stringify(data));
         const statuses = await app.objection.models.status.query();
         const users = await app.objection.models.user.query();
         await reply.code(400).render('task/edit', { data: { task: req.body, statuses, users }, errors: data });

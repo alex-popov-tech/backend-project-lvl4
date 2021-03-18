@@ -9,6 +9,7 @@ block content
         th= 'Name'
         th= 'Description'
         th= 'Status'
+        th= 'Labels'
         th= 'Creator'
         th= 'Assignee'
         th= 'Action'
@@ -18,6 +19,7 @@ block content
           td= task.name
           td= task.description
           td= task.status.name
+          td= task.labels.map(({ name }) => name).join(', ')
           td= `${task.creator.firstName} ${task.creator.lastName}`
           td= task.assigned ? `${task.assigned.firstName} ${task.assigned.lastName}` : 'none'
           td

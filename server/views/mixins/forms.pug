@@ -17,6 +17,19 @@ mixin select(name, options, errors= [])
     if errors.length
       .form-control-feedback=errors.map(({ message }) => message).join('\n')
 
+mixin multiselect(name, options, errors= [])
+  .form-group(class=(errors && 'has-danger'))
+    label=name
+    select(
+      name=name
+      class='form-control'
+      multiple
+    )&attributes(attributes)
+      each option in options
+        option(value=option.id)= option.toString()
+    if errors.length
+      .form-control-feedback=errors.map(({ message }) => message).join('\n')
+
 mixin input(name, value = '', errors = [])
   .form-group(class=(errors && 'has-danger'))
     label=name

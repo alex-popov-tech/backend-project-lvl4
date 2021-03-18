@@ -1,6 +1,7 @@
 import { Model } from 'objection';
 import Status from './Status';
 import User from './User';
+import Label from './Label';
 
 export default class Task extends Model {
   static tableName = 'tasks';
@@ -8,6 +9,18 @@ export default class Task extends Model {
   static pickJsonSchemaProperties = true;
 
   static relationMappings = {
+    labels: {
+      relation: Model.ManyToManyRelation,
+      modelClass: Label,
+      join: {
+        from: 'tasks.id',
+        through: {
+          from: 'tasks_labels.task_id',
+          to: 'tasks_labels.label_id',
+        },
+        to: 'labels.id',
+      },
+    },
     status: {
       relation: Model.HasOneRelation,
       modelClass: Status,
