@@ -38,7 +38,6 @@ export default (app) => {
         });
         await reply.redirect('/task');
       } catch ({ message, data }) {
-        console.log(message, JSON.stringify(data));
         const statuses = await app.objection.models.status.query();
         const users = await app.objection.models.user.query();
         const labels = await app.objection.models.label.query();

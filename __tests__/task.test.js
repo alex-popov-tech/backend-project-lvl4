@@ -4,6 +4,7 @@ import { launchApp, shutdownApp, clearDatabaseState } from './helpers.js';
 describe('Task', () => {
   let app;
   let existingStatus;
+  let existingLabel;
   let existingUser;
 
   beforeAll(async () => {
@@ -16,14 +17,19 @@ describe('Task', () => {
 
   beforeEach(async () => {
     await clearDatabaseState(app);
+    existingStatus = await app.objection.models.status.query().insert({
+      name: 'test status',
+    });
+    existingLabel = await app.objection.models.label.query().insert({
+      name: 'test label',
+    });
     existingUser = await app.objection.models.user.query().insert({
       firstName: 'foo',
       lastName: 'bar',
       email: internet.email(),
       password: 'test',
-    });
-    existingStatus = await app.objection.models.status.query().insert({
-      name: 'test status',
+      labelIds: existingLabel.id,
+      statusId: existingStatus.id,
     });
   });
 
@@ -41,6 +47,7 @@ describe('Task', () => {
             statusId: existingStatus.id,
             creatorId: existingUser.id,
             assignedId: null,
+            labelIds: existingLabel.id,
           },
         });
         expect(statusCode).toBe(302);
@@ -52,6 +59,11 @@ describe('Task', () => {
           description,
           statusId: existingStatus.id,
           creatorId: existingUser.id,
+        });
+        const labels = await tasks[0].$relatedQuery('labels');
+        expect(labels).toHaveLength(1);
+        expect(labels[0]).toMatchObject({
+          name: existingLabel.name,
         });
       });
     });
@@ -87,6 +99,9 @@ describe('Task', () => {
     });
 
     it('should return 302 when using valid data', async () => {
+      const newLabel = await app.objection.models.label.query().insert({
+        name: 'new label',
+      });
       const updatedStatus = await app.objection.models.status.query().insert({
         name: 'test updated',
       });
@@ -101,12 +116,20 @@ describe('Task', () => {
       const { statusCode } = await app.inject({
         method: 'put',
         url: '/task',
-        body: updatedTask,
+        body: {
+          ...updatedTask,
+          labelIds: newLabel.id,
+        },
       });
       expect(statusCode).toBe(302);
       const tasks = await app.objection.models.task.query();
       expect(tasks).toHaveLength(1);
       expect(tasks[0]).toMatchObject(updatedTask);
+      const labels = await tasks[0].$relatedQuery('labels');
+      expect(labels).toHaveLength(1);
+      expect(labels[0]).toMatchObject({
+        name: newLabel.name,
+      });
     });
   });
 
@@ -118,6 +141,7 @@ describe('Task', () => {
         description: 'test',
         statusId: existingStatus.id,
         creatorId: existingUser.id,
+        labelIds: existingLabel.id,
       });
     });
     it('should return 302', async () => {
@@ -131,6 +155,8 @@ describe('Task', () => {
       expect(statusCode).toBe(302);
       const tasks = await app.objection.models.task.query();
       expect(tasks).toHaveLength(0);
+      const labels = await existingTask.$relatedQuery('labels');
+      expect(labels).toHaveLength(0);
     });
   });
 });
