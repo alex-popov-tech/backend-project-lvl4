@@ -89,16 +89,15 @@ describe('Label', () => {
       const labels = await app.objection.models.label.query();
       expect(labels).toHaveLength(0);
     });
-  it('should return 302 when using invalid id', async () => {
-    const res = await app.inject({
-      method: 'delete',
-      url: '/label',
-      body: {
-        id: -1,
-      },
+    it('should return 302 when using invalid id', async () => {
+      const res = await app.inject({
+        method: 'delete',
+        url: '/label',
+        body: {
+          id: -1,
+        },
+      });
+      expect(res.statusCode).toBe(302);
     });
-    expect(res.statusCode).toBe(302);
   });
-  });
-
 });
