@@ -13,8 +13,7 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "testRegex": "__tests__/.*.test.js",
-    "setupFiles": ["dotenv/config"]
+    "testRegex": "__tests__/.*.test.js"
   },
   "repository": {
     "type": "git",
