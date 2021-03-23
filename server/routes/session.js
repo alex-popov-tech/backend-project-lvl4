@@ -1,7 +1,7 @@
 export default (app) => {
   app
     .get('/session/new', async (req, reply) => {
-      await reply.render('session/new', { data: {}, errors: {} });
+      await reply.render('session/new', { data: { user: { email: '', password: '' } }, errors: {} });
     })
     .post('/session', async (req, reply) => {
       const existingUser = await app.objection.models.user.query().findOne({
@@ -9,7 +9,7 @@ export default (app) => {
       });
       if (!existingUser) {
         await reply.code(404).render('session/new', {
-          data: { email: req.body.email },
+          data: { user: { email: req.body.email } },
           errors: { email: [{ message: 'User with such email does not exist' }] },
         });
         return;
@@ -18,7 +18,7 @@ export default (app) => {
       const passwordMatch = await existingUser.verifyPassword(req.body.password);
       if (!passwordMatch) {
         await reply.code(404).render('session/new', {
-          data: { email: req.body.email },
+          data: { user: { email: req.body.email } },
           errors: { password: [{ message: 'Password does not match' }] },
         });
         return;

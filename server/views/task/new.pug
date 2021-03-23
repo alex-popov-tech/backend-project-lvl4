@@ -5,8 +5,8 @@ block header
 
 block content
   +formFor()(action='/task' method='post')
-    +input('Name', data.name, errors.name)(name='name')
-    +input('Description', data.description, errors.description)(name='description')
+    +input('Name', data.task.name, errors.name)(name='name')
+    +input('Description', data.task.description, errors.description)(name='description')
     +select('Status', data.statuses, errors.statusId)(name='statusId')
     +multiselect('Labels', data.labels, errors.labels)(name='labelIds')
     +select('Creator', data.users, errors.creatorId)(name='creatorId')

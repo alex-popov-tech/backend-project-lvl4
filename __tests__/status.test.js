@@ -17,7 +17,7 @@ describe('Status', () => {
   });
 
   describe('create', () => {
-    it('should return 302 when using valid name', async () => {
+    it('should create entity and return 302 when using valid name', async () => {
       const status = {
         name: random.word(),
       };
@@ -32,7 +32,7 @@ describe('Status', () => {
       expect(statuses[0]).toMatchObject(status);
     });
 
-    it('should return 400 when using existing name', async () => {
+    it('should not create entity and return 400 when using existing name', async () => {
       const existingStatus = await app.objection.models.status.query().insert({
         name: random.word(),
       });
@@ -57,7 +57,7 @@ describe('Status', () => {
       });
     });
 
-    it('should return 302 when using valid name', async () => {
+    it('should update entity and return 302 when using valid name', async () => {
       const { statusCode } = await app.inject({
         method: 'put',
         url: '/status',
@@ -74,7 +74,7 @@ describe('Status', () => {
   });
 
   describe('delete', () => {
-    it('should return 302 when using valid id', async () => {
+    it('should delete entity and return 302 when using valid id', async () => {
       const existingStatus = await app.objection.models.status.query().insert({
         name: random.word(),
       });

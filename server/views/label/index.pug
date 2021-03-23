@@ -6,10 +6,10 @@ block content
       input(class='btn btn-primary' type='submit' value='Add')
     thead
       tr
-        th= 'label Name'
+        th= 'Label Name'
         th= 'Action'
     tbody
-      each label in labeles
+      each label in data.labels
         tr
           td= label.name
           td

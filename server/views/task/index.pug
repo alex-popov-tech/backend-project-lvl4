@@ -14,7 +14,7 @@ block content
         th= 'Assignee'
         th= 'Action'
     tbody
-      each task in tasks
+      each task in data.tasks
         tr
           td= task.name
           td= task.description

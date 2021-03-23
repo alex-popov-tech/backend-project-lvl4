@@ -1,0 +1,13 @@
+extends ../layouts/application.pug
+
+block header
+  ='Edit'
+
+block content
+  +formFor()(action='/data.user.' method='post')
+    +input('firstName', data.user.firstName, errors.firstName)(type="text")
+    +input('lastName', data.user.lastName, errors.lastName)(type="text")
+    +input('email', data.user.email, errors.email)(type="text")
+    +input('password', '', errors.password)(type="password")
+    input(name="_method" type="hidden" value="PUT")
+    +submit()(value='Save')

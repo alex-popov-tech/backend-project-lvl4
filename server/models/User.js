@@ -10,9 +10,7 @@ export default class User extends unique(password(Model)) {
     return 'users';
   }
 
-  static get pickJsonSchemaProperties() {
-    return true;
-  }
+  static pickJsonSchemaProperties = true;
 
   static get jsonSchema() {
     return {

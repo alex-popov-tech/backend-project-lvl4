@@ -11,7 +11,7 @@ html(lang="en").h-100
       if reply.request.currentUser
         ul.navbar-nav.mr-auto
           li.nav-item
-            a.nav-link(href='/users') Users
+            a.nav-link(href='/user') Users
         ul.navbar-nav.mr-auto
           li.nav-item
             a.nav-link(href='/status') Statuses
@@ -24,7 +24,7 @@ html(lang="en").h-100
       up.navbar-nav
         if !reply.request.currentUser
           li.nav-item
-            a.nav-link(href='/users/new') Sign Up
+            a.nav-link(href='/user/new') Sign Up
           li.nav-item
             a.nav-link(href='/session/new') Sign In
         else

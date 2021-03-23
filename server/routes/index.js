@@ -1,9 +1,9 @@
 import welcome from './welcome';
-import users from './users';
+import user from './user';
 import session from './session';
 import status from './status';
 import label from './label';
-import tasks from './tasks';
+import task from './task';
 
-export default (app) => [welcome, users, session, status, label, tasks]
+export default (app) => [welcome, user, session, status, label, task]
   .forEach((routes) => routes(app));

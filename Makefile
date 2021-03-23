@@ -15,4 +15,4 @@ dev:
 seed:
 	npx knex seed:run
 migrations:
-	npx knex migration:latest
+	npx knex migrate:latest

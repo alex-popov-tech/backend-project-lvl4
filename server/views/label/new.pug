@@ -5,5 +5,5 @@ block header
 
 block content
   +formFor()(action='/label' method='post')
-    +input('name', data.name, errors.name)(type="name")
+    +input('name', data.label.name, errors.name)(type="name")
     +submit()(value='Add label')

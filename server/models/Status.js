@@ -8,16 +8,13 @@ export default class Status extends unique(Model) {
     return 'statuses';
   }
 
-  static get pickJsonSchemaProperties() {
-    return true;
-  }
+  static pickJsonSchemaProperties = true;
 
   static get jsonSchema() {
     return {
       type: 'object',
       required: ['name'],
       properties: {
-        id: { type: 'integer' },
         name: { type: 'string', minLength: 2 },
       },
     };

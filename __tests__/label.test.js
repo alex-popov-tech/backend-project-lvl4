@@ -17,7 +17,7 @@ describe('Label', () => {
   });
 
   describe('create', () => {
-    it('should return 302 when using valid name', async () => {
+    it('should create entity and return 302 when using valid name', async () => {
       const status = {
         name: random.word(),
       };
@@ -32,7 +32,7 @@ describe('Label', () => {
       expect(labels[0]).toMatchObject(status);
     });
 
-    it('should return 400 when using existing name', async () => {
+    it('should not create entity and return 400 when using existing name', async () => {
       const existingLabel = await app.objection.models.label.query().insert({
         name: random.word(),
       });
@@ -57,7 +57,7 @@ describe('Label', () => {
       });
     });
 
-    it('should return 302 when using valid name', async () => {
+    it('should update entity and return 302 when using valid name', async () => {
       const { statusCode } = await app.inject({
         method: 'put',
         url: '/label',
@@ -74,7 +74,7 @@ describe('Label', () => {
   });
 
   describe('delete', () => {
-    it('should return 302 when using valid id', async () => {
+    it('should delete entity return 302 when using valid id', async () => {
       const existingLabel = await app.objection.models.label.query().insert({
         name: random.word(),
       });
@@ -89,6 +89,7 @@ describe('Label', () => {
       const labels = await app.objection.models.label.query();
       expect(labels).toHaveLength(0);
     });
+
     it('should return 302 when using invalid id', async () => {
       const res = await app.inject({
         method: 'delete',

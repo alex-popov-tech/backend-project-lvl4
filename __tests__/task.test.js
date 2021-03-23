@@ -35,7 +35,7 @@ describe('Task', () => {
 
   describe('create', () => {
     describe('when using valid data', () => {
-      it('should return 302', async () => {
+      it('should create entity and return 302', async () => {
         const name = 'test task';
         const description = 'test description';
         const { statusCode } = await app.inject({
@@ -74,7 +74,7 @@ describe('Task', () => {
         ['description', () => ({ name: 'test', statusId: existingStatus.id, creatorId: existingUser.id })],
         ['status', () => ({ name: 'test', description: 'test', creatorId: existingUser.id })],
         ['creator', () => ({ name: 'test', description: 'test', statusId: existingStatus.id })],
-      ])('should return 400 when missing required field %s', async (_, data) => {
+      ])('should not create entity and return 400 when missing required field %s', async (_, data) => {
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/task',
@@ -98,7 +98,7 @@ describe('Task', () => {
       });
     });
 
-    it('should return 302 when using valid data', async () => {
+    it('should update entity and return 302 when using valid data', async () => {
       const newLabel = await app.objection.models.label.query().insert({
         name: 'new label',
       });
@@ -144,7 +144,7 @@ describe('Task', () => {
         labelIds: existingLabel.id,
       });
     });
-    it('should return 302', async () => {
+    it('should delete entity and return 302', async () => {
       const { statusCode } = await app.inject({
         method: 'delete',
         url: '/task',
@@ -157,6 +157,7 @@ describe('Task', () => {
       expect(tasks).toHaveLength(0);
       const labels = await existingTask.$relatedQuery('labels');
       expect(labels).toHaveLength(0);
+      expect(await app.objection.models.label.query()).toHaveLength(1);
     });
   });
 });

@@ -49,7 +49,7 @@ describe('Session', () => {
       ['email not exist', { email: 'not@exist.com', password: 'test' }],
       ['empty password', { email: 'a@a.com', password: 'test' }],
       ['password does not match', { email: 'test@test.com', password: 'invalid' }],
-    ])('should return 404 when %s', async (_, body) => {
+    ])('should not allow login and return 404 when %s', async (_, body) => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/session',

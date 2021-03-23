@@ -5,6 +5,6 @@ block header
 
 block content
   +formFor()(action='/session' method='post')
-    +input('email', data.email, errors.email)(type="text")
-    +input('password', data.password, errors.password)(type="password")
+    +input('email', data.user.email, errors.email)(type="text")
+    +input('password', data.user.password, errors.password)(type="password")
     +submit()(value='Sign In')
