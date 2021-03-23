@@ -1,8 +1,10 @@
 name: Node CI
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   verify:
@@ -15,7 +17,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '13.x'
-      - name: Install
+      - name: Setup
         run: make setup
       - name: Build
         run: npm run build
