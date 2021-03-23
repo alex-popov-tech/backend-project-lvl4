@@ -5,7 +5,7 @@ preparations:
 	cp -n .env.example .env;
 
 migrations:
-	npx knex migration:latest
+	npx knex migrate:latest
 seeds:
 	npx knex seed:run
 
