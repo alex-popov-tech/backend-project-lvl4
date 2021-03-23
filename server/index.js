@@ -80,8 +80,8 @@ const plugins = async (app) => {
 };
 const session = async (app) => {
   await app.register(fastifySecureSession, {
-    secret: 'averylogphrasebiggerthanthirtytwochars',
-    salt: 'mq9hDxBVDbspDR6n',
+    secret: process.env.SECRET,
+    salt: process.env.SALT,
   });
   app.addHook('preHandler', async (req) => {
     const userId = req.session.get('userId');
