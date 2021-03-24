@@ -19,7 +19,7 @@ export default (app) => {
     })
     .get('/tasks/edit/:id', async (req, reply) => {
       const [task, statuses, labels, users] = await Promise.all([
-      app.objection.models.task.query().findById(req.params.id),
+        app.objection.models.task.query().findById(req.params.id),
         app.objection.models.status.query(),
         app.objection.models.label.query(),
         app.objection.models.user.query(),
@@ -50,7 +50,7 @@ export default (app) => {
           }));
         await reply.redirect('/tasks');
       } catch ({ message, data }) {
-        const task = new app.objection.models.task()
+        const task = new app.objection.models.task();
         task.$set(req.body);
         const [statuses, labels, users] = await Promise.all([
           app.objection.models.status.query(),
@@ -83,7 +83,7 @@ export default (app) => {
           }, { relate: true, unrelate: true, noDelete: true }));
         await reply.redirect('/tasks');
       } catch ({ message, data }) {
-        const task = new app.objection.models.task()
+        const task = new app.objection.models.task();
         task.$set(req.body);
         const [statuses, labels, users] = await Promise.all([
           app.objection.models.status.query(),

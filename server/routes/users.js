@@ -18,7 +18,7 @@ export default (app) => {
       } catch ({ data }) {
         const user = new app.objection.models.user();
         user.$set(req.body);
-        await reply.code(400).render('users/new', { data: { user}, errors: data });
+        await reply.code(400).render('users/new', { data: { user }, errors: data });
       }
     })
     .patch('/users', async (req, reply) => {
@@ -28,9 +28,9 @@ export default (app) => {
         await existingUser.$query().patch(updatedUser);
         await reply.redirect('/userss');
       } catch ({ data }) {
-      const user = new app.objection.models.user();
-      user.$set(req.body);
-        await reply.code(400).render('users/edit', { data: { user}, errors: data });
+        const user = new app.objection.models.user();
+        user.$set(req.body);
+        await reply.code(400).render('users/edit', { data: { user }, errors: data });
       }
     })
     .delete('/users', async (req, reply) => {
