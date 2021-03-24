@@ -1,15 +1,17 @@
 export default (app) => {
   app
-    .get('/session/new', async (req, reply) => {
-      await reply.render('session/new', { data: { user: { email: '', password: '' } }, errors: {} });
+    .get('/sessions/new', async (req, reply) => {
+      await reply.render('sessions/new', { data: { user: {} }, errors: {} });
     })
-    .post('/session', async (req, reply) => {
+    .post('/sessions', async (req, reply) => {
       const existingUser = await app.objection.models.user.query().findOne({
         email: req.body.email,
       });
       if (!existingUser) {
-        await reply.code(404).render('session/new', {
-          data: { user: { email: req.body.email } },
+        const user = new app.objection.models.user();
+        user.$set(req.body);
+        await reply.code(404).render('sessions/new', {
+          data: { user },
           errors: { email: [{ message: 'User with such email does not exist' }] },
         });
         return;
@@ -17,8 +19,10 @@ export default (app) => {
 
       const passwordMatch = await existingUser.verifyPassword(req.body.password);
       if (!passwordMatch) {
-        await reply.code(404).render('session/new', {
-          data: { user: { email: req.body.email } },
+        const user = new app.objection.models.user();
+        user.$set(req.body);
+        await reply.code(404).render('sessions/new', {
+          data: { user },
           errors: { password: [{ message: 'Password does not match' }] },
         });
         return;
@@ -27,7 +31,7 @@ export default (app) => {
       req.session.set('userId', existingUser.id);
       await reply.redirect('/');
     })
-    .delete('/session', async (req, reply) => {
+    .delete('/sessions', async (req, reply) => {
       req.session.delete();
       await reply.redirect('/');
     });

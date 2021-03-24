@@ -40,7 +40,7 @@ describe('Task', () => {
         const description = 'test description';
         const { statusCode } = await app.inject({
           method: 'post',
-          url: '/task',
+          url: '/tasks',
           body: {
             name,
             description,
@@ -77,7 +77,7 @@ describe('Task', () => {
       ])('should not create entity and return 400 when missing required field %s', async (_, data) => {
         const { statusCode } = await app.inject({
           method: 'post',
-          url: '/task',
+          url: '/tasks',
           body: data(),
         });
         expect(statusCode).toBe(400);
@@ -114,8 +114,8 @@ describe('Task', () => {
         assignedId: existingUser.id,
       };
       const { statusCode } = await app.inject({
-        method: 'put',
-        url: '/task',
+        method: 'patch',
+        url: '/tasks',
         body: {
           ...updatedTask,
           labelIds: newLabel.id,
@@ -147,7 +147,7 @@ describe('Task', () => {
     it('should delete entity and return 302', async () => {
       const { statusCode } = await app.inject({
         method: 'delete',
-        url: '/task',
+        url: '/tasks',
         body: {
           id: existingTask.id,
         },

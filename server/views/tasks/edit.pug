@@ -4,7 +4,7 @@ block header
   ='Edit'
 
 block content
-  +formFor()(action='/task' method='post')
+  +formFor()(action='/tasks' method='post')
     +input('Name', data.task.name, errors.name)(name="name")
     +input('Description', data.task.description, errors.description)(name='description')
     +select('Status', data.statuses, errors.statusId)(name='statusId')

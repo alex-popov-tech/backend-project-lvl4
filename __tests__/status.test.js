@@ -23,7 +23,7 @@ describe('Status', () => {
       };
       const { statusCode } = await app.inject({
         method: 'post',
-        url: '/status',
+        url: '/statuses',
         body: status,
       });
       expect(statusCode).toBe(302);
@@ -38,7 +38,7 @@ describe('Status', () => {
       });
       const { statusCode } = await app.inject({
         method: 'post',
-        url: '/status',
+        url: '/statuses',
         body: {
           name: existingStatus.name,
         },
@@ -59,8 +59,8 @@ describe('Status', () => {
 
     it('should update entity and return 302 when using valid name', async () => {
       const { statusCode } = await app.inject({
-        method: 'put',
-        url: '/status',
+        method: 'patch',
+        url: '/statuses',
         body: {
           id: existingStatus.id,
           name: 'new name',
@@ -80,7 +80,7 @@ describe('Status', () => {
       });
       const { statusCode } = await app.inject({
         method: 'delete',
-        url: '/status',
+        url: '/statuses',
         body: {
           id: existingStatus.id,
         },
@@ -94,7 +94,7 @@ describe('Status', () => {
   it('should return 302 when using invalid id', async () => {
     const res = await app.inject({
       method: 'delete',
-      url: '/status',
+      url: '/statuses',
       body: {
         id: -1,
       },

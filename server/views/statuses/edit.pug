@@ -4,7 +4,7 @@ block header
   ='Edit'
 
 block content
-  +formFor()(action='/status' method='post')
+  +formFor()(action='/statuses' method='post')
     +input('name', data.status.name, errors.name)(type="name")
     input(name="id" type="hidden" value= data.status.id)
     input(name="_method" type="hidden" value="PUT")
