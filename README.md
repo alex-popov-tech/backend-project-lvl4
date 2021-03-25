@@ -4,14 +4,10 @@
 
 ## How to install
 
-  `npm install`
-  or
   `make setup`
 
 ## How to launch app
 
-  `npm start`
-  or
   `make start`
 
 ## How to run in watch-mode

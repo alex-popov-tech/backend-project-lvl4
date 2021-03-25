@@ -14,7 +14,7 @@ import pug from 'pug';
 import Rollbar from 'rollbar';
 import knexConfig from '../knexfile';
 import models from './models/index';
-import routes from './routes';
+import addRoutes from './routes';
 
 dotenv.config();
 
@@ -22,7 +22,7 @@ const mode = process.env.NODE_ENV || 'development';
 const isDevelopment = mode === 'development';
 const isTest = mode === 'test';
 
-const errorHandler = async (app) => {
+const addErrorHandler = async (app) => {
   if (isTest) {
     return;
   }
@@ -37,7 +37,7 @@ const errorHandler = async (app) => {
     app.addHook('onError', async (err) => rollbar.error(err));
   }
 };
-const templatesEngine = async (app) => {
+const addTemplatesEngine = async (app) => {
   await app.register(pointOfView, {
     engine: {
       pug,
@@ -53,7 +53,7 @@ const templatesEngine = async (app) => {
     });
   });
 };
-const assets = async (app) => {
+const addAssets = async (app) => {
   if (isTest) {
     return;
   }
@@ -68,20 +68,20 @@ const assets = async (app) => {
     });
   }
 };
-const database = async (app) => {
+const addDatabase = async (app) => {
   await app.register(fastifyObjection, {
     knexConfig: knexConfig[mode],
     models,
   });
 };
-const plugins = async (app) => {
+const addPlugins = async (app) => {
   await app.register(fastifyFormbody);
   await app.register(fastifyMethodOverride);
 };
-const session = async (app) => {
+const addSession = async (app) => {
   await app.register(fastifySecureSession, {
-    secret: 'averylogphrasebiggerthanthirtytwochars',
-    salt: 'mq9hDxBVDbspDR6n',
+    secret: process.env.SECRET,
+    salt: process.env.SALT,
   });
   app.addHook('preHandler', async (req) => {
     const userId = req.session.get('userId');
@@ -98,13 +98,13 @@ export default async () => {
       level: 'error',
     },
   });
-  await plugins(app);
-  await session(app);
-  await templatesEngine(app);
-  await assets(app);
-  await errorHandler(app);
-  await database(app);
-  routes(app);
+  await addPlugins(app);
+  await addSession(app);
+  await addTemplatesEngine(app);
+  await addAssets(app);
+  await addErrorHandler(app);
+  await addDatabase(app);
+  addRoutes(app);
 
   return app;
 };
