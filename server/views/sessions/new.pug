@@ -1,0 +1,10 @@
+extends ../layouts/application.pug
+
+block header
+  ='Sign In'
+
+block content
+  +formFor()(action='/sessions' method='post')
+    +input('email', data.user.email, errors.email)(type="text")
+    +input('password', data.user.password, errors.password)(type="password")
+    +submit()(value='Sign In')

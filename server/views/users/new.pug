@@ -5,8 +5,8 @@ block header
 
 block content
   +formFor()(action='/users' method='post')
-    +input('firstName', data.firstName, errors.firstName)(type="text")
-    +input('lastName', data.lastName, errors.lastName)(type="text")
-    +input('email', data.email, errors.email)(type="text")
-    +input('password', data.password, errors.password)(type="password")
+    +input('firstName', data.user.firstName, errors.firstName)(type="text")
+    +input('lastName', data.user.lastName, errors.lastName)(type="text")
+    +input('email', data.user.email, errors.email)(type="text")
+    +input('password', data.user.password, errors.password)(type="password")
     +submit()(value='Save')

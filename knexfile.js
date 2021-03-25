@@ -1,5 +1,3 @@
-// Update with your config settings.
-
 const path = require('path');
 
 const migrations = {

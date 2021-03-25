@@ -1,7 +1,7 @@
 import { random } from 'faker';
 import { launchApp, shutdownApp, clearDatabaseState } from './helpers.js';
 
-describe('Status', () => {
+describe('Label', () => {
   let app;
 
   beforeAll(async () => {
@@ -23,36 +23,36 @@ describe('Status', () => {
       };
       const { statusCode } = await app.inject({
         method: 'post',
-        url: '/statuses',
+        url: '/labels',
         body: status,
       });
       expect(statusCode).toBe(302);
-      const statuses = await app.objection.models.status.query();
-      expect(statuses).toHaveLength(1);
-      expect(statuses[0]).toMatchObject(status);
+      const labels = await app.objection.models.label.query();
+      expect(labels).toHaveLength(1);
+      expect(labels[0]).toMatchObject(status);
     });
 
     it('should not create entity and return 400 when using existing name', async () => {
-      const existingStatus = await app.objection.models.status.query().insert({
+      const existingLabel = await app.objection.models.label.query().insert({
         name: random.word(),
       });
       const { statusCode } = await app.inject({
         method: 'post',
-        url: '/statuses',
+        url: '/labels',
         body: {
-          name: existingStatus.name,
+          name: existingLabel.name,
         },
       });
       expect(statusCode).toBe(400);
-      const statuses = await app.objection.models.status.query();
-      expect(statuses).toHaveLength(1);
+      const labels = await app.objection.models.label.query();
+      expect(labels).toHaveLength(1);
     });
   });
 
   describe('update', () => {
-    let existingStatus;
+    let existingLabel;
     beforeEach(async () => {
-      existingStatus = await app.objection.models.status.query().insert({
+      existingLabel = await app.objection.models.label.query().insert({
         name: random.word(),
       });
     });
@@ -60,45 +60,45 @@ describe('Status', () => {
     it('should update entity and return 302 when using valid name', async () => {
       const { statusCode } = await app.inject({
         method: 'patch',
-        url: '/statuses',
+        url: '/labels',
         body: {
-          id: existingStatus.id,
+          id: existingLabel.id,
           name: 'new name',
         },
       });
       expect(statusCode).toBe(302);
-      const statuses = await app.objection.models.status.query();
-      expect(statuses).toHaveLength(1);
-      expect(statuses[0]).toMatchObject({ name: 'new name' });
+      const labels = await app.objection.models.label.query();
+      expect(labels).toHaveLength(1);
+      expect(labels[0]).toMatchObject({ name: 'new name' });
     });
   });
 
   describe('delete', () => {
-    it('should delete entity and return 302 when using valid id', async () => {
-      const existingStatus = await app.objection.models.status.query().insert({
+    it('should delete entity return 302 when using valid id', async () => {
+      const existingLabel = await app.objection.models.label.query().insert({
         name: random.word(),
       });
       const { statusCode } = await app.inject({
         method: 'delete',
-        url: '/statuses',
+        url: '/labels',
         body: {
-          id: existingStatus.id,
+          id: existingLabel.id,
         },
       });
       expect(statusCode).toBe(302);
-      const statuses = await app.objection.models.status.query();
-      expect(statuses).toHaveLength(0);
+      const labels = await app.objection.models.label.query();
+      expect(labels).toHaveLength(0);
     });
-  });
 
-  it('should return 302 when using invalid id', async () => {
-    const res = await app.inject({
-      method: 'delete',
-      url: '/statuses',
-      body: {
-        id: -1,
-      },
+    it('should return 302 when using invalid id', async () => {
+      const res = await app.inject({
+        method: 'delete',
+        url: '/labels',
+        body: {
+          id: -1,
+        },
+      });
+      expect(res.statusCode).toBe(302);
     });
-    expect(res.statusCode).toBe(302);
   });
 });

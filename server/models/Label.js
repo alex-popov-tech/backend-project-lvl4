@@ -3,9 +3,9 @@ import objectionUnique from 'objection-unique';
 
 const unique = objectionUnique({ fields: ['name'] });
 
-export default class Status extends unique(Model) {
+export default class Label extends unique(Model) {
   static get tableName() {
-    return 'statuses';
+    return 'labels';
   }
 
   static pickJsonSchemaProperties = true;
@@ -15,6 +15,7 @@ export default class Status extends unique(Model) {
       type: 'object',
       required: ['name'],
       properties: {
+        id: { type: 'integer' },
         name: { type: 'string', minLength: 2 },
       },
     };

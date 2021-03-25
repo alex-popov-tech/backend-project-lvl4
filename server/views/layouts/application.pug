@@ -14,19 +14,22 @@ html(lang="en").h-100
             a.nav-link(href='/users') Users
         ul.navbar-nav.mr-auto
           li.nav-item
-            a.nav-link(href='/status') Statuses
+            a.nav-link(href='/statuses') Statuses
         ul.navbar-nav.mr-auto
           li.nav-item
-            a.nav-link(href='/task') Tasks
+            a.nav-link(href='/labels') Labels
+        ul.navbar-nav.mr-auto
+          li.nav-item
+            a.nav-link(href='/tasks') Tasks
       up.navbar-nav
         if !reply.request.currentUser
           li.nav-item
             a.nav-link(href='/users/new') Sign Up
           li.nav-item
-            a.nav-link(href='/session/new') Sign In
+            a.nav-link(href='/sessions/new') Sign In
         else
           li.nav-item
-            +buttonTo('/session', 'delete')(class='nav-link', value='Sign Out')
+            +buttonTo('/sessions', 'delete')(class='nav-link', value='Sign Out')
     .container
       h1.my-4
         block header

@@ -19,7 +19,7 @@ describe('Signup', () => {
     it('should return 302 when using valid data', async () => {
       const { statusCode } = await app.inject({
         method: 'post',
-        url: '/user',
+        url: '/users',
         body: {
           email: 'new@test.com',
           password: 'test',
@@ -47,7 +47,7 @@ describe('Signup', () => {
         });
         const { statusCode } = await app.inject({
           method: 'post',
-          url: '/user',
+          url: '/users',
           body: {
             email: 'a@a.com',
             password: 'test',
@@ -85,7 +85,7 @@ describe('Signup', () => {
         ]])('should return 400 when %s', async (_, body) => {
         const { statusCode } = await app.inject({
           method: 'post',
-          url: '/user',
+          url: '/users',
           body,
         });
         expect(statusCode).toBe(400);

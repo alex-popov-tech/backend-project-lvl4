@@ -1,65 +1,105 @@
 export default (app) => {
   app
-    .get('/task', async (req, reply) => {
-      const tasks = await app.objection.models.task.query().withGraphJoined('[status, creator, assigned]');
-      await reply.render('task/index', { tasks });
+    .get('/tasks', async (req, reply) => {
+      const tasks = await app.objection.models.task.query().withGraphJoined('[status, creator, assigned, labels]');
+      await reply.render('tasks/index', { data: { tasks } });
     })
-    .get('/task/new', async (req, reply) => {
-      const statuses = await app.objection.models.status.query();
-      const users = await app.objection.models.user.query();
-      await reply.render('task/new', { data: { statuses, users }, errors: [] });
+    .get('/tasks/new', async (req, reply) => {
+      const [statuses, labels, users] = await Promise.all([
+        app.objection.models.status.query(),
+        app.objection.models.label.query(),
+        app.objection.models.user.query(),
+      ]);
+      await reply.render('tasks/new', {
+        data: {
+          task: new app.objection.models.task(), statuses, users, labels,
+        },
+        errors: {},
+      });
     })
-    .get('/task/edit/:id', async (req, reply) => {
-      const task = await app.objection.models.task.query().findById(req.params.id);
-      const statuses = await app.objection.models.status.query();
-      const users = await app.objection.models.user.query();
-      await reply.render('task/edit', { data: { statuses, users, task }, errors: [] });
+    .get('/tasks/edit/:id', async (req, reply) => {
+      const [task, statuses, labels, users] = await Promise.all([
+        app.objection.models.task.query().findById(req.params.id),
+        app.objection.models.status.query(),
+        app.objection.models.label.query(),
+        app.objection.models.user.query(),
+      ]);
+      await reply.render('tasks/edit', {
+        data: {
+          statuses, users, task, labels,
+        },
+        errors: {},
+      });
     })
-    .post('/task', async (req, reply) => {
+    .post('/tasks', async (req, reply) => {
       try {
-        const { name, description } = req.body;
-        const statusId = Number(req.body.statusId);
-        const creatorId = Number(req.body.creatorId);
-        const assignedId = Number(req.body.assignedId);
-        const newTask = await app.objection.models.task.fromJson({
-          name,
-          description,
-          statusId,
-          creatorId,
-          assignedId,
-        });
-        await app.objection.models.task.query().insert(newTask);
-        await reply.redirect('/task');
+        await app.objection
+          .models
+          .task
+          .transaction((trx) => app.objection.models.task.query(trx).insertGraph({
+            name: req.body.name,
+            description: req.body.description,
+            statusId: Number(req.body.statusId),
+            labels: [req.body.labelIds].flat()
+              .filter((it) => !!it)
+              .map((labelId) => ({ id: Number(labelId) })),
+            creatorId: Number(req.body.creatorId),
+            assignedId: Number(req.body.assignedId),
+          }, {
+            relate: true,
+          }));
+        await reply.redirect('/tasks');
       } catch ({ message, data }) {
-        const statuses = await app.objection.models.status.query();
-        const users = await app.objection.models.user.query();
-        await reply.code(400).render('task/new', { data: { ...req.body, statuses, users }, errors: data });
+        const task = new app.objection.models.task();
+        task.$set(req.body);
+        const [statuses, labels, users] = await Promise.all([
+          app.objection.models.status.query(),
+          app.objection.models.label.query(),
+          app.objection.models.user.query(),
+        ]);
+        await reply.code(400).render('tasks/new', {
+          data: {
+            task, statuses, users, labels,
+          },
+          errors: data,
+        });
       }
     })
-    .put('/task', async (req, reply) => {
+    .patch('/tasks', async (req, reply) => {
       try {
-        const { name, description } = req.body;
-        const statusId = Number(req.body.statusId);
-        const creatorId = Number(req.body.creatorId);
-        const assignedId = Number(req.body.assignedId);
-        const updatedTask = await app.objection.models.task.fromJson({
-          name,
-          description,
-          statusId,
-          creatorId,
-          assignedId,
-        });
-        const existingtask = await app.objection.models.task.query().findById(req.body.id);
-        await existingtask.$query().patch(updatedTask);
-        await reply.redirect('/task');
+        await app.objection
+          .models
+          .task
+          .transaction((trx) => app.objection.models.task.query(trx).upsertGraph({
+            id: Number(req.body.id),
+            name: req.body.name,
+            description: req.body.description,
+            statusId: Number(req.body.statusId),
+            labels: [req.body.labelIds].flat()
+              .filter((it) => !!it)
+              .map((labelId) => ({ id: Number(labelId) })),
+            creatorId: Number(req.body.creatorId),
+            assignedId: Number(req.body.assignedId),
+          }, { relate: true, unrelate: true, noDelete: true }));
+        await reply.redirect('/tasks');
       } catch ({ message, data }) {
-        const statuses = await app.objection.models.status.query();
-        const users = await app.objection.models.user.query();
-        await reply.code(400).render('task/edit', { data: { task: req.body, statuses, users }, errors: data });
+        const task = new app.objection.models.task();
+        task.$set(req.body);
+        const [statuses, labels, users] = await Promise.all([
+          app.objection.models.status.query(),
+          app.objection.models.label.query(),
+          app.objection.models.user.query(),
+        ]);
+        await reply.code(400).render('tasks/edit', {
+          data: {
+            task, statuses, users, labels,
+          },
+          errors: data,
+        });
       }
     })
-    .delete('/task', async (req, reply) => {
+    .delete('/tasks', async (req, reply) => {
       await app.objection.models.task.query().deleteById(req.body.id);
-      await reply.redirect('/task');
+      await reply.redirect('/tasks');
     });
 };

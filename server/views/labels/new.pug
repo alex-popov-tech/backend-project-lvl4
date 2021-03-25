@@ -1,0 +1,9 @@
+extends ../layouts/application.pug
+
+block header
+  ='Add new label'
+
+block content
+  +formFor()(action='/labels' method='post')
+    +input('name', data.label.name, errors.name)(type="name")
+    +submit()(value='Add label')

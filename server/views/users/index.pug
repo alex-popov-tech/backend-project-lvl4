@@ -10,7 +10,7 @@ block content
         if currentUser
           th= 'Action'
     tbody
-      each user in users
+      each user in data.users
         tr
           td= user.email
           td= user.firstName

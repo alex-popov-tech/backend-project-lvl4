@@ -1,35 +1,39 @@
 export default (app) => {
   app
-    .get('/user', async (req, reply) => {
+    .get('/users', async (req, reply) => {
       const users = await app.objection.models.user.query();
-      await reply.render('user/index', { currentUser: req.currentUser, users });
+      await reply.render('users/index', { data: { users, currentUser: req.currentUser } });
     })
-    .get('/user/new', async (req, reply) => {
-      await reply.render('user/new', { data: {}, errors: [] });
+    .get('/users/new', async (req, reply) => {
+      await reply.render('users/new', { data: { user: {} }, errors: [] });
     })
-    .get('/user/edit', async (req, reply) => {
-      await reply.render('user/edit', { data: req.currentUser, errors: [] });
+    .get('/users/edit', async (req, reply) => {
+      await reply.render('users/edit', { data: { currentUser: req.currentUser }, errors: [] });
     })
-    .post('/user', async (req, reply) => {
+    .post('/users', async (req, reply) => {
       try {
         const newUser = await app.objection.models.user.fromJson(req.body);
         await app.objection.models.user.query().insert(newUser);
-        await reply.redirect('/session/new');
+        await reply.redirect('/sessions/new');
       } catch ({ data }) {
-        await reply.code(400).render('user/new', { data: req.body, errors: data });
+        const user = new app.objection.models.user();
+        user.$set(req.body);
+        await reply.code(400).render('users/new', { data: { user }, errors: data });
       }
     })
-    .put('/user', async (req, reply) => {
+    .patch('/users', async (req, reply) => {
       try {
         const updatedUser = app.objection.models.user.fromJson(req.body);
         const existingUser = await app.objection.models.user.query().findById(req.currentUser.id);
         await existingUser.$query().patch(updatedUser);
-        await reply.redirect('/user');
+        await reply.redirect('/userss');
       } catch ({ data }) {
-        await reply.code(400).render('user/edit', { data: req.body, errors: data });
+        const user = new app.objection.models.user();
+        user.$set(req.body);
+        await reply.code(400).render('users/edit', { data: { user }, errors: data });
       }
     })
-    .delete('/user', async (req, reply) => {
+    .delete('/users', async (req, reply) => {
       const { id } = req.body;
       await app.objection.models.user.query().deleteById(id);
       if (req.currentUser.id === Number(id)) {
@@ -37,6 +41,6 @@ export default (app) => {
         await reply.redirect('/');
         return;
       }
-      await reply.redirect('/user');
+      await reply.redirect('/users');
     });
 };

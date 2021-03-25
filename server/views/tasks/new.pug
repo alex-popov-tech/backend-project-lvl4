@@ -4,10 +4,11 @@ block header
   ='Add new Task'
 
 block content
-  +formFor()(action='/task' method='post')
-    +input('Name', data.name, errors.name)(name='name')
-    +input('Description', data.description, errors.description)(name='description')
+  +formFor()(action='/tasks' method='post')
+    +input('Name', data.task.name, errors.name)(name='name')
+    +input('Description', data.task.description, errors.description)(name='description')
     +select('Status', data.statuses, errors.statusId)(name='statusId')
+    +multiselect('Labels', data.labels, errors.labels)(name='labelIds')
     +select('Creator', data.users, errors.creatorId)(name='creatorId')
     +select('Assigned', data.users, errors.assignedId)(name='assignedId')
     +submit()(value='Save')

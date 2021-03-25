@@ -1,0 +1,21 @@
+extends ../layouts/application.pug
+
+block content
+  table.table.table-striped
+    +formFor()(action='/labels/new' )
+      input(class='btn btn-primary' type='submit' value='Add')
+    thead
+      tr
+        th= 'Label Name'
+        th= 'Action'
+    tbody
+      each label in data.labels
+        tr
+          td= label.name
+          td
+            +formFor()(action=`/labels/edit/${label.id}` )
+              input(class='btn btn-primary' type='submit' value='Edit')
+            +formFor()(action='/labels' method='post')
+              input(name="_method" type="hidden" value="delete")
+              input(name="id" type="hidden" value=label.id)
+              +submit()(value='Delete')
