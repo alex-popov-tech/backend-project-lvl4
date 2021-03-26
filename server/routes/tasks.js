@@ -1,8 +1,34 @@
 export default (app) => {
   app
     .get('/tasks', async (req, reply) => {
-      const tasks = await app.objection.models.task.query().withGraphJoined('[status, creator, assigned, labels]');
-      await reply.render('tasks/index', { data: { tasks } });
+      const {
+        name = '', statusId, creatorId, assignedId, labelIds,
+      } = req.query;
+      const formalizedLabelIds = [labelIds].flat()
+        .filter((it) => !!it)
+        .map((labelId) => Number(labelId));
+      const [tasks, statuses, labels, users] = await Promise.all([
+        await app.objection.models.task.query().skipUndefined()
+          .where('tasks.name', 'like', `%${name}%`)
+          .where('tasks.status_id', statusId)
+          .where('tasks.creator_id', creatorId)
+          .where('tasks.assigned_id', assignedId)
+          .withGraphJoined('[status, creator, assigned, labels]')
+          .then(
+            (taskList) => taskList.filter(
+              (task) => !formalizedLabelIds.length
+            || !!task.labels.find((label) => formalizedLabelIds.includes(label.id)),
+            ),
+          ),
+        app.objection.models.status.query(),
+        app.objection.models.label.query(),
+        app.objection.models.user.query(),
+      ]);
+      await reply.render('tasks/index', {
+        data: {
+          tasks, statuses, labels, users,
+        },
+      });
     })
     .get('/tasks/new', async (req, reply) => {
       const [statuses, labels, users] = await Promise.all([
