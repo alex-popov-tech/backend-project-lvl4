@@ -1,29 +1,26 @@
+const formalizeMultiselectValues = (values) => [values].flat()
+  .filter((it) => !!it)
+  .map((value) => Number(value));
+
 export default (app) => {
   app
     .get('/tasks', async (req, reply) => {
-      const {
-        name = '', statusId, creatorId, assignedId, labelIds,
-      } = req.query;
-      const formalizedLabelIds = [labelIds].flat()
-        .filter((it) => !!it)
-        .map((labelId) => Number(labelId));
-      const [tasks, statuses, labels, users] = await Promise.all([
-        await app.objection.models.task.query().skipUndefined()
-          .where('tasks.name', 'like', `%${name}%`)
-          .where('tasks.status_id', statusId)
-          .where('tasks.creator_id', creatorId)
-          .where('tasks.assigned_id', assignedId)
-          .withGraphJoined('[status, creator, assigned, labels]')
-          .then(
-            (taskList) => taskList.filter(
-              (task) => !formalizedLabelIds.length
-            || !!task.labels.find((label) => formalizedLabelIds.includes(label.id)),
-            ),
-          ),
+      console.log(req.query);
+      const statusIds = formalizeMultiselectValues(req.query.statusIds);
+      const labelIds = formalizeMultiselectValues(req.query.labelIds);
+      const assignedIds = formalizeMultiselectValues(req.query.assignedIds);
+
+      const [allTasks, statuses, labels, users] = await Promise.all([
+        await app.objection.models.task.query()
+          .withGraphJoined('[status, creator, assigned, labels]'),
         app.objection.models.status.query(),
         app.objection.models.label.query(),
         app.objection.models.user.query(),
       ]);
+      const tasks = allTasks
+        .filter((task) => !statusIds.length || statusIds.includes(task.status.id))
+        .filter((task) => !assignedIds.length || assignedIds.includes(task.assigned.id))
+        .filter((task) => !labelIds.length || task.labels.find((label) => labelIds.includes(label.id)));
       await reply.render('tasks/index', {
         data: {
           tasks, statuses, labels, users,

@@ -3,11 +3,9 @@ extends ../layouts/application.pug
 block content
 
   +formFor()(action='/tasks' method='get')
-    +input('Name', '')(name='name')
-    +select('Status', data.statuses)(name='statusId')
+    +multiselect('Status', data.statuses)(name='statusIds')
     +multiselect('Labels', data.labels)(name='labelIds')
-    +select('Creator', data.users)(name='creatorId')
-    +select('Assigned', data.users)(name='assignedId')
+    +multiselect('Assigned', data.users)(name='assignedIds')
     +submit()(value='Filter')
 
   table.table.table-striped
