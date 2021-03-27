@@ -10,17 +10,16 @@ export default (app) => {
       const labelIds = formalizeMultiselectValues(req.query.labelIds);
       const assignedIds = formalizeMultiselectValues(req.query.assignedIds);
 
-      const [allTasks, statuses, labels, users] = await Promise.all([
+      const [tasks, statuses, labels, users] = await Promise.all([
         await app.objection.models.task.query()
-          .withGraphJoined('[status, creator, assigned, labels]'),
+          .modify('withStatusIn', statusIds)
+          .modify('withAssignedIn', assignedIds)
+          .withGraphJoined('[status, creator, assigned, labels]')
+          .modify('withLabelIn', labelIds),
         app.objection.models.status.query(),
         app.objection.models.label.query(),
         app.objection.models.user.query(),
       ]);
-      const tasks = allTasks
-        .filter((task) => !statusIds.length || statusIds.includes(task.status.id))
-        .filter((task) => !assignedIds.length || assignedIds.includes(task.assigned.id))
-        .filter((task) => !labelIds.length || task.labels.find((label) => labelIds.includes(label.id)));
       await reply.render('tasks/index', {
         data: {
           tasks, statuses, labels, users,

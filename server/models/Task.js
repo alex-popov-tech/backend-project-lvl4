@@ -56,7 +56,28 @@ export default class Task extends Model {
       description: { type: 'string', minLength: 3 },
       statusId: { type: 'integer' },
       creatorId: { type: 'integer' },
-      assignedId: { type: ['integer', 'null'] },
+      assignedId: { anyOf: [
+      { type: 'integer' },
+      { type: 'null' },
+      ]}
+    },
+  };
+
+  static modifiers = {
+    withLabelIn(query, labelIds) {
+      if (labelIds.length) {
+        query.where('labels.id', 'in', labelIds);
+      }
+    },
+    withStatusIn(query, statusIds) {
+      if (statusIds.length) {
+        query.where('status_id', 'in', statusIds);
+      }
+    },
+    withAssignedIn(query, assignedIds) {
+      if (assignedIds.length) {
+        query.where('assigned_id', 'in', assignedIds);
+      }
     },
   };
 }
