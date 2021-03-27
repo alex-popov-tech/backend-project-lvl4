@@ -56,10 +56,12 @@ export default class Task extends Model {
       description: { type: 'string', minLength: 3 },
       statusId: { type: 'integer' },
       creatorId: { type: 'integer' },
-      assignedId: { anyOf: [
-      { type: 'integer' },
-      { type: 'null' },
-      ]}
+      assignedId: {
+        anyOf: [
+          { type: 'integer' },
+          { type: 'null' },
+        ],
+      },
     },
   };
 
