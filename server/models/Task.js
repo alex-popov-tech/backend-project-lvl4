@@ -1,7 +1,7 @@
 import { Model } from 'objection';
+import Label from './Label';
 import Status from './Status';
 import User from './User';
-import Label from './Label';
 
 export default class Task extends Model {
   static tableName = 'tasks';
@@ -67,13 +67,13 @@ export default class Task extends Model {
 
   static modifiers = {
     withLabelIn(query, labelIds) {
-        query.where('labels.id', 'in', labelIds);
+      query.where('labels.id', 'in', labelIds);
     },
     withStatusIn(query, statusIds) {
-        query.where('status_id', 'in', statusIds);
+      query.where('status_id', 'in', statusIds);
     },
     withAssignedIn(query, assignedIds) {
-        query.where('assigned_id', 'in', assignedIds);
+      query.where('assigned_id', 'in', assignedIds);
     },
   };
 }
