@@ -67,19 +67,13 @@ export default class Task extends Model {
 
   static modifiers = {
     withLabelIn(query, labelIds) {
-      if (labelIds.length) {
         query.where('labels.id', 'in', labelIds);
-      }
     },
     withStatusIn(query, statusIds) {
-      if (statusIds.length) {
         query.where('status_id', 'in', statusIds);
-      }
     },
     withAssignedIn(query, assignedIds) {
-      if (assignedIds.length) {
         query.where('assigned_id', 'in', assignedIds);
-      }
     },
   };
 }

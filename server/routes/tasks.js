@@ -5,24 +5,33 @@ const formalizeMultiselectValues = (values) => [values].flat()
 export default (app) => {
   app
     .get('/tasks', async (req, reply) => {
-      console.log(req.query);
       const statusIds = formalizeMultiselectValues(req.query.statusIds);
       const labelIds = formalizeMultiselectValues(req.query.labelIds);
       const assignedIds = formalizeMultiselectValues(req.query.assignedIds);
 
-      const [tasks, statuses, labels, users] = await Promise.all([
-        await app.objection.models.task.query()
-          .modify('withStatusIn', statusIds)
-          .modify('withAssignedIn', assignedIds)
-          .withGraphJoined('[status, creator, assigned, labels]')
-          .modify('withLabelIn', labelIds),
+      const [filteredTasks, statuses, labels, users] = await Promise.all([
+        (async () => {
+          let tasks = app.objection.models.task.query();
+          if (statusIds.length) {
+            tasks = tasks.modify('withStatusIn', statusIds);
+          }
+          if (assignedIds.length) {
+            tasks = tasks.modify('withAssignedIn', assignedIds);
+          }
+
+          tasks = tasks.withGraphJoined('[status, creator, assigned, labels]');
+          if (labelIds.length) {
+            tasks = tasks.modify('withLabelIn', labelIds);
+          }
+          return tasks;
+        })(),
         app.objection.models.status.query(),
         app.objection.models.label.query(),
         app.objection.models.user.query(),
       ]);
       await reply.render('tasks/index', {
         data: {
-          tasks, statuses, labels, users,
+          tasks: filteredTasks, statuses, labels, users,
         },
       });
     })

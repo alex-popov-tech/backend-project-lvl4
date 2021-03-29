@@ -7,5 +7,5 @@ block content
   +formFor()(action='/labels' method='post')
     +input('name', data.label.name, errors.name)(type="name")
     input(name="id" type="hidden" value= data.label.id)
-    input(name="_method" type="hidden" value="PUT")
+    input(name="_method" type="hidden" value="patch")
     +submit()(value='Save')
