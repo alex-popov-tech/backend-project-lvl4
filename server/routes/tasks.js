@@ -11,17 +11,16 @@ export default (app) => {
 
       const [filteredTasks, statuses, labels, users] = await Promise.all([
         (async () => {
-          let tasks = app.objection.models.task.query();
+          const tasks = app.objection.models.task.query();
           if (statusIds.length) {
-            tasks = tasks.modify('withStatusIn', statusIds);
+            tasks.modify('withStatusIn', statusIds);
           }
           if (assignedIds.length) {
-            tasks = tasks.modify('withAssignedIn', assignedIds);
+            tasks.modify('withAssignedIn', assignedIds);
           }
-
-          tasks = tasks.withGraphJoined('[status, creator, assigned, labels]');
+          tasks.withGraphJoined('[status, creator, assigned, labels]');
           if (labelIds.length) {
-            tasks = tasks.modify('withLabelIn', labelIds);
+            tasks.modify('withLabelIn', labelIds);
           }
           return tasks;
         })(),

@@ -67,7 +67,7 @@ export default class Task extends Model {
 
   static modifiers = {
     withLabelIn(query, labelIds) {
-      query.where('labels.id', 'in', labelIds);
+      query.whereExists(Task.relatedQuery('labels').where('labels.id', 'in', labelIds));
     },
     withStatusIn(query, statusIds) {
       query.where('status_id', 'in', statusIds);
