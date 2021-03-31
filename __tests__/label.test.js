@@ -1,5 +1,5 @@
 import { random } from 'faker';
-import { launchApp, shutdownApp, clearDatabaseState } from './helpers.js';
+import { clearDatabaseState, launchApp, shutdownApp } from './helpers.js';
 
 describe('Label', () => {
   let app;
@@ -14,6 +14,16 @@ describe('Label', () => {
 
   beforeEach(async () => {
     await clearDatabaseState(app);
+  });
+
+  describe('get', () => {
+    it('should return 200', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: '/labels',
+      });
+      expect(statusCode).toBe(200);
+    });
   });
 
   describe('create', () => {

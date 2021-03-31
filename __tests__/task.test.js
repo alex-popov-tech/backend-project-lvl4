@@ -1,5 +1,5 @@
 import { internet } from 'faker';
-import { launchApp, shutdownApp, clearDatabaseState } from './helpers.js';
+import { clearDatabaseState, launchApp, shutdownApp } from './helpers.js';
 
 describe('Task', () => {
   let app;
@@ -30,6 +30,28 @@ describe('Task', () => {
       password: 'test',
       labelIds: existingLabel.id,
       statusId: existingStatus.id,
+    });
+  });
+
+  describe('get', () => {
+    it('should return 200', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: '/tasks',
+      });
+      expect(statusCode).toBe(200);
+    });
+    it('should return 200 when using filters', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: '/statuses',
+        query: {
+          assignedId: existingUser.id,
+          statusIds: existingStatus.id,
+          labelIds: existingLabel.id,
+        },
+      });
+      expect(statusCode).toBe(200);
     });
   });
 

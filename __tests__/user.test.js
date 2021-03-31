@@ -1,4 +1,4 @@
-import { launchApp, shutdownApp, clearDatabaseState } from './helpers.js';
+import { clearDatabaseState, launchApp, shutdownApp } from './helpers.js';
 
 describe('Signup', () => {
   let app;
@@ -13,6 +13,16 @@ describe('Signup', () => {
 
   afterAll(async () => {
     await shutdownApp(app);
+  });
+
+  describe('get', () => {
+    it('should return 200', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: '/users',
+      });
+      expect(statusCode).toBe(200);
+    });
   });
 
   describe('create', () => {
