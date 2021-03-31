@@ -8,10 +8,10 @@ html(lang="en").h-100
   body.h-100.d-flex.flex-column
     nav.navbar.navbar-expand-lg.navbar-light.bg-light.justify-content-between
       a.navbar-brand(href='/') Taskmine
-      if reply.request.currentUser
-        ul.navbar-nav.mr-auto
-          li.nav-item
-            a.nav-link(href='/users') Users
+      ul.navbar-nav.mr-auto
+        li.nav-item
+          a.nav-link(href='/users') Users
+      if reply.request.user
         ul.navbar-nav.mr-auto
           li.nav-item
             a.nav-link(href='/statuses') Statuses
@@ -22,7 +22,7 @@ html(lang="en").h-100
           li.nav-item
             a.nav-link(href='/tasks') Tasks
       up.navbar-nav
-        if !reply.request.currentUser
+        if !reply.request.user
           li.nav-item
             a.nav-link(href='/users/new') Sign Up
           li.nav-item

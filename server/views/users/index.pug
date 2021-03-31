@@ -7,15 +7,14 @@ block content
         th= 'Email'
         th= 'First name'
         th= 'Last name'
-        if currentUser
-          th= 'Action'
+        th= 'Action'
     tbody
       each user in data.users
         tr
           td= user.email
           td= user.firstName
           td= user.lastName
-          if currentUser
+          if data.currentUser.id === user.id
             td
               +formFor()(action=`/users/edit` )
                 input(class='btn btn-primary' type='submit' value='Edit')

@@ -4,6 +4,7 @@ import fastifyErrorsProperties from 'fastify-errors-properties';
 import fastifyFormbody from 'fastify-formbody';
 import fastifyMethodOverride from 'fastify-method-override';
 import fastifyObjection from 'fastify-objectionjs';
+import fastifyPassport from 'fastify-passport';
 import fastifySecureSession from 'fastify-secure-session';
 import fastifyStatic from 'fastify-static';
 import fastifyWebpackHMR from 'fastify-webpack-hmr';
@@ -13,6 +14,7 @@ import pointOfView from 'point-of-view';
 import pug from 'pug';
 import Rollbar from 'rollbar';
 import knexConfig from '../knexfile';
+import FormPassportStrategy from './lib/FormPassportStrategy';
 import models from './models/index';
 import addRoutes from './routes';
 
@@ -27,7 +29,7 @@ const addErrorHandler = async (app) => {
     return;
   }
   if (isDevelopment) {
-    await app.register(fastifyErrorsProperties);
+    app.register(fastifyErrorsProperties);
   } else {
     const rollbar = new Rollbar({
       accessToken: process.env.ROLLBAR_TOKEN,
@@ -38,7 +40,7 @@ const addErrorHandler = async (app) => {
   }
 };
 const addTemplatesEngine = async (app) => {
-  await app.register(pointOfView, {
+  app.register(pointOfView, {
     engine: {
       pug,
     },
@@ -58,37 +60,53 @@ const addAssets = async (app) => {
     return;
   }
   if (isDevelopment) {
-    await app.register(fastifyWebpackHMR, {
+    app.register(fastifyWebpackHMR, {
       config: path.join(__dirname, '..', 'webpack.config.js'),
     });
   } else {
-    await app.register(fastifyStatic, {
+    app.register(fastifyStatic, {
       root: path.join(__dirname, '..', 'assets'),
       prefix: '/assets',
     });
   }
 };
 const addDatabase = async (app) => {
-  await app.register(fastifyObjection, {
+  app.register(fastifyObjection, {
     knexConfig: knexConfig[mode],
     models,
   });
 };
 const addPlugins = async (app) => {
-  await app.register(fastifyFormbody);
-  await app.register(fastifyMethodOverride);
+  app.register(fastifyFormbody);
+  app.register(fastifyMethodOverride);
 };
-const addSession = async (app) => {
-  await app.register(fastifySecureSession, {
+const addAuthentification = async (app) => {
+  app.register(fastifySecureSession, {
     secret: process.env.SECRET,
     salt: process.env.SALT,
   });
-  app.addHook('preHandler', async (req) => {
-    const userId = req.session.get('userId');
-    if (userId !== undefined) {
-      req.currentUser = await app.objection.models.user.query().findById(userId);
-    }
-  });
+  app.register(fastifyPassport.initialize());
+  app.register(fastifyPassport.secureSession());
+  fastifyPassport.use('form', new FormPassportStrategy('form', app));
+  fastifyPassport.registerUserDeserializer(
+    async (user) => app.objection.models.user.query().findById(user.id),
+  );
+  fastifyPassport.registerUserSerializer(async (user) => user);
+  app.decorate('pasport', fastifyPassport);
+  app.decorate('formAuth', (...args) => fastifyPassport.authenticate(
+    'form',
+    {
+      failureRedirect: '/',
+      // failureFlash: i18next.t('flash.authError'),
+    },
+  // @ts-ignore
+  )(...args));
+
+  app.get(
+    '/kek',
+    { preValidation: app.formAuth },
+    async () => 'hello world!',
+  );
 };
 
 export default async () => {
@@ -99,7 +117,7 @@ export default async () => {
     },
   });
   await addPlugins(app);
-  await addSession(app);
+  await addAuthentification(app);
   await addTemplatesEngine(app);
   await addAssets(app);
   await addErrorHandler(app);

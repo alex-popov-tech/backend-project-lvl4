@@ -2,12 +2,12 @@ export default (app) => {
   app
     .get('/users', async (req, reply) => {
       const users = await app.objection.models.user.query();
-      await reply.render('users/index', { data: { users, currentUser: req.currentUser } });
+      await reply.render('users/index', { data: { users, currentUser: req.user ?? {} } });
     })
     .get('/users/new', async (req, reply) => {
       await reply.render('users/new', { data: { user: {} }, errors: [] });
     })
-    .get('/users/edit', async (req, reply) => {
+    .get('/users/edit', { preValidation: app.formAuth }, async (req, reply) => {
       await reply.render('users/edit', { data: { currentUser: req.currentUser }, errors: [] });
     })
     .post('/users', async (req, reply) => {
@@ -21,7 +21,7 @@ export default (app) => {
         await reply.code(422).render('users/new', { data: { user }, errors: data });
       }
     })
-    .patch('/users', async (req, reply) => {
+    .patch('/users', { preValidation: app.formAuth }, async (req, reply) => {
       try {
         const updatedUser = app.objection.models.user.fromJson(req.body);
         const existingUser = await app.objection.models.user.query().findById(req.currentUser.id);
@@ -33,7 +33,7 @@ export default (app) => {
         await reply.code(422).render('users/edit', { data: { user }, errors: data });
       }
     })
-    .delete('/users', async (req, reply) => {
+    .delete('/users', { preValidation: app.formAuth }, async (req, reply) => {
       const { id } = req.body;
       await app.objection.models.user.query().deleteById(id);
       if (req.currentUser.id === Number(id)) {

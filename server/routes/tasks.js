@@ -1,10 +1,10 @@
 export default (app) => {
   app
-    .get('/tasks', async (req, reply) => {
+    .get('/tasks', { preValidation: app.formAuth }, async (req, reply) => {
       const tasks = await app.objection.models.task.query().withGraphJoined('[status, creator, assigned, labels]');
       await reply.render('tasks/index', { data: { tasks } });
     })
-    .get('/tasks/new', async (req, reply) => {
+    .get('/tasks/new', { preValidation: app.formAuth }, async (req, reply) => {
       const [statuses, labels, users] = await Promise.all([
         app.objection.models.status.query(),
         app.objection.models.label.query(),
@@ -17,7 +17,7 @@ export default (app) => {
         errors: {},
       });
     })
-    .get('/tasks/edit/:id', async (req, reply) => {
+    .get('/tasks/edit/:id', { preValidation: app.formAuth }, async (req, reply) => {
       const [task, statuses, labels, users] = await Promise.all([
         app.objection.models.task.query().findById(req.params.id),
         app.objection.models.status.query(),
@@ -31,7 +31,7 @@ export default (app) => {
         errors: {},
       });
     })
-    .post('/tasks', async (req, reply) => {
+    .post('/tasks', { preValidation: app.formAuth }, async (req, reply) => {
       try {
         await app.objection
           .models
@@ -65,7 +65,7 @@ export default (app) => {
         });
       }
     })
-    .patch('/tasks', async (req, reply) => {
+    .patch('/tasks', { preValidation: app.formAuth }, async (req, reply) => {
       try {
         await app.objection
           .models
@@ -98,7 +98,7 @@ export default (app) => {
         });
       }
     })
-    .delete('/tasks', async (req, reply) => {
+    .delete('/tasks', { preValidation: app.formAuth }, async (req, reply) => {
       await app.objection.models.task.query().deleteById(req.body.id);
       await reply.redirect('/tasks');
     });

@@ -1,17 +1,17 @@
 export default (app) => {
   app
-    .get('/labels', async (req, reply) => {
+    .get('/labels', { preValidation: app.formAuth }, async (req, reply) => {
       const labels = await app.objection.models.label.query();
       await reply.render('labels/index', { data: { currentUser: req.currentUser, labels } });
     })
-    .get('/labels/new', async (req, reply) => {
+    .get('/labels/new', { preValidation: app.formAuth }, async (req, reply) => {
       await reply.render('labels/new', { data: { label: {} }, errors: { } });
     })
-    .get('/labels/edit/:id', async (req, reply) => {
+    .get('/labels/edit/:id', { preValidation: app.formAuth }, async (req, reply) => {
       const label = await app.objection.models.label.query().findById(req.params.id);
       await reply.render('labels/edit', { data: { label }, errors: {} });
     })
-    .post('/labels', async (req, reply) => {
+    .post('/labels', { preValidation: app.formAuth }, async (req, reply) => {
       try {
         const newlabel = app.objection.models.label.fromJson(req.body);
         await app.objection.models.label.query().insert(newlabel);
@@ -20,7 +20,7 @@ export default (app) => {
         await reply.code(422).render('labels/new', { data: { label: req.body }, errors: data });
       }
     })
-    .patch('/labels', async (req, reply) => {
+    .patch('/labels', { preValidation: app.formAuth }, async (req, reply) => {
       try {
         const updatedlabel = app.objection.models.label.fromJson(req.body);
         const existinglabel = await app.objection.models.label.query().findById(req.body.id);
@@ -32,7 +32,7 @@ export default (app) => {
         await reply.code(422).render('labels/edit', { data: { label }, errors: data });
       }
     })
-    .delete('/labels', async (req, reply) => {
+    .delete('/labels', { preValidation: app.formAuth }, async (req, reply) => {
       await app.objection.models.label.query().deleteById(req.body.id);
       await reply.redirect('/labels');
     });
