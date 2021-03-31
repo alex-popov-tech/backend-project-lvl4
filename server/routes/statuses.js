@@ -20,7 +20,7 @@ export default (app) => {
       } catch ({ data }) {
         const status = new app.objection.models.status();
         status.$set(req.body);
-        await reply.code(400).render('statuses/new', { data: { status }, errors: data });
+        await reply.code(422).render('statuses/new', { data: { status }, errors: data });
       }
     })
     .patch('/statuses', async (req, reply) => {
@@ -32,7 +32,7 @@ export default (app) => {
       } catch ({ message, data }) {
         const status = new app.objection.models.status();
         status.$set(req.body);
-        await reply.code(400).render('statuses/edit', { data: { status }, errors: data });
+        await reply.code(422).render('statuses/edit', { data: { status }, errors: data });
       }
     })
     .delete('/statuses', async (req, reply) => {
@@ -40,7 +40,7 @@ export default (app) => {
       if (relatedTasksCount > 0) {
         const statuses = await app.objection.models.status.query();
         statuses.find((it) => it.id === Number(req.body.id)).error = 'Status is used';
-        await reply.code(404).render('/statuses/index', {
+        await reply.code(422).render('/statuses/index', {
           data: { statuses },
         });
         return;

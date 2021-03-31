@@ -57,7 +57,7 @@ export default (app) => {
           app.objection.models.label.query(),
           app.objection.models.user.query(),
         ]);
-        await reply.code(400).render('tasks/new', {
+        await reply.code(422).render('tasks/new', {
           data: {
             task, statuses, users, labels,
           },
@@ -90,7 +90,7 @@ export default (app) => {
           app.objection.models.label.query(),
           app.objection.models.user.query(),
         ]);
-        await reply.code(400).render('tasks/edit', {
+        await reply.code(422).render('tasks/edit', {
           data: {
             task, statuses, users, labels,
           },

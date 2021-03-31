@@ -1,5 +1,5 @@
 import { internet } from 'faker';
-import { launchApp, shutdownApp, clearDatabaseState } from './helpers.js';
+import { clearDatabaseState, launchApp, shutdownApp } from './helpers.js';
 
 describe('Task', () => {
   let app;
@@ -74,13 +74,13 @@ describe('Task', () => {
         ['description', () => ({ name: 'test', statusId: existingStatus.id, creatorId: existingUser.id })],
         ['status', () => ({ name: 'test', description: 'test', creatorId: existingUser.id })],
         ['creator', () => ({ name: 'test', description: 'test', statusId: existingStatus.id })],
-      ])('should not create entity and return 400 when missing required field %s', async (_, data) => {
+      ])('should not create entity and return 422 when missing required field %s', async (_, data) => {
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/tasks',
           body: data(),
         });
-        expect(statusCode).toBe(400);
+        expect(statusCode).toBe(422);
         const tasks = await app.objection.models.task.query();
         expect(tasks).toHaveLength(0);
       });
