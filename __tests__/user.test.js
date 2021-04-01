@@ -15,7 +15,7 @@ describe('Signup', () => {
     await shutdownApp(app);
   });
 
-  describe('get', () => {
+  describe('index', () => {
     it('should return 200', async () => {
       const { statusCode } = await app.inject({
         method: 'get',

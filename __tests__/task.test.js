@@ -41,10 +41,23 @@ describe('Task', () => {
       });
       expect(statusCode).toBe(200);
     });
+    it('should return 200 on edit/:id ', async () => {
+      const existingTask = await app.objection.models.task.query().insert({
+        name: 'test',
+        description: 'test',
+        statusId: existingStatus.id,
+        creatorId: existingUser.id,
+      });
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: `/tasks/edit/${existingTask.id}`,
+      });
+      expect(statusCode).toBe(200);
+    });
     it('should return 200 when using filters', async () => {
       const { statusCode } = await app.inject({
         method: 'get',
-        url: '/statuses',
+        url: '/tasks',
         query: {
           assignedId: existingUser.id,
           statusIds: existingStatus.id,

@@ -16,11 +16,21 @@ describe('Status', () => {
     await clearDatabaseState(app);
   });
 
-  describe('get', () => {
+  describe('index', () => {
     it('should return 200', async () => {
       const { statusCode } = await app.inject({
         method: 'get',
         url: '/statuses',
+      });
+      expect(statusCode).toBe(200);
+    });
+    it('should return 200 on edit/:id ', async () => {
+      const existingStatus = await app.objection.models.status.query().insert({
+        name: random.word(),
+      });
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: `/statuses/edit/${existingStatus.id}`,
       });
       expect(statusCode).toBe(200);
     });
