@@ -1,5 +1,5 @@
 import { random } from 'faker';
-import { launchApp, shutdownApp, clearDatabaseState } from './helpers.js';
+import { clearDatabaseState, launchApp, shutdownApp } from './helpers.js';
 
 describe('Status', () => {
   let app;
@@ -32,7 +32,7 @@ describe('Status', () => {
       expect(statuses[0]).toMatchObject(status);
     });
 
-    it('should not create entity and return 400 when using existing name', async () => {
+    it('should not create entity and return 422 when using existing name', async () => {
       const existingStatus = await app.objection.models.status.query().insert({
         name: random.word(),
       });
@@ -43,7 +43,7 @@ describe('Status', () => {
           name: existingStatus.name,
         },
       });
-      expect(statusCode).toBe(400);
+      expect(statusCode).toBe(422);
       const statuses = await app.objection.models.status.query();
       expect(statuses).toHaveLength(1);
     });

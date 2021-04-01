@@ -1,5 +1,5 @@
 import { random } from 'faker';
-import { launchApp, shutdownApp, clearDatabaseState } from './helpers.js';
+import { clearDatabaseState, launchApp, shutdownApp } from './helpers.js';
 
 describe('Label', () => {
   let app;
@@ -32,7 +32,7 @@ describe('Label', () => {
       expect(labels[0]).toMatchObject(status);
     });
 
-    it('should not create entity and return 400 when using existing name', async () => {
+    it('should not create entity and return 422 when using existing name', async () => {
       const existingLabel = await app.objection.models.label.query().insert({
         name: random.word(),
       });
@@ -43,7 +43,7 @@ describe('Label', () => {
           name: existingLabel.name,
         },
       });
-      expect(statusCode).toBe(400);
+      expect(statusCode).toBe(422);
       const labels = await app.objection.models.label.query();
       expect(labels).toHaveLength(1);
     });

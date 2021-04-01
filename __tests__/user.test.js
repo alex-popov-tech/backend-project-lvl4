@@ -1,4 +1,4 @@
-import { launchApp, shutdownApp, clearDatabaseState } from './helpers.js';
+import { clearDatabaseState, launchApp, shutdownApp } from './helpers.js';
 
 describe('Signup', () => {
   let app;
@@ -38,7 +38,7 @@ describe('Signup', () => {
     });
 
     describe('when using invalid data', () => {
-      it('should return 400 when existing email', async () => {
+      it('should return 422 when existing email', async () => {
         await app.objection.models.user.query().insert({
           firstName: 'foo',
           lastName: 'bar',
@@ -55,7 +55,7 @@ describe('Signup', () => {
             lastName: 'test',
           },
         });
-        expect(statusCode).toBe(400);
+        expect(statusCode).toBe(422);
         const users = await app.objection.models.user.query();
         expect(users).toHaveLength(1);
         expect(users[0]).toMatchObject({
@@ -82,13 +82,13 @@ describe('Signup', () => {
         ], ['lastName is empty', {
           email: 'new@test.com', password: 'test', firstName: 'test', lastName: '',
         },
-        ]])('should return 400 when %s', async (_, body) => {
+        ]])('should return 422 when %s', async (_, body) => {
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/users',
           body,
         });
-        expect(statusCode).toBe(400);
+        expect(statusCode).toBe(422);
         const users = await app.objection.models.user.query();
         expect(users).toHaveLength(0);
       });

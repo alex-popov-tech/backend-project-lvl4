@@ -17,7 +17,7 @@ export default (app) => {
         await app.objection.models.label.query().insert(newlabel);
         await reply.redirect('/labels');
       } catch ({ data }) {
-        await reply.code(400).render('labels/new', { data: { label: req.body }, errors: data });
+        await reply.code(422).render('labels/new', { data: { label: req.body }, errors: data });
       }
     })
     .patch('/labels', async (req, reply) => {
@@ -29,7 +29,7 @@ export default (app) => {
       } catch ({ message, data }) {
         const label = new app.objection.models.label();
         label.$set(req.body);
-        await reply.code(400).render('labels/edit', { data: { label }, errors: data });
+        await reply.code(422).render('labels/edit', { data: { label }, errors: data });
       }
     })
     .delete('/labels', async (req, reply) => {
