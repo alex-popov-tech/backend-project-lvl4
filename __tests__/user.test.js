@@ -15,6 +15,16 @@ describe('Signup', () => {
     await shutdownApp(app);
   });
 
+  describe('index', () => {
+    it('should return 200', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: '/users',
+      });
+      expect(statusCode).toBe(200);
+    });
+  });
+
   describe('create', () => {
     it('should return 302 when using valid data', async () => {
       const { statusCode } = await app.inject({
