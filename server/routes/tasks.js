@@ -8,14 +8,13 @@ export default (app) => {
       const statusIds = formalizeMultiselectValues(req.query.statusIds);
       const labelIds = formalizeMultiselectValues(req.query.labelIds);
       const assignedIds = formalizeMultiselectValues(req.query.assignedIds);
-      const tasks = app.objection.models.task.query();
+      const tasks = app.objection.models.task.query().withGraphJoined('[status, creator, assigned, labels]');
       if (statusIds.length) {
         tasks.modify('withStatusIn', statusIds);
       }
       if (assignedIds.length) {
         tasks.modify('withAssignedIn', assignedIds);
       }
-      tasks.withGraphJoined('[status, creator, assigned, labels]');
       if (labelIds.length) {
         tasks.modify('withLabelIn', labelIds);
       }
