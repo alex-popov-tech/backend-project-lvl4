@@ -11,7 +11,7 @@ html(lang="en").h-100
       ul.navbar-nav.mr-auto
         li.nav-item
           a.nav-link(href='/users') Users
-      if reply.request.user
+      if isAuthenticated()
         ul.navbar-nav.mr-auto
           li.nav-item
             a.nav-link(href='/statuses') Statuses
@@ -22,7 +22,7 @@ html(lang="en").h-100
           li.nav-item
             a.nav-link(href='/tasks') Tasks
       up.navbar-nav
-        if !reply.request.user
+        if !isAuthenticated()
           li.nav-item
             a.nav-link(href='/users/new') Sign Up
           li.nav-item

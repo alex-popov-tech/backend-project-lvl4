@@ -1,8 +1,11 @@
 import { random } from 'faker';
-import { clearDatabaseState, launchApp, shutdownApp } from './helpers.js';
+import {
+  clearDatabaseState, getAuthenticatedUser, launchApp, shutdownApp,
+} from './helpers';
 
 describe('Status', () => {
   let app;
+  let Cookie;
 
   beforeAll(async () => {
     app = await launchApp();
@@ -14,6 +17,7 @@ describe('Status', () => {
 
   beforeEach(async () => {
     await clearDatabaseState(app);
+    ({ Cookie } = await getAuthenticatedUser(app));
   });
 
   describe('create', () => {
@@ -24,6 +28,7 @@ describe('Status', () => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/statuses',
+        headers: { Cookie },
         body: status,
       });
       expect(statusCode).toBe(302);
@@ -39,6 +44,7 @@ describe('Status', () => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/statuses',
+        headers: { Cookie },
         body: {
           name: existingStatus.name,
         },
@@ -61,6 +67,7 @@ describe('Status', () => {
       const { statusCode } = await app.inject({
         method: 'patch',
         url: '/statuses',
+        headers: { Cookie },
         body: {
           id: existingStatus.id,
           name: 'new name',
@@ -81,6 +88,7 @@ describe('Status', () => {
       const { statusCode } = await app.inject({
         method: 'delete',
         url: '/statuses',
+        headers: { Cookie },
         body: {
           id: existingStatus.id,
         },
@@ -95,6 +103,7 @@ describe('Status', () => {
     const res = await app.inject({
       method: 'delete',
       url: '/statuses',
+      headers: { Cookie },
       body: {
         id: -1,
       },

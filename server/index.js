@@ -24,7 +24,7 @@ const mode = process.env.NODE_ENV || 'development';
 const isDevelopment = mode === 'development';
 const isTest = mode === 'test';
 
-const addErrorHandler = async (app) => {
+const addErrorHandler = (app) => {
   if (isTest) {
     return;
   }
@@ -39,7 +39,7 @@ const addErrorHandler = async (app) => {
     app.addHook('onError', async (err) => rollbar.error(err));
   }
 };
-const addTemplatesEngine = async (app) => {
+const addTemplatesEngine = (app) => {
   app.register(pointOfView, {
     engine: {
       pug,
@@ -55,7 +55,7 @@ const addTemplatesEngine = async (app) => {
     });
   });
 };
-const addAssets = async (app) => {
+const addAssets = (app) => {
   if (isTest) {
     return;
   }
@@ -70,17 +70,17 @@ const addAssets = async (app) => {
     });
   }
 };
-const addDatabase = async (app) => {
+const addDatabase = (app) => {
   app.register(fastifyObjection, {
     knexConfig: knexConfig[mode],
     models,
   });
 };
-const addPlugins = async (app) => {
+const addPlugins = (app) => {
   app.register(fastifyFormbody);
   app.register(fastifyMethodOverride);
 };
-const addAuthentification = async (app) => {
+const addAuthentification = (app) => {
   app.register(fastifySecureSession, {
     secret: process.env.SECRET,
     salt: process.env.SALT,
@@ -88,25 +88,25 @@ const addAuthentification = async (app) => {
   app.register(fastifyPassport.initialize());
   app.register(fastifyPassport.secureSession());
   fastifyPassport.use('form', new FormPassportStrategy('form', app));
+  fastifyPassport.registerUserSerializer(async (user) => user.id);
   fastifyPassport.registerUserDeserializer(
-    async (user) => app.objection.models.user.query().findById(user.id),
+    async (userId) => app.objection.models.user.query().findById(userId),
   );
-  fastifyPassport.registerUserSerializer(async (user) => user);
-  app.decorate('pasport', fastifyPassport);
+  app.decorate('passport', fastifyPassport);
   app.decorate('formAuth', (...args) => fastifyPassport.authenticate(
     'form',
     {
       failureRedirect: '/',
-      // failureFlash: i18next.t('flash.authError'),
     },
   // @ts-ignore
   )(...args));
-
-  app.get(
-    '/kek',
-    { preValidation: app.formAuth },
-    async () => 'hello world!',
-  );
+};
+const addHooks = (app) => {
+  app.addHook('preHandler', async (req, reply) => {
+    reply.locals = {
+      isAuthenticated: () => req.isAuthenticated(),
+    };
+  });
 };
 
 export default async () => {
@@ -116,12 +116,14 @@ export default async () => {
       level: 'error',
     },
   });
-  await addPlugins(app);
-  await addAuthentification(app);
-  await addTemplatesEngine(app);
-  await addAssets(app);
-  await addErrorHandler(app);
-  await addDatabase(app);
+
+  addHooks(app);
+  addPlugins(app);
+  addAuthentification(app);
+  addTemplatesEngine(app);
+  addAssets(app);
+  addErrorHandler(app);
+  addDatabase(app);
   addRoutes(app);
 
   return app;

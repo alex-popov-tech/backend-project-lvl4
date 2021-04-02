@@ -1,5 +1,5 @@
 import { internet } from 'faker';
-import { launchApp, shutdownApp, clearDatabaseState } from './helpers.js';
+import { clearDatabaseState, launchApp, shutdownApp } from './helpers';
 
 describe('Session', () => {
   let app;

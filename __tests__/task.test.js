@@ -1,8 +1,11 @@
 import { internet } from 'faker';
-import { clearDatabaseState, launchApp, shutdownApp } from './helpers.js';
+import {
+  clearDatabaseState, getAuthenticatedUser, launchApp, shutdownApp,
+} from './helpers';
 
 describe('Task', () => {
   let app;
+  let Cookie;
   let existingStatus;
   let existingLabel;
   let existingUser;
@@ -17,6 +20,7 @@ describe('Task', () => {
 
   beforeEach(async () => {
     await clearDatabaseState(app);
+    ({ Cookie } = await getAuthenticatedUser(app));
     existingStatus = await app.objection.models.status.query().insert({
       name: 'test status',
     });
@@ -41,6 +45,7 @@ describe('Task', () => {
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/tasks',
+          headers: { Cookie },
           body: {
             name,
             description,
@@ -78,6 +83,7 @@ describe('Task', () => {
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/tasks',
+          headers: { Cookie },
           body: data(),
         });
         expect(statusCode).toBe(422);
@@ -116,6 +122,7 @@ describe('Task', () => {
       const { statusCode } = await app.inject({
         method: 'patch',
         url: '/tasks',
+        headers: { Cookie },
         body: {
           ...updatedTask,
           labelIds: newLabel.id,
@@ -148,6 +155,7 @@ describe('Task', () => {
       const { statusCode } = await app.inject({
         method: 'delete',
         url: '/tasks',
+        headers: { Cookie },
         body: {
           id: existingTask.id,
         },

@@ -4,7 +4,7 @@ export default (app) => {
       const user = new app.objection.models.user();
       await reply.render('sessions/new', { data: { user }, errors: {} });
     })
-    .post('/sessions', app.pasport.authenticate('form', async (req, reply, err, existingUser) => {
+    .post('/sessions', app.passport.authenticate('form', async (req, reply, err, existingUser) => {
       if (err) {
         return app.httpErrors.internalServerError(err);
       }

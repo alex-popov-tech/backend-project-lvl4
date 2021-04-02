@@ -1,8 +1,11 @@
 import { random } from 'faker';
-import { clearDatabaseState, launchApp, shutdownApp } from './helpers.js';
+import {
+  clearDatabaseState, getAuthenticatedUser, launchApp, shutdownApp,
+} from './helpers';
 
 describe('Label', () => {
   let app;
+  let Cookie;
 
   beforeAll(async () => {
     app = await launchApp();
@@ -14,6 +17,7 @@ describe('Label', () => {
 
   beforeEach(async () => {
     await clearDatabaseState(app);
+    ({ Cookie } = await getAuthenticatedUser(app));
   });
 
   describe('create', () => {
@@ -24,6 +28,7 @@ describe('Label', () => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/labels',
+        headers: { Cookie },
         body: status,
       });
       expect(statusCode).toBe(302);
@@ -39,6 +44,7 @@ describe('Label', () => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/labels',
+        headers: { Cookie },
         body: {
           name: existingLabel.name,
         },
@@ -61,6 +67,7 @@ describe('Label', () => {
       const { statusCode } = await app.inject({
         method: 'patch',
         url: '/labels',
+        headers: { Cookie },
         body: {
           id: existingLabel.id,
           name: 'new name',
@@ -81,6 +88,7 @@ describe('Label', () => {
       const { statusCode } = await app.inject({
         method: 'delete',
         url: '/labels',
+        headers: { Cookie },
         body: {
           id: existingLabel.id,
         },
@@ -94,6 +102,7 @@ describe('Label', () => {
       const res = await app.inject({
         method: 'delete',
         url: '/labels',
+        headers: { Cookie },
         body: {
           id: -1,
         },
