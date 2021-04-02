@@ -61,7 +61,7 @@ export default (app) => {
     })
     .post('/tasks', async (req, reply) => {
       try {
-        const labels = formalizeMultiselectValues(req.query.labelIds);
+        const labelIds = formalizeMultiselectValues(req.body.labelIds);
         await app.objection
           .models
           .task
@@ -69,7 +69,7 @@ export default (app) => {
             name: req.body.name,
             description: req.body.description,
             statusId: Number(req.body.statusId),
-            labels,
+            labels: labelIds.map((labelId) => ({ id: labelId })),
             creatorId: Number(req.body.creatorId),
             assignedId: Number(req.body.assignedId),
           }, {
@@ -94,7 +94,7 @@ export default (app) => {
     })
     .patch('/tasks', async (req, reply) => {
       try {
-        const labels = formalizeMultiselectValues(req.query.labelIds);
+        const labelIds = formalizeMultiselectValues(req.body.labelIds);
         await app.objection
           .models
           .task
@@ -103,7 +103,7 @@ export default (app) => {
             name: req.body.name,
             description: req.body.description,
             statusId: Number(req.body.statusId),
-            labels,
+            labels: labelIds.map((labelId) => ({ id: labelId })),
             creatorId: Number(req.body.creatorId),
             assignedId: Number(req.body.assignedId),
           }, { relate: true, unrelate: true, noDelete: true }));
