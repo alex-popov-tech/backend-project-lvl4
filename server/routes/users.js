@@ -34,11 +34,7 @@ export default (app) => {
       } catch ({ data }) {
         const user = new app.objection.models.user();
         user.$set(req.body);
-<<<<<<< HEAD
-        await reply.code(422).render('users/edit', { data: { user }, errors: data });
-=======
-        return reply.code(400).render('users/edit', { data: { user }, errors: data });
->>>>>>> review fixes
+        return reply.code(422).render('users/edit', { data: { user }, errors: data });
       }
     })
     .delete('/users', { preValidation: app.formAuth }, async (req, reply) => {
