@@ -15,7 +15,6 @@ export default class Label extends unique(Model) {
       type: 'object',
       required: ['name'],
       properties: {
-        id: { type: 'integer' },
         name: { type: 'string', minLength: 2 },
       },
     };

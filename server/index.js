@@ -1,18 +1,21 @@
 import dotenv from 'dotenv';
 import fastify from 'fastify';
 import fastifyErrorsProperties from 'fastify-errors-properties';
+import fastifyFlash from 'fastify-flash';
 import fastifyFormbody from 'fastify-formbody';
 import fastifyMethodOverride from 'fastify-method-override';
 import fastifyObjection from 'fastify-objectionjs';
 import fastifySecureSession from 'fastify-secure-session';
 import fastifyStatic from 'fastify-static';
 import fastifyWebpackHMR from 'fastify-webpack-hmr';
+import i18next from 'i18next';
 import _ from 'lodash';
 import path from 'path';
 import pointOfView from 'point-of-view';
 import pug from 'pug';
 import Rollbar from 'rollbar';
 import knexConfig from '../knexfile';
+import { en } from './locales';
 import models from './models/index';
 import addRoutes from './routes';
 
@@ -44,7 +47,10 @@ const addTemplatesEngine = async (app) => {
     },
     includeViewExtension: true,
     root: path.join(__dirname, 'views'),
-    defaultContext: _,
+    defaultContext: {
+      _,
+      t: (key) => i18next.t(key),
+    },
   });
   app.decorateReply('render', function render(viewPath, locals) {
     return this.view(viewPath, {
@@ -77,6 +83,7 @@ const addDatabase = async (app) => {
 const addPlugins = async (app) => {
   await app.register(fastifyFormbody);
   await app.register(fastifyMethodOverride);
+  app.register(fastifyFlash);
 };
 const addSession = async (app) => {
   await app.register(fastifySecureSession, {
@@ -90,16 +97,24 @@ const addSession = async (app) => {
     }
   });
 };
-
+const addLocalization = () => {
+  i18next
+    .init({
+      lng: 'en',
+      fallbackLng: 'en',
+      debug: isDevelopment,
+      resources: { en },
+    });
+};
 export default async () => {
   const app = fastify({
     logger: {
-      prettyPrint: true,
-      level: 'error',
+      prettyPrint: isDevelopment,
     },
   });
-  await addPlugins(app);
   await addSession(app);
+  await addPlugins(app);
+  addLocalization();
   await addTemplatesEngine(app);
   await addAssets(app);
   await addErrorHandler(app);

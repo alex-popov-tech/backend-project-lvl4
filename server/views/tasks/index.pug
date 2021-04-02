@@ -3,16 +3,16 @@ extends ../layouts/application.pug
 block content
   table.table.table-striped
     +formFor()(action='/tasks/new' )
-      input(class='btn btn-primary' type='submit' value='Add')
+      input(class='btn btn-primary' type='submit' value=t('tasks.index.add'))
     thead
       tr
-        th= 'Name'
-        th= 'Description'
-        th= 'Status'
-        th= 'Labels'
-        th= 'Creator'
-        th= 'Assignee'
-        th= 'Action'
+        th= t('tasks.index.list.columns.name')
+        th= t('tasks.index.list.columns.description')
+        th= t('tasks.index.list.columns.status')
+        th= t('tasks.index.list.columns.labels')
+        th= t('tasks.index.list.columns.creator')
+        th= t('tasks.index.list.columns.assigned')
+        th= t('tasks.index.list.columns.action.name')
     tbody
       each task in data.tasks
         tr
@@ -24,8 +24,8 @@ block content
           td= task.assigned ? `${task.assigned.firstName} ${task.assigned.lastName}` : 'none'
           td
             +formFor()(action=`/tasks/edit/${task.id}` )
-              input(class='btn btn-primary' type='submit' value='Edit')
+              input(class='btn btn-primary' type='submit' value=t('tasks.index.list.columns.action.edit'))
             +formFor()(action='/tasks' method='post')
               input(name="_method" type="hidden" value="delete")
               input(name="id" type="hidden" value=task.id)
-              +submit()(value='Delete')
+              +submit()(value=t('tasks.index.list.columns.action.delete'))

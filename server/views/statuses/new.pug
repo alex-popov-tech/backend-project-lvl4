@@ -1,9 +1,9 @@
 extends ../layouts/application.pug
 
 block header
-  ='Add new Status'
+  =t('statuses.new.title')
 
 block content
   +formFor()(action='/statuses' method='post')
-    +input('name', data.status.name, errors.name)(type="name")
-    +submit()(value='Add Status')
+    +input(t('statuses.new.form.name'), data.status.name, errors.name)(name="name")
+    +submit()(value=t('statuses.new.form.confirm'))

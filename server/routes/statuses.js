@@ -2,6 +2,9 @@ export default (app) => {
   app
     .get('/statuses', async (req, reply) => {
       const statuses = await app.objection.models.status.query();
+      req.flash('info', 'kek');
+      req.flash('danger', 'kek');
+      req.flash('warning', 'kek');
       await reply.render('statuses/index', { data: { statuses } });
     })
     .get('/statuses/new', async (req, reply) => {
@@ -38,14 +41,13 @@ export default (app) => {
     .delete('/statuses', async (req, reply) => {
       const relatedTasksCount = await app.objection.models.task.query().where('statusId', req.body.id).resultSize();
       if (relatedTasksCount > 0) {
+        req.flash('danger', 'Status is used');
         const statuses = await app.objection.models.status.query();
-        statuses.find((it) => it.id === Number(req.body.id)).error = 'Status is used';
-        await reply.code(422).render('/statuses/index', {
+        return reply.code(422).render('/statuses/index', {
           data: { statuses },
         });
-        return;
       }
       await app.objection.models.status.query().deleteById(req.body.id);
-      await reply.redirect('/statuses');
+      return reply.redirect('/statuses');
     });
 };

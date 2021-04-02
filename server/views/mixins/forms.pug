@@ -1,5 +1,11 @@
 - const getInputName = (entity, property) => `${entity.constructor.name.toLowerCase()}[${property}]`
 
+mixin flash(messages = [])
+  .container.wrapper.flex
+    each texts, type in messages
+      each text in texts
+        div.alert(class=`alert-${type}`)= text + type
+
 mixin formFor(entity = null)
   form&attributes(attributes)
     block

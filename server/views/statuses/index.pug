@@ -3,11 +3,11 @@ extends ../layouts/application.pug
 block content
   table.table.table-striped
     +formFor()(action='/statuses/new' )
-      input(class='btn btn-primary' type='submit' value='Add')
+      input(class='btn btn-primary' type='submit' value=t('statuses.index.add'))
     thead
       tr
-        th= 'Status Name'
-        th= 'Action'
+        th=t('statuses.index.list.columns.name')
+        th=t('statuses.index.list.columns.action.name')
     tbody
       each status in data.statuses
         tr
@@ -16,8 +16,8 @@ block content
             .form-control-feedback=status.error
           td
             +formFor()(action=`/statuses/edit/${status.id}` )
-              input(class='btn btn-primary' type='submit' value='Edit')
+              input(class='btn btn-primary' type='submit' value=t('statuses.index.list.columns.action.edit'))
             +formFor()(action='/statuses' method='post')
               input(name="_method" type="hidden" value="delete")
               input(name="id" type="hidden" value=status.id)
-              +submit()(value='Delete')
+              +submit()(value=t('statuses.index.list.columns.action.delete'))
