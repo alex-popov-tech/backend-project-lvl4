@@ -2,7 +2,7 @@ import {
   clearDatabaseState, getAuthenticatedUser, launchApp, shutdownApp,
 } from './helpers';
 
-describe('Signup', () => {
+describe('Users', () => {
   let app;
 
   beforeAll(async () => {
@@ -15,6 +15,25 @@ describe('Signup', () => {
 
   beforeEach(async () => {
     await clearDatabaseState(app);
+  });
+
+  describe('index', () => {
+    it('should be available without authentification', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: '/users',
+      });
+      expect(statusCode).toBe(200);
+    });
+    it('should be available with authentification', async () => {
+      const { cookies } = await getAuthenticatedUser(app);
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: '/users',
+        cookies,
+      });
+      expect(statusCode).toBe(200);
+    });
   });
 
   describe('create', () => {
@@ -98,20 +117,27 @@ describe('Signup', () => {
   });
 
   describe('update', () => {
-    let Cookie;
+    let cookies;
     let user;
 
     beforeEach(async () => {
-      ({ Cookie, user } = await getAuthenticatedUser(app));
+      ({ cookies, user } = await getAuthenticatedUser(app));
+    });
+
+    it('should not be available without authentification', async () => {
+      const { statusCode } = await app.inject({
+        method: 'patch',
+        url: `/users/${user.id}`,
+      });
+      expect(statusCode).toBe(302);
     });
 
     it('should allow to update entity and return 302 when using valid data', async () => {
       const { statusCode } = await app.inject({
         method: 'patch',
-        url: '/users',
-        headers: { Cookie },
+        url: `/users/${user.id}`,
+        cookies,
         body: {
-          id: user.id,
           email: 'new@test.com',
           password: 'test',
           firstName: 'test',
@@ -127,54 +153,22 @@ describe('Signup', () => {
         lastName: 'test',
       });
     });
-
-    it('should not allow to update other and return 302 when using valid data', async () => {
-      const existingUser = await app.objection.models.user.query().insert({
-        firstName: 'foo',
-        lastName: 'bar',
-        email: 'a@a.com',
-        password: 'test',
-      });
-      const { statusCode } = await app.inject({
-        method: 'patch',
-        url: '/users',
-        headers: { Cookie },
-        body: {
-          id: existingUser.id,
-          email: 'new@test.com',
-          password: 'test',
-          firstName: 'test',
-          lastName: 'test',
-        },
-      });
-      expect(statusCode).toBe(302);
-      expect(await app.objection.models.user.query().findById(existingUser.id))
-        .toMatchObject({
-          firstName: 'foo',
-          lastName: 'bar',
-          email: 'a@a.com',
-        });
-    });
   });
 
   describe('delete', () => {
-    let Cookie;
+    let cookies;
     let user;
 
     beforeEach(async () => {
-      ({ Cookie, user } = await getAuthenticatedUser(app));
+      ({ cookies, user } = await getAuthenticatedUser(app));
     });
 
     it('should allow to delete own entity and return 302', async () => {
       const response = await app.inject({
         method: 'delete',
-        url: '/users',
-        headers: { Cookie },
-        body: {
-          id: user.id,
-        },
+        url: `/users/${user.id}`,
+        cookies,
       });
-      expect(response.headers['set-cookie']).not.toBe(Cookie);
       expect(response.statusCode).toBe(302);
       const users = await app.objection.models.task.query();
       expect(users).toHaveLength(0);
@@ -189,13 +183,9 @@ describe('Signup', () => {
       });
       const response = await app.inject({
         method: 'delete',
-        url: '/users',
-        headers: { Cookie },
-        body: {
-          id: existingUser.id,
-        },
+        url: `/users/${existingUser.id}`,
+        cookies,
       });
-      expect(response.headers['set-cookie']).not.toBe(Cookie);
       expect(response.statusCode).toBe(302);
       const users = await app.objection.models.task.query();
       expect(users).toHaveLength(0);

@@ -65,20 +65,19 @@ export default (app) => {
         });
       }
     })
-    .patch('/tasks', { preValidation: app.formAuth }, async (req, reply) => {
+    .patch('/tasks/:id', { preValidation: app.formAuth }, async (req, reply) => {
       try {
         await app.objection
           .models
           .task
           .transaction((trx) => app.objection.models.task.query(trx).upsertGraph({
-            id: Number(req.body.id),
+            id: Number(req.params.id),
             name: req.body.name,
             description: req.body.description,
             statusId: Number(req.body.statusId),
             labels: [req.body.labelIds].flat()
               .filter((it) => !!it)
               .map((labelId) => ({ id: Number(labelId) })),
-            creatorId: Number(req.body.creatorId),
             assignedId: Number(req.body.assignedId),
           }, { relate: true, unrelate: true, noDelete: true }));
         await reply.redirect('/tasks');
@@ -98,8 +97,8 @@ export default (app) => {
         });
       }
     })
-    .delete('/tasks', { preValidation: app.formAuth }, async (req, reply) => {
-      await app.objection.models.task.query().deleteById(req.body.id);
+    .delete('/tasks/:id', { preValidation: app.formAuth }, async (req, reply) => {
+      await app.objection.models.task.query().deleteById(req.params.id);
       await reply.redirect('/tasks');
     });
 };

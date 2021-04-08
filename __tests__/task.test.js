@@ -5,7 +5,7 @@ import {
 
 describe('Task', () => {
   let app;
-  let Cookie;
+  let cookies;
   let existingStatus;
   let existingLabel;
   let existingUser;
@@ -20,7 +20,7 @@ describe('Task', () => {
 
   beforeEach(async () => {
     await clearDatabaseState(app);
-    ({ Cookie } = await getAuthenticatedUser(app));
+    ({ cookies } = await getAuthenticatedUser(app));
     existingStatus = await app.objection.models.status.query().insert({
       name: 'test status',
     });
@@ -45,7 +45,7 @@ describe('Task', () => {
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/tasks',
-          headers: { Cookie },
+          cookies,
           body: {
             name,
             description,
@@ -83,7 +83,7 @@ describe('Task', () => {
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/tasks',
-          headers: { Cookie },
+          cookies,
           body: data(),
         });
         expect(statusCode).toBe(422);
@@ -112,7 +112,6 @@ describe('Task', () => {
         name: 'test updated',
       });
       const updatedTask = {
-        id: existingTask.id,
         name: 'updated-name',
         description: 'updated-descr',
         statusId: updatedStatus.id,
@@ -121,8 +120,8 @@ describe('Task', () => {
       };
       const { statusCode } = await app.inject({
         method: 'patch',
-        url: '/tasks',
-        headers: { Cookie },
+        url: `/tasks/${existingTask.id}`,
+        cookies,
         body: {
           ...updatedTask,
           labelIds: newLabel.id,
@@ -154,11 +153,8 @@ describe('Task', () => {
     it('should delete entity and return 302', async () => {
       const { statusCode } = await app.inject({
         method: 'delete',
-        url: '/tasks',
-        headers: { Cookie },
-        body: {
-          id: existingTask.id,
-        },
+        url: `/tasks/${existingTask.id}`,
+        cookies,
       });
       expect(statusCode).toBe(302);
       const tasks = await app.objection.models.task.query();

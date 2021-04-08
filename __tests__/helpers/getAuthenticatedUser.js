@@ -1,3 +1,4 @@
+import { parse } from 'cookie';
 import { internet } from 'faker';
 
 export default async (app, email = internet.email(), password = 'test') => {
@@ -12,6 +13,6 @@ export default async (app, email = internet.email(), password = 'test') => {
     url: '/sessions',
     body: { email, password },
   });
-  const Cookie = response.headers['set-cookie'];
-  return { user, Cookie };
+  const cookieString = response.headers['set-cookie'];
+  return { user, cookies: parse(cookieString) };
 };

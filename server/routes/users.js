@@ -2,7 +2,7 @@ export default (app) => {
   app
     .get('/users', async (req, reply) => {
       const users = await app.objection.models.user.query();
-      await reply.render('users/index', { data: { users, currentUser: req.user ?? {} } });
+      await reply.render('users/index', { data: { users } });
     })
     .get('/users/new', async (req, reply) => {
       await reply.render('users/new', { data: { user: {} }, errors: [] });
@@ -22,13 +22,11 @@ export default (app) => {
         await reply.code(422).render('users/new', { data: { user }, errors: data });
       }
     })
-    .patch('/users', { preValidation: app.formAuth }, async (req, reply) => {
+    .patch('/users/:id', { preValidation: app.formAuth }, async (req, reply) => {
       try {
-        if (Number(req.body.id) !== req.user.id) {
-          return reply.redirect('/users');
-        }
+        const { id } = req.params;
         const updatedUser = app.objection.models.user.fromJson(req.body);
-        const existingUser = await app.objection.models.user.query().findById(req.user.id);
+        const existingUser = await app.objection.models.user.query().findById(id);
         await existingUser.$query().patch(updatedUser);
         return reply.redirect('/users');
       } catch ({ data }) {
@@ -37,11 +35,11 @@ export default (app) => {
         return reply.code(422).render('users/edit', { data: { user }, errors: data });
       }
     })
-    .delete('/users', { preValidation: app.formAuth }, async (req, reply) => {
-      const { id } = req.body;
+    .delete('/users/:id', { preValidation: app.formAuth }, async (req, reply) => {
+      const { id } = req.params;
       if (req.user.id === Number(id)) {
         await req.logout(req.user);
-        await app.objection.models.user.query().deleteById(id);
+        await app.objection.models.user.query().deleteById(Number(id));
       }
       await reply.redirect('/users');
     });

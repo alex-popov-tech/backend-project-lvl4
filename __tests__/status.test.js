@@ -5,7 +5,7 @@ import {
 
 describe('Status', () => {
   let app;
-  let Cookie;
+  let cookies;
 
   beforeAll(async () => {
     app = await launchApp();
@@ -17,7 +17,7 @@ describe('Status', () => {
 
   beforeEach(async () => {
     await clearDatabaseState(app);
-    ({ Cookie } = await getAuthenticatedUser(app));
+    ({ cookies } = await getAuthenticatedUser(app));
   });
 
   describe('create', () => {
@@ -28,7 +28,7 @@ describe('Status', () => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/statuses',
-        headers: { Cookie },
+        cookies,
         body: status,
       });
       expect(statusCode).toBe(302);
@@ -44,7 +44,7 @@ describe('Status', () => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/statuses',
-        headers: { Cookie },
+        cookies,
         body: {
           name: existingStatus.name,
         },
@@ -66,10 +66,9 @@ describe('Status', () => {
     it('should update entity and return 302 when using valid name', async () => {
       const { statusCode } = await app.inject({
         method: 'patch',
-        url: '/statuses',
-        headers: { Cookie },
+        url: `/statuses/${existingStatus.id}`,
+        cookies,
         body: {
-          id: existingStatus.id,
           name: 'new name',
         },
       });
@@ -87,11 +86,8 @@ describe('Status', () => {
       });
       const { statusCode } = await app.inject({
         method: 'delete',
-        url: '/statuses',
-        headers: { Cookie },
-        body: {
-          id: existingStatus.id,
-        },
+        url: `/statuses/${existingStatus.id}`,
+        cookies,
       });
       expect(statusCode).toBe(302);
       const statuses = await app.objection.models.status.query();
@@ -102,11 +98,8 @@ describe('Status', () => {
   it('should return 302 when using invalid id', async () => {
     const res = await app.inject({
       method: 'delete',
-      url: '/statuses',
-      headers: { Cookie },
-      body: {
-        id: -1,
-      },
+      url: '/statuses/-1',
+      cookies,
     });
     expect(res.statusCode).toBe(302);
   });

@@ -23,10 +23,10 @@ export default (app) => {
         await reply.code(422).render('statuses/new', { data: { status }, errors: data });
       }
     })
-    .patch('/statuses', { preValidation: app.formAuth }, async (req, reply) => {
+    .patch('/statuses/:id', { preValidation: app.formAuth }, async (req, reply) => {
       try {
         const updatedStatus = app.objection.models.status.fromJson(req.body);
-        const existingStatus = await app.objection.models.status.query().findById(req.body.id);
+        const existingStatus = await app.objection.models.status.query().findById(req.params.id);
         await existingStatus.$query().patch(updatedStatus);
         await reply.redirect('/statuses');
       } catch ({ message, data }) {
@@ -35,17 +35,17 @@ export default (app) => {
         await reply.code(422).render('statuses/edit', { data: { status }, errors: data });
       }
     })
-    .delete('/statuses', { preValidation: app.formAuth }, async (req, reply) => {
-      const relatedTasksCount = await app.objection.models.task.query().where('statusId', req.body.id).resultSize();
+    .delete('/statuses/:id', { preValidation: app.formAuth }, async (req, reply) => {
+      const relatedTasksCount = await app.objection.models.task.query().where('statusId', req.params.id).resultSize();
       if (relatedTasksCount > 0) {
         const statuses = await app.objection.models.status.query();
-        statuses.find((it) => it.id === Number(req.body.id)).error = 'Status is used';
+        statuses.find((it) => it.id === Number(req.params.id)).error = 'Status is used';
         await reply.code(422).render('/statuses/index', {
           data: { statuses },
         });
         return;
       }
-      await app.objection.models.status.query().deleteById(req.body.id);
+      await app.objection.models.status.query().deleteById(req.params.id);
       await reply.redirect('/statuses');
     });
 };

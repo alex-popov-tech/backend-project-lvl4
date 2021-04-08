@@ -5,7 +5,7 @@ import {
 
 describe('Label', () => {
   let app;
-  let Cookie;
+  let cookies;
 
   beforeAll(async () => {
     app = await launchApp();
@@ -17,7 +17,7 @@ describe('Label', () => {
 
   beforeEach(async () => {
     await clearDatabaseState(app);
-    ({ Cookie } = await getAuthenticatedUser(app));
+    ({ cookies } = await getAuthenticatedUser(app));
   });
 
   describe('create', () => {
@@ -28,7 +28,7 @@ describe('Label', () => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/labels',
-        headers: { Cookie },
+        cookies,
         body: status,
       });
       expect(statusCode).toBe(302);
@@ -44,7 +44,7 @@ describe('Label', () => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/labels',
-        headers: { Cookie },
+        cookies,
         body: {
           name: existingLabel.name,
         },
@@ -66,10 +66,9 @@ describe('Label', () => {
     it('should update entity and return 302 when using valid name', async () => {
       const { statusCode } = await app.inject({
         method: 'patch',
-        url: '/labels',
-        headers: { Cookie },
+        url: `/labels/${existingLabel.id}`,
+        cookies,
         body: {
-          id: existingLabel.id,
           name: 'new name',
         },
       });
@@ -87,11 +86,8 @@ describe('Label', () => {
       });
       const { statusCode } = await app.inject({
         method: 'delete',
-        url: '/labels',
-        headers: { Cookie },
-        body: {
-          id: existingLabel.id,
-        },
+        url: `/labels/${existingLabel.id}`,
+        cookies,
       });
       expect(statusCode).toBe(302);
       const labels = await app.objection.models.label.query();
@@ -101,11 +97,8 @@ describe('Label', () => {
     it('should return 302 when using invalid id', async () => {
       const res = await app.inject({
         method: 'delete',
-        url: '/labels',
-        headers: { Cookie },
-        body: {
-          id: -1,
-        },
+        url: '/labels/-1',
+        cookies,
       });
       expect(res.statusCode).toBe(302);
     });

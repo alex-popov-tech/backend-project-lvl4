@@ -15,7 +15,6 @@ block content
           td
             +formFor()(action=`/labels/edit/${label.id}` )
               input(class='btn btn-primary' type='submit' value='Edit')
-            +formFor()(action='/labels' method='post')
+            +formFor()(action=`/labels/${label.id}` method='post')
               input(name="_method" type="hidden" value="delete")
-              input(name="id" type="hidden" value=label.id)
               +submit()(value='Delete')
