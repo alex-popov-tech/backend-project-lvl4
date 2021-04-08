@@ -1,6 +1,13 @@
 extends ../layouts/application.pug
 
 block content
+
+  +formFor()(action='/tasks' method='get')
+    +multiselect('Status', data.statuses)(name='statusIds')
+    +multiselect('Labels', data.labels)(name='labelIds')
+    +multiselect('Assigned', data.users)(name='assignedIds')
+    +submit()(value='Filter')
+
   table.table.table-striped
     +formFor()(action='/tasks/new' )
       input(class='btn btn-primary' type='submit' value='Add')

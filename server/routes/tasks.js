@@ -1,8 +1,35 @@
+const formalizeMultiselectValues = (values) => [values].flat()
+  .filter((it) => !!it)
+  .map((value) => Number(value));
+
 export default (app) => {
   app
     .get('/tasks', async (req, reply) => {
-      const tasks = await app.objection.models.task.query().withGraphJoined('[status, creator, assigned, labels]');
-      await reply.render('tasks/index', { data: { tasks } });
+      const statusIds = formalizeMultiselectValues(req.query.statusIds);
+      const labelIds = formalizeMultiselectValues(req.query.labelIds);
+      const assignedIds = formalizeMultiselectValues(req.query.assignedIds);
+      const taskQuery = app.objection.models.task.query().withGraphJoined('[status, creator, assigned, labels]');
+      if (statusIds.length) {
+        taskQuery.modify('withStatusIn', statusIds);
+      }
+      if (assignedIds.length) {
+        taskQuery.modify('withAssignedIn', assignedIds);
+      }
+      if (labelIds.length) {
+        taskQuery.modify('withLabelIn', labelIds);
+      }
+
+      const [filteredTasks, statuses, labels, users] = await Promise.all([
+        taskQuery,
+        app.objection.models.status.query(),
+        app.objection.models.label.query(),
+        app.objection.models.user.query(),
+      ]);
+      await reply.render('tasks/index', {
+        data: {
+          tasks: filteredTasks, statuses, labels, users,
+        },
+      });
     })
     .get('/tasks/new', async (req, reply) => {
       const [statuses, labels, users] = await Promise.all([
@@ -33,6 +60,7 @@ export default (app) => {
     })
     .post('/tasks', async (req, reply) => {
       try {
+        const labelIds = formalizeMultiselectValues(req.body.labelIds);
         await app.objection
           .models
           .task
@@ -40,9 +68,7 @@ export default (app) => {
             name: req.body.name,
             description: req.body.description,
             statusId: Number(req.body.statusId),
-            labels: [req.body.labelIds].flat()
-              .filter((it) => !!it)
-              .map((labelId) => ({ id: Number(labelId) })),
+            labels: labelIds.map((labelId) => ({ id: labelId })),
             creatorId: Number(req.body.creatorId),
             assignedId: Number(req.body.assignedId),
           }, {
@@ -67,6 +93,7 @@ export default (app) => {
     })
     .patch('/tasks', async (req, reply) => {
       try {
+        const labelIds = formalizeMultiselectValues(req.body.labelIds);
         await app.objection
           .models
           .task
@@ -75,9 +102,7 @@ export default (app) => {
             name: req.body.name,
             description: req.body.description,
             statusId: Number(req.body.statusId),
-            labels: [req.body.labelIds].flat()
-              .filter((it) => !!it)
-              .map((labelId) => ({ id: Number(labelId) })),
+            labels: labelIds.map((labelId) => ({ id: labelId })),
             creatorId: Number(req.body.creatorId),
             assignedId: Number(req.body.assignedId),
           }, { relate: true, unrelate: true, noDelete: true }));

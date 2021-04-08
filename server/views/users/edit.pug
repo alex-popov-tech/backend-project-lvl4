@@ -9,5 +9,5 @@ block content
     +input('lastName', data.user.lastName, errors.lastName)(type="text")
     +input('email', data.user.email, errors.email)(type="text")
     +input('password', '', errors.password)(type="password")
-    input(name="_method" type="hidden" value="PUT")
+    input(name="_method" type="hidden" value="patch")
     +submit()(value='Save')
