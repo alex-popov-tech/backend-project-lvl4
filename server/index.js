@@ -15,7 +15,7 @@ import pointOfView from 'point-of-view';
 import pug from 'pug';
 import Rollbar from 'rollbar';
 import knexConfig from '../knexfile';
-import { en } from './locales';
+import ru from './locales';
 import models from './models/index';
 import addRoutes from './routes';
 
@@ -97,14 +97,15 @@ const addSession = async (app) => {
     }
   });
 };
-const addLocalization = () => {
+const addLocalization = (app) => {
   i18next
     .init({
-      lng: 'en',
+      lng: 'ru',
       fallbackLng: 'en',
       debug: isDevelopment,
-      resources: { en },
+      resources: { ru },
     });
+  app.decorate('t', (key) => i18next.t(key));
 };
 export default async () => {
   const app = fastify({
@@ -114,7 +115,7 @@ export default async () => {
   });
   await addSession(app);
   await addPlugins(app);
-  addLocalization();
+  addLocalization(app);
   await addTemplatesEngine(app);
   await addAssets(app);
   await addErrorHandler(app);

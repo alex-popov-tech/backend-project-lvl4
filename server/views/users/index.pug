@@ -4,22 +4,20 @@ block content
   table.table.table-striped
     thead
       tr
+        th= t('users.index.list.columns.id')
+        th= t('users.index.list.columns.fullName')
         th= t('users.index.list.columns.email')
-        th= t('users.index.list.columns.firstName')
-        th= t('users.index.list.columns.lastName')
-        if currentUser
-          th= t('users.index.list.columns.action')
+        th= t('users.index.list.columns.createdAt')
+        th
     tbody
       each user in data.users
         tr
+          td= user.id
+          td= `${user.firstName} ${user.lastName}`
           td= user.email
-          td= user.firstName
-          td= user.lastName
-          if currentUser
-            td
-              +formFor()(action=`/users/edit` )
-                input(class='btn btn-primary' type='submit' value=t('users.index.list.columns.action.edit'))
-              +formFor()(action='/users' method='post')
-                input(name="_method" type="hidden" value="delete")
-                input(name="id" type="hidden" value=user.id)
-                +submit()(value=t('users.index.list.columns.action.delete'))
+          td= user.createdAt.toLocaleString()
+          td
+            a(href=`/users/edit/${user.id}`)=t('users.index.list.columns.action.edit')
+            +formFor()(action='/users/${user.id}' method='post')
+              input(name="_method" type="hidden" value="delete")
+              input.btn.btn-link(type="submit" value=t('users.index.list.columns.action.delete'))

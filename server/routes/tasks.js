@@ -43,13 +43,16 @@ export default (app) => {
             labels: [req.body.labelIds].flat()
               .filter((it) => !!it)
               .map((labelId) => ({ id: Number(labelId) })),
-            creatorId: Number(req.body.creatorId),
+            creatorId: req.currentUser.id,
             assignedId: Number(req.body.assignedId),
           }, {
             relate: true,
           }));
+        // do not work?
+        req.flash('success', app.t('tasks.index.flash.success.new'));
         await reply.redirect('/tasks');
       } catch ({ message, data }) {
+        console.log(message);
         const task = new app.objection.models.task();
         task.$set(req.body);
         const [statuses, labels, users] = await Promise.all([
@@ -57,6 +60,7 @@ export default (app) => {
           app.objection.models.label.query(),
           app.objection.models.user.query(),
         ]);
+        req.flash('danger', app.t('tasks.new.flash.fail'));
         await reply.code(422).render('tasks/new', {
           data: {
             task, statuses, users, labels,
@@ -78,9 +82,10 @@ export default (app) => {
             labels: [req.body.labelIds].flat()
               .filter((it) => !!it)
               .map((labelId) => ({ id: Number(labelId) })),
-            creatorId: Number(req.body.creatorId),
+            creatorId: req.currentUser.id,
             assignedId: Number(req.body.assignedId),
           }, { relate: true, unrelate: true, noDelete: true }));
+        req.flash('success', app.t('tasks.index.flash.success.edit'));
         await reply.redirect('/tasks');
       } catch ({ message, data }) {
         const task = new app.objection.models.task();
@@ -90,6 +95,7 @@ export default (app) => {
           app.objection.models.label.query(),
           app.objection.models.user.query(),
         ]);
+        req.flash('danger', app.t('tasks.edit.flash.fail'));
         await reply.code(422).render('tasks/edit', {
           data: {
             task, statuses, users, labels,

@@ -5,8 +5,8 @@ html(lang="en").h-100
   head
     title=t('title')
     script(src='/assets/main.js')
-  body.h-100.d-flex.flex-column
-    nav.navbar.navbar-expand-lg.navbar-light.bg-light.justify-content-between
+  body.d-flex.flex-column.min-vh-100
+    nav.navbar.navbar-expand-lg.navbar-light.bg-light.mb-3
       a.navbar-brand(href='/')=t('layout.header.title')
       if reply.request.currentUser
         ul.navbar-nav.mr-auto
@@ -30,7 +30,6 @@ html(lang="en").h-100
         else
           li.nav-item
             +buttonTo('/sessions', 'delete')(class='nav-link', value=t('layout.header.signout'))
-
     +flash(reply.flash())
 
     .container

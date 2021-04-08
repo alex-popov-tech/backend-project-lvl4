@@ -4,7 +4,7 @@ mixin flash(messages = [])
   .container.wrapper.flex
     each texts, type in messages
       each text in texts
-        div.alert(class=`alert-${type}`)= text + type
+        div.alert(class=`alert-${type}`)= text
 
 mixin formFor(entity = null)
   form&attributes(attributes)
@@ -42,10 +42,11 @@ mixin input(name, value = '', errors = [])
     input(
       name=name
       class='form-control'
+      class= errors.length ? 'is-invalid' : ''
       value=(value || '')
     )&attributes(attributes)
     if errors.length
-      .form-control-feedback=errors.map(({ message }) => message).join('\n')
+      .form-control-feedback.invalid-feedback= errors.map(({ message }) => message).join('\n')
 
 mixin submit()
   .form-group

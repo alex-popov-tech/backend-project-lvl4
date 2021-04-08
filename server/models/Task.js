@@ -1,7 +1,7 @@
 import { Model } from 'objection';
+import Label from './Label';
 import Status from './Status';
 import User from './User';
-import Label from './Label';
 
 export default class Task extends Model {
   static tableName = 'tasks';
@@ -53,7 +53,7 @@ export default class Task extends Model {
     properties: {
       id: { type: 'integer' },
       name: { type: 'string', minLength: 3 },
-      description: { type: 'string', minLength: 3 },
+      description: { type: 'string' },
       statusId: { type: 'integer' },
       creatorId: { type: 'integer' },
       assignedId: { type: ['integer', 'null'] },

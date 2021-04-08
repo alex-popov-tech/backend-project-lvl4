@@ -9,6 +9,5 @@ block content
     +input(t('tasks.new.form.description'), data.task.description, errors.description)(name='description')
     +select(t('tasks.new.form.status'), data.statuses, errors.statusId)(name='statusId')
     +multiselect(t('tasks.new.form.labels'), data.labels, errors.labelIds)(name='labelIds')
-    +select(t('tasks.new.form.creator'), data.users, errors.creatorId)(name='creatorId')
     +select(t('tasks.new.form.assigned'), data.users, errors.assignedId)(name='assignedId')
     +submit()(value=t('tasks.new.form.confirm'))

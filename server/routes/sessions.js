@@ -10,29 +10,31 @@ export default (app) => {
       if (!existingUser) {
         const user = new app.objection.models.user();
         user.$set(req.body);
-        await reply.code(404).render('sessions/new', {
+        req.flash('danger', app.t('session.signin.flash.fail'));
+        return reply.code(404).render('sessions/new', {
           data: { user },
-          errors: { email: [{ message: 'User with such email does not exist' }] },
+          errors: { email: [] },
         });
-        return;
       }
 
       const passwordMatch = await existingUser.verifyPassword(req.body.password);
       if (!passwordMatch) {
         const user = new app.objection.models.user();
         user.$set(req.body);
-        await reply.code(404).render('sessions/new', {
+        req.flash('danger', app.t('session.signin.flash.fail'));
+        return reply.code(404).render('sessions/new', {
           data: { user },
-          errors: { password: [{ message: 'Password does not match' }] },
+          errors: { email: [] },
         });
-        return;
       }
 
       req.session.set('userId', existingUser.id);
-      await reply.redirect('/');
+      req.flash('success', app.t('welcome.flash.success.login'));
+      return reply.redirect('/');
     })
     .delete('/sessions', async (req, reply) => {
       req.session.delete();
-      await reply.redirect('/');
+      req.flash('info', app.t('welcome.flash.success.logout'));
+      return reply.redirect('/');
     });
 };
