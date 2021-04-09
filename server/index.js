@@ -103,6 +103,7 @@ const addAuthentification = (app) => {
 };
 const addHooks = (app) => {
   app.addHook('preHandler', async (req, reply) => {
+    // eslint-disable-next-line
     reply.locals = {
       isAuthenticated: () => req.isAuthenticated(),
     };

@@ -37,6 +37,52 @@ describe('Task', () => {
     });
   });
 
+  describe('index', () => {
+    it('should not be available without authentification', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: '/tasks',
+      });
+      expect(statusCode).toBe(302);
+    });
+
+    it('should be available with authentification', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: '/tasks',
+        cookies,
+      });
+      expect(statusCode).toBe(200);
+    });
+    it('should return 200 on edit/:id ', async () => {
+      const existingTask = await app.objection.models.task.query().insert({
+        name: 'test',
+        description: 'test',
+        statusId: existingStatus.id,
+        creatorId: existingUser.id,
+      });
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: `/tasks/edit/${existingTask.id}`,
+        cookies,
+      });
+      expect(statusCode).toBe(200);
+    });
+    it('should return 200 when using filters', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: '/tasks',
+        cookies,
+        query: {
+          assignedId: existingUser.id,
+          statusIds: existingStatus.id,
+          labelIds: existingLabel.id,
+        },
+      });
+      expect(statusCode).toBe(200);
+    });
+  });
+
   describe('create', () => {
     describe('when using valid data', () => {
       it('should create entity and return 302', async () => {

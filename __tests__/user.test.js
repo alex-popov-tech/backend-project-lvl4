@@ -25,6 +25,7 @@ describe('Users', () => {
       });
       expect(statusCode).toBe(200);
     });
+
     it('should be available with authentification', async () => {
       const { cookies } = await getAuthenticatedUser(app);
       const { statusCode } = await app.inject({

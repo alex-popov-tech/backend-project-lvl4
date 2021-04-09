@@ -20,6 +20,36 @@ describe('Status', () => {
     ({ cookies } = await getAuthenticatedUser(app));
   });
 
+  describe('index', () => {
+    it('should not be available without authentification', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: '/statuses',
+      });
+      expect(statusCode).toBe(302);
+    });
+
+    it('should be available with authentification', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: '/statuses',
+        cookies,
+      });
+      expect(statusCode).toBe(200);
+    });
+    it('should return 200 on edit/:id ', async () => {
+      const existingStatus = await app.objection.models.status.query().insert({
+        name: random.word(),
+      });
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: `/statuses/edit/${existingStatus.id}`,
+        cookies,
+      });
+      expect(statusCode).toBe(200);
+    });
+  });
+
   describe('create', () => {
     it('should create entity and return 302 when using valid name', async () => {
       const status = {
