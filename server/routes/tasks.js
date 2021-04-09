@@ -4,7 +4,7 @@ const formalizeMultiselectValues = (values) => [values].flat()
 
 export default (app) => {
   app
-    .get('/tasks', async (req, reply) => {
+    .get('/tasks', { preValidation: app.formAuth }, async (req, reply) => {
       const statusIds = formalizeMultiselectValues(req.query.statusIds);
       const labelIds = formalizeMultiselectValues(req.query.labelIds);
       const assignedIds = formalizeMultiselectValues(req.query.assignedIds);
@@ -31,7 +31,7 @@ export default (app) => {
         },
       });
     })
-    .get('/tasks/new', async (req, reply) => {
+    .get('/tasks/new', { preValidation: app.formAuth }, async (req, reply) => {
       const [statuses, labels, users] = await Promise.all([
         app.objection.models.status.query(),
         app.objection.models.label.query(),
@@ -44,7 +44,7 @@ export default (app) => {
         errors: {},
       });
     })
-    .get('/tasks/edit/:id', async (req, reply) => {
+    .get('/tasks/edit/:id', { preValidation: app.formAuth }, async (req, reply) => {
       const [task, statuses, labels, users] = await Promise.all([
         app.objection.models.task.query().findById(req.params.id),
         app.objection.models.status.query(),
@@ -58,7 +58,7 @@ export default (app) => {
         errors: {},
       });
     })
-    .post('/tasks', async (req, reply) => {
+    .post('/tasks', { preValidation: app.formAuth }, async (req, reply) => {
       try {
         const labelIds = formalizeMultiselectValues(req.body.labelIds);
         await app.objection
@@ -91,19 +91,18 @@ export default (app) => {
         });
       }
     })
-    .patch('/tasks', async (req, reply) => {
+    .patch('/tasks/:id', { preValidation: app.formAuth }, async (req, reply) => {
       try {
         const labelIds = formalizeMultiselectValues(req.body.labelIds);
         await app.objection
           .models
           .task
           .transaction((trx) => app.objection.models.task.query(trx).upsertGraph({
-            id: Number(req.body.id),
+            id: Number(req.params.id),
             name: req.body.name,
             description: req.body.description,
             statusId: Number(req.body.statusId),
             labels: labelIds.map((labelId) => ({ id: labelId })),
-            creatorId: Number(req.body.creatorId),
             assignedId: Number(req.body.assignedId),
           }, { relate: true, unrelate: true, noDelete: true }));
         await reply.redirect('/tasks');
@@ -123,8 +122,8 @@ export default (app) => {
         });
       }
     })
-    .delete('/tasks', async (req, reply) => {
-      await app.objection.models.task.query().deleteById(req.body.id);
+    .delete('/tasks/:id', { preValidation: app.formAuth }, async (req, reply) => {
+      await app.objection.models.task.query().deleteById(req.params.id);
       await reply.redirect('/tasks');
     });
 };

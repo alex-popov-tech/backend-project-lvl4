@@ -7,19 +7,17 @@ block content
         th= 'Email'
         th= 'First name'
         th= 'Last name'
-        if currentUser
-          th= 'Action'
+        th= 'Action'
     tbody
       each user in data.users
         tr
           td= user.email
           td= user.firstName
           td= user.lastName
-          if currentUser
-            td
-              +formFor()(action=`/users/edit` )
-                input(class='btn btn-primary' type='submit' value='Edit')
-              +formFor()(action='/users' method='post')
-                input(name="_method" type="hidden" value="delete")
-                input(name="id" type="hidden" value=user.id)
-                +submit()(value='Delete')
+          td
+            +formFor()(action=`/users/edit/${user.id}` )
+              input(class='btn btn-primary' type='submit' value='Edit')
+            +formFor()(action='/users/${user.id}' method='post')
+              input(name="_method" type="hidden" value="delete")
+              input(name="id" type="hidden" value=user.id)
+              +submit()(value='Delete')
