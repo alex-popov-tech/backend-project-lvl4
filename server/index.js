@@ -89,6 +89,9 @@ const addSession = async (app) => {
   await app.register(fastifySecureSession, {
     secret: process.env.SECRET,
     salt: process.env.SALT,
+    cookie: {
+      path: '/',
+    },
   });
   app.addHook('preHandler', async (req) => {
     const userId = req.session.get('userId');
@@ -111,6 +114,7 @@ export default async () => {
   const app = fastify({
     logger: {
       prettyPrint: isDevelopment,
+      level: 'trace',
     },
   });
   await addSession(app);

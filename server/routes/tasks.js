@@ -48,11 +48,9 @@ export default (app) => {
           }, {
             relate: true,
           }));
-        // do not work?
         req.flash('success', app.t('tasks.index.flash.success.new'));
         await reply.redirect('/tasks');
       } catch ({ message, data }) {
-        console.log(message);
         const task = new app.objection.models.task();
         task.$set(req.body);
         const [statuses, labels, users] = await Promise.all([
@@ -106,6 +104,7 @@ export default (app) => {
     })
     .delete('/tasks', async (req, reply) => {
       await app.objection.models.task.query().deleteById(req.body.id);
+      req.flash('info', app.t('tasks.index.flash.success.delete'));
       await reply.redirect('/tasks');
     });
 };

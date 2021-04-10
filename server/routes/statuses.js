@@ -16,7 +16,6 @@ export default (app) => {
       try {
         const newStatus = app.objection.models.status.fromJson(req.body);
         await app.objection.models.status.query().insert(newStatus);
-        // do not working?
         req.flash('success', app.t('statuses.index.flash.success.new'));
         await reply.redirect('/statuses');
       } catch ({ data }) {
@@ -47,6 +46,7 @@ export default (app) => {
         return reply.redirect('/statuses');
       }
       await app.objection.models.status.query().deleteById(req.body.id);
+      req.flash('success', app.t('statuses.index.flash.success.delete'));
       return reply.redirect('/statuses');
     });
 };
