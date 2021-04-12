@@ -141,8 +141,20 @@ export default (app) => {
     })
     .delete('/tasks/:id', { preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id } } = req;
-      await app.objection.models.task.query().deleteById(id);
-      req.flash('info', app.t('tasks.index.flash.success.delete'));
-      return reply.redirect('/tasks');
+      try {
+        const task = await app.objection.models.task.query().findById(id);
+        if (req.user.id !== task.creatorId) {
+          const tasks = app.objection.models.task.query().withGraphJoined('[status, creator, assigned, labels]');
+          req.flash('danger', app.t('tasks.index.flash.fail.delete'));
+          return reply.code(422).render('tasks/index', { data: { tasks } });
+        }
+        await app.objection.models.task.query().deleteById(id);
+        req.flash('info', app.t('tasks.index.flash.success.delete'));
+        return reply.redirect('/tasks');
+      } catch ({ message, errors }) {
+        const tasks = await app.objection.models.task.query();
+        req.flash('danger', app.t('tasks.index.flash.fail.delete'));
+        return reply.code(422).render('tasks/index', { data: { tasks } });
+      }
     });
 };
