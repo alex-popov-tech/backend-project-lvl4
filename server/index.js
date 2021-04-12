@@ -114,7 +114,7 @@ export default async () => {
   const app = fastify({
     logger: {
       prettyPrint: isDevelopment,
-      level: 'trace',
+      level: isDevelopment ? 'trace' : 'info',
     },
   });
   await addSession(app);

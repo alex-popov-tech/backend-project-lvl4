@@ -15,7 +15,6 @@ export default (app) => {
       try {
         const newlabel = app.objection.models.label.fromJson(req.body);
         await app.objection.models.label.query().insert(newlabel);
-        // is not working?
         req.flash('success', app.t('labels.index.flash.success.new'));
         await reply.redirect('/labels');
       } catch ({ data }) {
@@ -28,7 +27,6 @@ export default (app) => {
         const updatedlabel = app.objection.models.label.fromJson(req.body);
         const existinglabel = await app.objection.models.label.query().findById(req.body.id);
         await existinglabel.$query().patch(updatedlabel);
-        // is not working?
         req.flash('success', app.t('labels.index.flash.success.edit'));
         await reply.redirect('/labels');
       } catch ({ message, data }) {
@@ -41,7 +39,6 @@ export default (app) => {
     .delete('/labels', async (req, reply) => {
       const relatedTasks = await app.objection.models.task.query().withGraphJoined('labels').where('labels.id', req.body.id);
       if (relatedTasks.length > 0) {
-        // is not working?
         req.flash('danger', app.t('labels.index.flash.fail.delete'));
         return reply.redirect('/labels');
       }
