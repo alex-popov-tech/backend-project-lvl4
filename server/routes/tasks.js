@@ -124,7 +124,7 @@ export default (app) => {
         await reply.redirect('/tasks');
       } catch ({ message, data }) {
         const task = new app.objection.models.task();
-        task.$set(req.body);
+        task.$set({ id, ...req.body });
         const [statuses, labels, users] = await Promise.all([
           app.objection.models.status.query(),
           app.objection.models.label.query(),

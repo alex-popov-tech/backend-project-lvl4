@@ -37,7 +37,7 @@ export default (app) => {
         await reply.redirect('/labels');
       } catch ({ message, data }) {
         const label = new app.objection.models.label();
-        label.$set(body);
+        label.$set({ id, ...req.body });
         req.flash('danger', app.t('labels.edit.flash.fail'));
         await reply.code(422).render('labels/edit', { data: { label }, errors: data });
       }
