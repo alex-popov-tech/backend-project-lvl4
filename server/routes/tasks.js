@@ -69,11 +69,12 @@ export default (app) => {
             description: req.body.description,
             statusId: Number(req.body.statusId),
             labels: labelIds.map((labelId) => ({ id: labelId })),
-            creatorId: Number(req.body.creatorId),
+            creatorId: req.user.id,
             assignedId: Number(req.body.assignedId),
           }, {
             relate: true,
           }));
+        req.flash('success', app.t('tasks.index.flash.success.new'));
         await reply.redirect('/tasks');
       } catch ({ message, data }) {
         const task = new app.objection.models.task();
@@ -83,6 +84,7 @@ export default (app) => {
           app.objection.models.label.query(),
           app.objection.models.user.query(),
         ]);
+        req.flash('danger', app.t('tasks.new.flash.fail'));
         await reply.code(422).render('tasks/new', {
           data: {
             task, statuses, users, labels,
@@ -105,6 +107,7 @@ export default (app) => {
             labels: labelIds.map((labelId) => ({ id: labelId })),
             assignedId: Number(req.body.assignedId),
           }, { relate: true, unrelate: true, noDelete: true }));
+        req.flash('success', app.t('tasks.index.flash.success.edit'));
         await reply.redirect('/tasks');
       } catch ({ message, data }) {
         const task = new app.objection.models.task();
@@ -114,6 +117,7 @@ export default (app) => {
           app.objection.models.label.query(),
           app.objection.models.user.query(),
         ]);
+        req.flash('danger', app.t('tasks.edit.flash.fail'));
         await reply.code(422).render('tasks/edit', {
           data: {
             task, statuses, users, labels,
@@ -124,6 +128,7 @@ export default (app) => {
     })
     .delete('/tasks/:id', { preValidation: app.formAuth }, async (req, reply) => {
       await app.objection.models.task.query().deleteById(req.params.id);
-      await reply.redirect('/tasks');
+      req.flash('info', app.t('tasks.index.flash.success.delete'));
+      return reply.redirect('/tasks');
     });
 };

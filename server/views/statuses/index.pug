@@ -1,23 +1,23 @@
 extends ../layouts/application.pug
 
 block content
+  a(href='/statuses/new')= t('statuses.index.add')
   table.table.table-striped
-    +formFor()(action='/statuses/new' )
-      input(class='btn btn-primary' type='submit' value='Add')
     thead
       tr
-        th= 'Status Name'
-        th= 'Action'
+        th=t('statuses.index.list.columns.id')
+        th=t('statuses.index.list.columns.name')
+        th=t('statuses.index.list.columns.createdAt')
+        th
     tbody
       each status in data.statuses
         tr
+          td= status.id
+          td= status.name
+          td= status.createdAt
           td
-            span= status.name
-            .form-control-feedback=status.error
-          td
-            +formFor()(action=`/statuses/edit/${status.id}` )
-              input(class='btn btn-primary' type='submit' value='Edit')
+            a(href=`/statuses/edit/${status.id}`)=t('statuses.index.list.columns.action.edit')
             +formFor()(action='/statuses' method='post')
               input(name="_method" type="hidden" value="delete")
               input(name="id" type="hidden" value=status.id)
-              +submit()(value='Delete')
+              input.btn.btn-link(type="submit" value=t('statuses.index.list.columns.action.delete'))

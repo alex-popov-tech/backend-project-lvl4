@@ -1,11 +1,10 @@
 extends ../layouts/application.pug
 
 block header
-  ='Edit'
+  =t('statuses.edit.title')
 
 block content
-  +formFor()(action='/statuses' method='post')
-    +input('name', data.status.name, errors.name)(type="name")
-    input(name="id" type="hidden" value= data.status.id)
+  +formFor()(action=`/statuses/${data.status.id}` method='post')
+    +input(t('statuses.edit.form.name'), data.status.name, errors.name)(name="name")
     input(name="_method" type="hidden" value="PATCH")
-    +submit()(value='Save')
+    +submit()(value=t('statuses.edit.form.confirm'))

@@ -1,10 +1,10 @@
 extends ../layouts/application.pug
 
 block header
-  ='Sign In'
+  =t('session.signin.title')
 
 block content
   +formFor()(action='/sessions' method='post')
-    +input('email', data.user.email, errors.email)(type="text")
-    +input('password', data.user.password, errors.password)(type="password")
-    +submit()(value='Sign In')
+    +input(t('session.signin.form.email.title'), data.user.email, errors.email)(name='email' type="text")
+    +input(t('session.signin.form.password'), data.user.password, errors.password)(name='password' type="password")
+    +submit()(value=t('session.signin.form.confirm'))

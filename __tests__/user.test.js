@@ -175,7 +175,7 @@ describe('Users', () => {
       expect(users).toHaveLength(0);
     });
 
-    it('should not allow to delete other entity and return 302', async () => {
+    it('should not allow to delete other entity and return 422', async () => {
       const existingUser = await app.objection.models.user.query().insert({
         firstName: 'foo',
         lastName: 'bar',
@@ -187,7 +187,7 @@ describe('Users', () => {
         url: `/users/${existingUser.id}`,
         cookies,
       });
-      expect(response.statusCode).toBe(302);
+      expect(response.statusCode).toBe(422);
       const users = await app.objection.models.task.query();
       expect(users).toHaveLength(0);
     });

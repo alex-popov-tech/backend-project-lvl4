@@ -127,7 +127,7 @@ describe('Label', () => {
     it('should return 302 when using invalid id', async () => {
       const res = await app.inject({
         method: 'delete',
-        url: '/labels/-1',
+        url: '/labels/999',
         cookies,
       });
       expect(res.statusCode).toBe(302);

@@ -3,33 +3,35 @@ include ../mixins/forms.pug
 doctype html
 html(lang="en").h-100
   head
-    title Taskmine
+    title=t('title')
     script(src='/assets/main.js')
-  body.h-100.d-flex.flex-column
-    nav.navbar.navbar-expand-lg.navbar-light.bg-light.justify-content-between
-      a.navbar-brand(href='/') Taskmine
-      ul.navbar-nav.mr-auto
-        li.nav-item
-          a.nav-link(href='/users') Users
+  body.d-flex.flex-column.min-vh-100
+    nav.navbar.navbar-expand-lg.navbar-light.bg-light.mb-3
+      a.navbar-brand(href='/')=t('layout.header.title')
       if isAuthenticated()
         ul.navbar-nav.mr-auto
           li.nav-item
-            a.nav-link(href='/statuses') Statuses
+            a.nav-link(href='/users')=t('layout.header.users')
         ul.navbar-nav.mr-auto
           li.nav-item
-            a.nav-link(href='/labels') Labels
+            a.nav-link(href='/statuses')=t('layout.header.statuses')
         ul.navbar-nav.mr-auto
           li.nav-item
-            a.nav-link(href='/tasks') Tasks
+            a.nav-link(href='/labels')=t('layout.header.labels')
+        ul.navbar-nav.mr-auto
+          li.nav-item
+            a.nav-link(href='/tasks')=t('layout.header.tasks')
       up.navbar-nav
         if !isAuthenticated()
           li.nav-item
-            a.nav-link(href='/users/new') Sign Up
+            a.nav-link(href='/users/new')=t('layout.header.signup')
           li.nav-item
-            a.nav-link(href='/sessions/new') Sign In
+            a.nav-link(href='/sessions/new')=t('layout.header.signin')
         else
           li.nav-item
-            +buttonTo('/sessions', 'delete')(class='nav-link', value='Sign Out')
+            +buttonTo('/sessions', 'delete')(class='nav-link', value=t('layout.header.signout'))
+    +flash(reply.flash())
+
     .container
       h1.my-4
         block header

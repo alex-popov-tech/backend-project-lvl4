@@ -6,6 +6,7 @@ import {
 describe('Task', () => {
   let app;
   let cookies;
+  let currentUser;
   let existingStatus;
   let existingLabel;
   let existingUser;
@@ -20,7 +21,7 @@ describe('Task', () => {
 
   beforeEach(async () => {
     await clearDatabaseState(app);
-    ({ cookies } = await getAuthenticatedUser(app));
+    ({ user: currentUser, cookies } = await getAuthenticatedUser(app));
     existingStatus = await app.objection.models.status.query().insert({
       name: 'test status',
     });
@@ -96,7 +97,6 @@ describe('Task', () => {
             name,
             description,
             statusId: existingStatus.id,
-            creatorId: existingUser.id,
             assignedId: null,
             labelIds: existingLabel.id,
           },
@@ -109,7 +109,7 @@ describe('Task', () => {
           name,
           description,
           statusId: existingStatus.id,
-          creatorId: existingUser.id,
+          creatorId: currentUser.id,
         });
         const labels = await tasks[0].$relatedQuery('labels');
         expect(labels).toHaveLength(1);
@@ -161,7 +161,6 @@ describe('Task', () => {
         name: 'updated-name',
         description: 'updated-descr',
         statusId: updatedStatus.id,
-        creatorId: existingUser.id,
         assignedId: existingUser.id,
       };
       const { statusCode } = await app.inject({
@@ -192,7 +191,7 @@ describe('Task', () => {
         name: 'test',
         description: 'test',
         statusId: existingStatus.id,
-        creatorId: existingUser.id,
+        creatorId: currentUser.id,
         labelIds: existingLabel.id,
       });
     });

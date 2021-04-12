@@ -1,38 +1,31 @@
 extends ../layouts/application.pug
 
 block content
-
-  +formFor()(action='/tasks' method='get')
-    +multiselect('Status', data.statuses)(name='statusIds')
-    +multiselect('Labels', data.labels)(name='labelIds')
-    +multiselect('Assigned', data.users)(name='assignedIds')
-    +submit()(value='Filter')
-
+  a(href='/tasks/new')= t('tasks.index.add')
   table.table.table-striped
-    +formFor()(action='/tasks/new' )
-      input(class='btn btn-primary' type='submit' value='Add')
     thead
       tr
-        th= 'Name'
-        th= 'Description'
-        th= 'Status'
-        th= 'Labels'
-        th= 'Creator'
-        th= 'Assignee'
-        th= 'Action'
+        th= t('tasks.index.list.columns.id')
+        th= t('tasks.index.list.columns.name')
+        th= t('tasks.index.list.columns.status')
+        th= t('tasks.index.list.columns.creator')
+        th= t('tasks.index.list.columns.assigned')
+        th= t('tasks.index.list.columns.createdAt')
+        th= t('tasks.index.list.columns.labels')
+        th
     tbody
       each task in data.tasks
         tr
+          td= task.id
           td= task.name
-          td= task.description
           td= task.status.name
-          td= task.labels.map(({ name }) => name).join(', ')
           td= `${task.creator.firstName} ${task.creator.lastName}`
           td= task.assigned ? `${task.assigned.firstName} ${task.assigned.lastName}` : 'none'
+          td= task.createdAt
+          td= task.labels.map(({ name }) => name).join(', ')
           td
-            +formFor()(action=`/tasks/edit/${task.id}` )
-              input(class='btn btn-primary' type='submit' value='Edit')
+            a(href=`/tasks/edit/${task.id}`)=t('tasks.index.list.columns.action.edit')
             +formFor()(action='/tasks' method='post')
               input(name="_method" type="hidden" value="delete")
               input(name="id" type="hidden" value=task.id)
-              +submit()(value='Delete')
+              input.btn.btn-link(type="submit" value=t('tasks.index.list.columns.action.delete'))

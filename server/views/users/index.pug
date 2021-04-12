@@ -4,20 +4,20 @@ block content
   table.table.table-striped
     thead
       tr
-        th= 'Email'
-        th= 'First name'
-        th= 'Last name'
-        th= 'Action'
+        th= t('users.index.list.columns.id')
+        th= t('users.index.list.columns.fullName')
+        th= t('users.index.list.columns.email')
+        th= t('users.index.list.columns.createdAt')
+        th
     tbody
       each user in data.users
         tr
+          td= user.id
+          td= `${user.firstName} ${user.lastName}`
           td= user.email
-          td= user.firstName
-          td= user.lastName
+          td= user.createdAt.toLocaleString()
           td
-            +formFor()(action=`/users/edit/${user.id}` )
-              input(class='btn btn-primary' type='submit' value='Edit')
+            a(href=`/users/edit/${user.id}`)=t('users.index.list.columns.action.edit')
             +formFor()(action='/users/${user.id}' method='post')
               input(name="_method" type="hidden" value="delete")
-              input(name="id" type="hidden" value=user.id)
-              +submit()(value='Delete')
+              input.btn.btn-link(type="submit" value=t('users.index.list.columns.action.delete'))

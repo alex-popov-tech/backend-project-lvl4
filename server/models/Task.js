@@ -53,7 +53,7 @@ export default class Task extends Model {
     properties: {
       id: { type: 'integer' },
       name: { type: 'string', minLength: 3 },
-      description: { type: 'string', minLength: 3 },
+      description: { type: 'string' },
       statusId: { type: 'integer' },
       creatorId: { type: 'integer' },
       assignedId: {

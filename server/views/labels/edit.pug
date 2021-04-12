@@ -1,10 +1,10 @@
 extends ../layouts/application.pug
 
 block header
-  ='Edit'
+  =t('labels.edit.title')
 
 block content
   +formFor()(action=`/labels/${reply.request.params.id}` method='post')
-    +input('name', data.label.name, errors.name)(type="name")
+    +input(t('labels.edit.form.name'), data.label.name, errors.name)(name="name")
     input(name="_method" type="hidden" value="PATCH")
-    +submit()(value='Save')
+    +input(t('labels.edit.form.name'), data.label.name, errors.name)(name="name")
