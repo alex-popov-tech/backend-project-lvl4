@@ -2,39 +2,42 @@ export default (app) => {
   app
     .get('/users', async (req, reply) => {
       const users = await app.objection.models.user.query();
-      await reply.render('users/index', { data: { users, currentUser: req.currentUser } });
+      await reply.render('users/index', { data: { users } });
     })
     .get('/users/new', async (req, reply) => {
       await reply.render('users/new', { data: { user: {} }, errors: [] });
     })
-    .get('/users/edit/:id', async (req, reply) => {
+    .get('/users/edit/:id', { preValidation: app.formAuth }, async (req, reply) => {
       const { id } = req.params;
       if (req.currentUser.id !== Number(id)) {
         req.flash('danger', app.t('users.index.flash.fail.deleteOrEditOtherUser'));
-        return reply.redirect('/users');
+        const users = await app.objection.models.user.query();
+        return reply.code(422).render('users/index', { data: { users } });
       }
-      return reply.render('users/edit', { data: { user: req.currentUser }, errors: [] });
+      return reply.render('users/edit', { data: { currentUser: req.currentUser }, errors: [] });
     })
     .post('/users', async (req, reply) => {
       try {
         const newUser = await app.objection.models.user.fromJson(req.body);
         await app.objection.models.user.query().insert(newUser);
-        await reply.redirect('/sessions/new');
+        await req.login(newUser);
+        await reply.redirect('/');
       } catch ({ data }) {
         const user = new app.objection.models.user();
         user.$set(req.body);
         await reply.code(422).render('users/new', { data: { user }, errors: data });
       }
     })
-    .patch('/users', async (req, reply) => {
+    .patch('/users/:id', { preValidation: app.formAuth }, async (req, reply) => {
       try {
-        const { id } = req.body;
-        if (req.currentUser.id !== Number(id)) {
+        const { id } = req.params;
+        if (req.user.id !== Number(id)) {
+          const users = await app.objection.models.user.query();
           req.flash('danger', app.t('users.index.flash.fail.deleteOrEditOtherUser'));
-          return reply.redirect('/users');
+          return reply.code(422).render('users/index', { data: { users } });
         }
         const updatedUser = app.objection.models.user.fromJson(req.body);
-        const existingUser = await app.objection.models.user.query().findById(req.currentUser.id);
+        const existingUser = await app.objection.models.user.query().findById(id);
         await existingUser.$query().patch(updatedUser);
         req.flash('success', app.t('users.index.flash.success.edit'));
         return reply.redirect('/users');
@@ -45,14 +48,22 @@ export default (app) => {
         return reply.code(422).render('users/edit', { data: { user }, errors: data });
       }
     })
-    .delete('/users/:id', async (req, reply) => {
+    .delete('/users/:id', { preValidation: app.formAuth }, async (req, reply) => {
       const { id } = req.params;
-      if (req.currentUser.id !== Number(id)) {
-        req.flash('danger', app.t('users.index.flash.fail.deleteOrEditOtherUser'));
+      try {
+        if (req.user.id !== Number(id)) {
+          const users = await app.objection.models.user.query();
+          req.flash('danger', app.t('users.index.flash.fail.deleteOrEditOtherUser'));
+          return reply.code(422).render('users/index', { data: { users } });
+        }
+        await req.logout(req.user);
+        await app.objection.models.user.query().deleteById(id);
         return reply.redirect('/users');
+      } catch ({ data }) {
+        const user = new app.objection.models.user();
+        user.$set(req.body);
+        req.flash('danger', app.t('users.index.flash.fail.deleteOrEditOtherUser'));
+        return reply.code(422).render('users/edit', { data: { user }, errors: data });
       }
-      req.session.delete();
-      await app.objection.models.user.query().deleteById(id);
-      return reply.redirect('/');
     });
 };

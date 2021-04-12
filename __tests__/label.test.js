@@ -1,8 +1,11 @@
 import { random } from 'faker';
-import { clearDatabaseState, launchApp, shutdownApp } from './helpers.js';
+import {
+  clearDatabaseState, getAuthenticatedUser, launchApp, shutdownApp,
+} from './helpers';
 
 describe('Label', () => {
   let app;
+  let cookies;
 
   beforeAll(async () => {
     app = await launchApp();
@@ -14,6 +17,37 @@ describe('Label', () => {
 
   beforeEach(async () => {
     await clearDatabaseState(app);
+    ({ cookies } = await getAuthenticatedUser(app));
+  });
+
+  describe('index', () => {
+    it('should not be available without authentification', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: '/labels',
+      });
+      expect(statusCode).toBe(302);
+    });
+
+    it('should be available with authentification', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: '/labels',
+        cookies,
+      });
+      expect(statusCode).toBe(200);
+    });
+    it('should return 200 on edit/:id ', async () => {
+      const existingLabel = await app.objection.models.label.query().insert({
+        name: random.word(),
+      });
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: `/labels/edit/${existingLabel.id}`,
+        cookies,
+      });
+      expect(statusCode).toBe(200);
+    });
   });
 
   describe('create', () => {
@@ -24,6 +58,7 @@ describe('Label', () => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/labels',
+        cookies,
         body: status,
       });
       expect(statusCode).toBe(302);
@@ -39,6 +74,7 @@ describe('Label', () => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/labels',
+        cookies,
         body: {
           name: existingLabel.name,
         },
@@ -60,9 +96,9 @@ describe('Label', () => {
     it('should update entity and return 302 when using valid name', async () => {
       const { statusCode } = await app.inject({
         method: 'patch',
-        url: '/labels',
+        url: `/labels/${existingLabel.id}`,
+        cookies,
         body: {
-          id: existingLabel.id,
           name: 'new name',
         },
       });
@@ -80,10 +116,8 @@ describe('Label', () => {
       });
       const { statusCode } = await app.inject({
         method: 'delete',
-        url: '/labels',
-        body: {
-          id: existingLabel.id,
-        },
+        url: `/labels/${existingLabel.id}`,
+        cookies,
       });
       expect(statusCode).toBe(302);
       const labels = await app.objection.models.label.query();
@@ -93,10 +127,8 @@ describe('Label', () => {
     it('should return 302 when using invalid id', async () => {
       const res = await app.inject({
         method: 'delete',
-        url: '/labels',
-        body: {
-          id: -1,
-        },
+        url: '/labels/999',
+        cookies,
       });
       expect(res.statusCode).toBe(302);
     });

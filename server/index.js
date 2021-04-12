@@ -1,10 +1,11 @@
 import dotenv from 'dotenv';
 import fastify from 'fastify';
 import fastifyErrorsProperties from 'fastify-errors-properties';
-import fastifyFlash from 'fastify-flash';
+// import fastifyFlash from 'fastify-flash';
 import fastifyFormbody from 'fastify-formbody';
 import fastifyMethodOverride from 'fastify-method-override';
 import fastifyObjection from 'fastify-objectionjs';
+import fastifyPassport from 'fastify-passport';
 import fastifySecureSession from 'fastify-secure-session';
 import fastifyStatic from 'fastify-static';
 import fastifyWebpackHMR from 'fastify-webpack-hmr';
@@ -15,6 +16,7 @@ import pointOfView from 'point-of-view';
 import pug from 'pug';
 import Rollbar from 'rollbar';
 import knexConfig from '../knexfile';
+import FormPassportStrategy from './lib/FormPassportStrategy';
 import ru from './locales';
 import models from './models/index';
 import addRoutes from './routes';
@@ -25,12 +27,12 @@ const mode = process.env.NODE_ENV || 'development';
 const isDevelopment = mode === 'development';
 const isTest = mode === 'test';
 
-const addErrorHandler = async (app) => {
+const addErrorHandler = (app) => {
   if (isTest) {
     return;
   }
   if (isDevelopment) {
-    await app.register(fastifyErrorsProperties);
+    app.register(fastifyErrorsProperties);
   } else {
     const rollbar = new Rollbar({
       accessToken: process.env.ROLLBAR_TOKEN,
@@ -40,8 +42,8 @@ const addErrorHandler = async (app) => {
     app.addHook('onError', async (err) => rollbar.error(err));
   }
 };
-const addTemplatesEngine = async (app) => {
-  await app.register(pointOfView, {
+const addTemplatesEngine = (app) => {
+  app.register(pointOfView, {
     engine: {
       pug,
     },
@@ -59,45 +61,62 @@ const addTemplatesEngine = async (app) => {
     });
   });
 };
-const addAssets = async (app) => {
+const addAssets = (app) => {
   if (isTest) {
     return;
   }
   if (isDevelopment) {
-    await app.register(fastifyWebpackHMR, {
+    app.register(fastifyWebpackHMR, {
       config: path.join(__dirname, '..', 'webpack.config.js'),
     });
   } else {
-    await app.register(fastifyStatic, {
+    app.register(fastifyStatic, {
       root: path.join(__dirname, '..', 'assets'),
       prefix: '/assets',
     });
   }
 };
-const addDatabase = async (app) => {
-  await app.register(fastifyObjection, {
+const addDatabase = (app) => {
+  app.register(fastifyObjection, {
     knexConfig: knexConfig[mode],
     models,
   });
 };
-const addPlugins = async (app) => {
-  await app.register(fastifyFormbody);
-  await app.register(fastifyMethodOverride);
-  app.register(fastifyFlash);
+const addPlugins = (app) => {
+  // app.register(fastifyFlash);
+  app.register(fastifyFormbody);
+  app.register(fastifyMethodOverride);
 };
-const addSession = async (app) => {
-  await app.register(fastifySecureSession, {
+const addAuthentification = (app) => {
+  app.register(fastifySecureSession, {
     secret: process.env.SECRET,
     salt: process.env.SALT,
     cookie: {
       path: '/',
     },
   });
-  app.addHook('preHandler', async (req) => {
-    const userId = req.session.get('userId');
-    if (userId !== undefined) {
-      req.currentUser = await app.objection.models.user.query().findById(userId);
-    }
+  app.register(fastifyPassport.initialize());
+  app.register(fastifyPassport.secureSession());
+  fastifyPassport.use('form', new FormPassportStrategy('form', app));
+  fastifyPassport.registerUserSerializer(async (user) => user.id);
+  fastifyPassport.registerUserDeserializer(
+    async (userId) => app.objection.models.user.query().findById(userId),
+  );
+  app.decorate('passport', fastifyPassport);
+  app.decorate('formAuth', (...args) => fastifyPassport.authenticate(
+    'form',
+    {
+      failureRedirect: '/',
+      failureFlash: app.t('flash.fail.auth'),
+    },
+  )(...args));
+};
+const addHooks = (app) => {
+  app.addHook('preHandler', async (req, reply) => {
+    // eslint-disable-next-line
+    reply.locals = {
+      isAuthenticated: () => req.isAuthenticated(),
+    };
   });
 };
 const addLocalization = (app) => {
@@ -117,13 +136,14 @@ export default async () => {
       level: isDevelopment ? 'trace' : 'info',
     },
   });
-  await addSession(app);
-  await addPlugins(app);
+  addHooks(app);
+  addPlugins(app);
+  addAuthentification(app);
   addLocalization(app);
-  await addTemplatesEngine(app);
-  await addAssets(app);
-  await addErrorHandler(app);
-  await addDatabase(app);
+  addTemplatesEngine(app);
+  addAssets(app);
+  addErrorHandler(app);
+  addDatabase(app);
   addRoutes(app);
 
   return app;

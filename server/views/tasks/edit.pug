@@ -4,12 +4,11 @@ block header
   = t('tasks.edit.title')
 
 block content
-  +formFor()(action='/tasks' method='post')
+  +formFor()(action=`/tasks/${data.task.id}` method='post')
     +input(t('tasks.edit.form.name'), data.task.name, errors.name)(name="name")
     +input(t('tasks.edit.form.description'), data.task.description, errors.description)(name='description')
     +select(t('tasks.edit.form.status'), data.statuses, errors.statusId)(name='statusId')
     +multiselect(t('tasks.edit.form.labels'), data.labels, errors.labelIds)(name='labelIds')
     +select(t('tasks.edit.form.assigned'), data.users, errors.assignedId)(name='assignedId')
-    input(name="id" type="hidden" value= data.task.id)
     input(name="_method" type="hidden" value="patch")
     +submit()(value=t('tasks.edit.form.confirm'))

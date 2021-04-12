@@ -4,8 +4,7 @@ block header
   =t('statuses.edit.title')
 
 block content
-  +formFor()(action='/statuses' method='post')
+  +formFor()(action=`/statuses/${data.status.id}` method='post')
     +input(t('statuses.edit.form.name'), data.status.name, errors.name)(name="name")
-    input(name="id" type="hidden" value= data.status.id)
     input(name="_method" type="hidden" value="PATCH")
     +submit()(value=t('statuses.edit.form.confirm'))

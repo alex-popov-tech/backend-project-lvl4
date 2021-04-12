@@ -8,7 +8,7 @@ html(lang="en").h-100
   body.d-flex.flex-column.min-vh-100
     nav.navbar.navbar-expand-lg.navbar-light.bg-light.mb-3
       a.navbar-brand(href='/')=t('layout.header.title')
-      if reply.request.currentUser
+      if isAuthenticated()
         ul.navbar-nav.mr-auto
           li.nav-item
             a.nav-link(href='/users')=t('layout.header.users')
@@ -22,7 +22,7 @@ html(lang="en").h-100
           li.nav-item
             a.nav-link(href='/tasks')=t('layout.header.tasks')
       up.navbar-nav
-        if !reply.request.currentUser
+        if !isAuthenticated()
           li.nav-item
             a.nav-link(href='/users/new')=t('layout.header.signup')
           li.nav-item
