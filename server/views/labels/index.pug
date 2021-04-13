@@ -17,6 +17,5 @@ block content
           td= label.createdAt
           td
             a(href=`/labels/edit/${label.id}`)=t('labels.index.list.columns.action.edit')
-            +formFor()(action=`/labels/${label.id}` method='post')
-              input(name="_method" type="hidden" value="delete")
+            +formFor()(action=`/labels/${label.id}?_method=delete` method='post')
               input.btn.btn-link(type="submit" value=t('labels.index.list.columns.action.delete'))

@@ -39,7 +39,7 @@
     "fastify-errors-properties": "^0.7.0",
     "fastify-flash": "^2.0.2",
     "fastify-formbody": "^4.0.3",
-    "fastify-method-override": "^1.4.1",
+    "fastify-method-override-wrapper": "^1.0.5",
     "fastify-objectionjs": "^0.2.2",
     "fastify-passport": "^0.4.2",
     "fastify-secure-session": "^2.2.1",

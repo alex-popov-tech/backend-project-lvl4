@@ -1,9 +1,8 @@
 import dotenv from 'dotenv';
 import fastify from 'fastify';
 import fastifyErrorsProperties from 'fastify-errors-properties';
-// import fastifyFlash from 'fastify-flash';
 import fastifyFormbody from 'fastify-formbody';
-import fastifyMethodOverride from 'fastify-method-override';
+import fastifyMethodOverride from 'fastify-method-override-wrapper';
 import fastifyObjection from 'fastify-objectionjs';
 import fastifyPassport from 'fastify-passport';
 import fastifySecureSession from 'fastify-secure-session';
@@ -83,9 +82,7 @@ const addDatabase = (app) => {
   });
 };
 const addPlugins = (app) => {
-  // app.register(fastifyFlash);
   app.register(fastifyFormbody);
-  app.register(fastifyMethodOverride);
 };
 const addAuthentification = (app) => {
   app.register(fastifySecureSession, {
@@ -130,7 +127,7 @@ const addLocalization = (app) => {
   app.decorate('t', (key) => i18next.t(key));
 };
 export default async () => {
-  const app = fastify({
+  const app = fastifyMethodOverride(fastify)({
     logger: {
       prettyPrint: isDevelopment,
       level: isDevelopment ? 'trace' : 'info',

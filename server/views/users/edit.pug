@@ -4,10 +4,9 @@ block header
   =t('users.edit.title')
 
 block content
-  +formFor()(action=`/users/${data.user.id}` method='post')
+  +formFor()(action=`/users/${data.user.id}?_method=patch` method='post')
     +input(t('users.edit.form.firstName'), data.user.firstName, errors.firstName)(name="firstName" type="text")
     +input(t('users.edit.form.lastName'), data.user.lastName, errors.lastName)(name="lastName" type="text")
     +input(t('users.edit.form.email'), data.user.email, errors.email)(name="email" type="text")
     +input(t('users.edit.form.password'), '', errors.password)(name="password" type="password")
-    input(name="_method" type="hidden" value="PATCH")
-    +submit()(value=t('users.edit.form.save'))
+    +submit()(value=t('users.edit.form.confirm'))
