@@ -4,10 +4,10 @@
   "description": "hexlet nodejs backend project lvl 4",
   "scripts": {
     "clean": "del dist",
-    "build:client": "NODE_ENV=production webpack -p",
-    "build:server": "NODE_ENV=production babel server --out-dir dist/server && cp -r server/views dist/server/views && cp knexfile.js dist/knexfile.js",
+    "build-frontend": "NODE_ENV=production webpack -p",
+    "build-backend": "NODE_ENV=production babel server --out-dir dist/server && cp -r server/views dist/server/views && cp knexfile.js dist/knexfile.js",
     "migrate": "NODE_ENV=production npx knex migrate:latest",
-    "build": "npm run clean && npm run build:client && npm run build:server && npm run migrate",
+    "build": "npm run clean && npm run build-frontend && npm run build-backend && npm run migrate",
     "start": "NODE_ENV=production node dist/server/bin/index.js",
     "test": "jest"
   },
