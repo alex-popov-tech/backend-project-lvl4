@@ -9,12 +9,14 @@ export default (app) => {
       await reply.render('statuses/new', { data: { status }, errors: {} });
     })
     .get('/statuses/edit/:id', { preValidation: app.formAuth }, async (req, reply) => {
-      const status = await app.objection.models.status.query().findById(req.params.id);
+      const { params: { id } } = req;
+      const status = await app.objection.models.status.query().findById(id);
       await reply.render('statuses/edit', { data: { status }, errors: {} });
     })
     .post('/statuses', { preValidation: app.formAuth }, async (req, reply) => {
+      const { body } = req;
       try {
-        const newStatus = app.objection.models.status.fromJson(req.body);
+        const newStatus = app.objection.models.status.fromJson(body);
         await app.objection.models.status.query().insert(newStatus);
         req.flash('success', app.t('statuses.index.flash.success.new'));
         await reply.redirect('/statuses');
@@ -26,9 +28,10 @@ export default (app) => {
       }
     })
     .patch('/statuses/:id', { preValidation: app.formAuth }, async (req, reply) => {
+      const { body, params: { id } } = req;
       try {
-        const updatedStatus = app.objection.models.status.fromJson(req.body);
-        const existingStatus = await app.objection.models.status.query().findById(req.params.id);
+        const updatedStatus = app.objection.models.status.fromJson(body);
+        const existingStatus = await app.objection.models.status.query().findById(id);
         await existingStatus.$query().patch(updatedStatus);
         req.flash('info', app.t('statuses.index.flash.success.edit'));
         await reply.redirect('/statuses');
@@ -40,7 +43,8 @@ export default (app) => {
       }
     })
     .delete('/statuses/:id', { preValidation: app.formAuth }, async (req, reply) => {
-      const relatedTasksCount = await app.objection.models.task.query().where('statusId', req.params.id).resultSize();
+      const { params: { id } } = req;
+      const relatedTasksCount = await app.objection.models.task.query().where('statusId', id).resultSize();
       if (relatedTasksCount > 0) {
         const statuses = await app.objection.models.status.query();
         req.flash('danger', app.t('statuses.index.flash.fail.delete'));
@@ -48,7 +52,7 @@ export default (app) => {
           data: { statuses },
         });
       }
-      await app.objection.models.status.query().deleteById(req.params.id);
+      await app.objection.models.status.query().deleteById(id);
       req.flash('success', app.t('statuses.index.flash.success.delete'));
       return reply.redirect('/statuses');
     });

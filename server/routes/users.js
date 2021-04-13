@@ -8,13 +8,13 @@ export default (app) => {
       await reply.render('users/new', { data: { user: {} }, errors: [] });
     })
     .get('/users/edit/:id', { preValidation: app.formAuth }, async (req, reply) => {
-      const { id } = req.params;
-      if (req.currentUser.id !== Number(id)) {
+      const { user, params: { id } } = req;
+      if (user.id !== Number(id)) {
         req.flash('danger', app.t('users.index.flash.fail.deleteOrEditOtherUser'));
         const users = await app.objection.models.user.query();
         return reply.code(422).render('users/index', { data: { users } });
       }
-      return reply.render('users/edit', { data: { currentUser: req.currentUser }, errors: [] });
+      return reply.render('users/edit', { data: { user }, errors: [] });
     })
     .post('/users', async (req, reply) => {
       try {
@@ -29,8 +29,8 @@ export default (app) => {
       }
     })
     .patch('/users/:id', { preValidation: app.formAuth }, async (req, reply) => {
+      const { params: { id } } = req;
       try {
-        const { id } = req.params;
         if (req.user.id !== Number(id)) {
           const users = await app.objection.models.user.query();
           req.flash('danger', app.t('users.index.flash.fail.deleteOrEditOtherUser'));
@@ -49,19 +49,17 @@ export default (app) => {
       }
     })
     .delete('/users/:id', { preValidation: app.formAuth }, async (req, reply) => {
-      const { id } = req.params;
+      const { user, params: { id } } = req;
       try {
-        if (req.user.id !== Number(id)) {
+        if (user.id !== Number(id)) {
           const users = await app.objection.models.user.query();
           req.flash('danger', app.t('users.index.flash.fail.deleteOrEditOtherUser'));
           return reply.code(422).render('users/index', { data: { users } });
         }
-        await req.logout(req.user);
+        await req.logout(user);
         await app.objection.models.user.query().deleteById(id);
         return reply.redirect('/users');
       } catch ({ data }) {
-        const user = new app.objection.models.user();
-        user.$set(req.body);
         req.flash('danger', app.t('users.index.flash.fail.deleteOrEditOtherUser'));
         return reply.code(422).render('users/edit', { data: { user }, errors: data });
       }
