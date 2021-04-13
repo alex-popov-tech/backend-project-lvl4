@@ -1,11 +1,11 @@
-import { internet } from 'faker';
 import {
-  clearDatabaseState, getAuthenticatedUser, launchApp, shutdownApp,
+  database, getAuthenticatedUser, launchApp, shutdownApp,
 } from './helpers';
 
 describe('Task', () => {
   let app;
   let cookies;
+  let db;
   let currentUser;
   let existingStatus;
   let existingLabel;
@@ -13,6 +13,7 @@ describe('Task', () => {
 
   beforeAll(async () => {
     app = await launchApp();
+    db = database(app);
   });
 
   afterAll(async () => {
@@ -20,19 +21,11 @@ describe('Task', () => {
   });
 
   beforeEach(async () => {
-    await clearDatabaseState(app);
+    await db.clear();
     ({ user: currentUser, cookies } = await getAuthenticatedUser(app));
-    existingStatus = await app.objection.models.status.query().insert({
-      name: 'test status',
-    });
-    existingLabel = await app.objection.models.label.query().insert({
-      name: 'test label',
-    });
-    existingUser = await app.objection.models.user.query().insert({
-      firstName: 'foo',
-      lastName: 'bar',
-      email: internet.email(),
-      password: 'test',
+    existingStatus = await db.insert.status();
+    existingLabel = await db.insert.label();
+    existingUser = await db.insert.user({
       labelIds: existingLabel.id,
       statusId: existingStatus.id,
     });
@@ -56,9 +49,7 @@ describe('Task', () => {
       expect(statusCode).toBe(200);
     });
     it('should return 200 on edit/:id ', async () => {
-      const existingTask = await app.objection.models.task.query().insert({
-        name: 'test',
-        description: 'test',
+      const existingTask = await db.insert.task({
         statusId: existingStatus.id,
         creatorId: existingUser.id,
       });
@@ -103,7 +94,7 @@ describe('Task', () => {
         });
         expect(statusCode).toBe(302);
 
-        const tasks = await app.objection.models.task.query();
+        const tasks = await db.find.tasks();
         expect(tasks).toHaveLength(1);
         expect(tasks[0]).toMatchObject({
           name,
@@ -133,7 +124,7 @@ describe('Task', () => {
           body: data(),
         });
         expect(statusCode).toBe(422);
-        const tasks = await app.objection.models.task.query();
+        const tasks = await db.find.tasks();
         expect(tasks).toHaveLength(0);
       });
     });
@@ -142,21 +133,15 @@ describe('Task', () => {
   describe('update', () => {
     let existingTask;
     beforeEach(async () => {
-      existingTask = await app.objection.models.task.query().insert({
-        name: 'test',
-        description: 'test',
+      existingTask = await db.insert.task({
         statusId: existingStatus.id,
         creatorId: existingUser.id,
       });
     });
 
     it('should update entity and return 302 when using valid data', async () => {
-      const newLabel = await app.objection.models.label.query().insert({
-        name: 'new label',
-      });
-      const updatedStatus = await app.objection.models.status.query().insert({
-        name: 'test updated',
-      });
+      const newLabel = await db.insert.label();
+      const updatedStatus = await db.insert.status();
       const updatedTask = {
         name: 'updated-name',
         description: 'updated-descr',
@@ -173,7 +158,7 @@ describe('Task', () => {
         },
       });
       expect(statusCode).toBe(302);
-      const tasks = await app.objection.models.task.query();
+      const tasks = await db.find.tasks();
       expect(tasks).toHaveLength(1);
       expect(tasks[0]).toMatchObject(updatedTask);
       const labels = await tasks[0].$relatedQuery('labels');
@@ -185,35 +170,29 @@ describe('Task', () => {
   });
 
   describe('delete', () => {
-    it('should allow to delete own entity and return 302', async () => {
-      const existingTask = await app.objection.models.task.query().insert({
-        name: 'test',
-        description: 'test',
+    let existingTask;
+    beforeEach(async () => {
+      existingTask = await db.insert.task({
         statusId: existingStatus.id,
         creatorId: currentUser.id,
         labelIds: existingLabel.id,
       });
+    });
+    it('should delete entity and return 302', async () => {
       const { statusCode } = await app.inject({
         method: 'delete',
         url: `/tasks/${existingTask.id}`,
         cookies,
       });
       expect(statusCode).toBe(302);
-      const tasks = await app.objection.models.task.query();
+      const tasks = await db.find.tasks();
       expect(tasks).toHaveLength(0);
       const labels = await existingTask.$relatedQuery('labels');
       expect(labels).toHaveLength(0);
-      expect(await app.objection.models.label.query()).toHaveLength(1);
+      expect(await db.find.labels()).toHaveLength(1);
     });
 
     it('should not allow to delete other entity and return 422', async () => {
-      const existingTask = await app.objection.models.task.query().insert({
-        name: 'test',
-        description: 'test',
-        statusId: existingStatus.id,
-        creatorId: existingUser.id,
-        labelIds: existingLabel.id,
-      });
       const { statusCode } = await app.inject({
         method: 'delete',
         url: `/tasks/${existingTask.id}`,

@@ -1,14 +1,16 @@
 import { random } from 'faker';
 import {
-  clearDatabaseState, getAuthenticatedUser, launchApp, shutdownApp,
+  database, getAuthenticatedUser, launchApp, shutdownApp,
 } from './helpers';
 
 describe('Status', () => {
   let app;
   let cookies;
+  let db;
 
   beforeAll(async () => {
     app = await launchApp();
+    db = database(app);
   });
 
   afterAll(async () => {
@@ -16,7 +18,7 @@ describe('Status', () => {
   });
 
   beforeEach(async () => {
-    await clearDatabaseState(app);
+    await db.clear();
     ({ cookies } = await getAuthenticatedUser(app));
   });
 
@@ -38,9 +40,7 @@ describe('Status', () => {
       expect(statusCode).toBe(200);
     });
     it('should return 200 on edit/:id ', async () => {
-      const existingStatus = await app.objection.models.status.query().insert({
-        name: random.word(),
-      });
+      const existingStatus = await db.insert.status();
       const { statusCode } = await app.inject({
         method: 'get',
         url: `/statuses/edit/${existingStatus.id}`,
@@ -62,15 +62,13 @@ describe('Status', () => {
         body: status,
       });
       expect(statusCode).toBe(302);
-      const statuses = await app.objection.models.status.query();
+      const statuses = await db.find.statuses();
       expect(statuses).toHaveLength(1);
       expect(statuses[0]).toMatchObject(status);
     });
 
     it('should not create entity and return 422 when using existing name', async () => {
-      const existingStatus = await app.objection.models.status.query().insert({
-        name: random.word(),
-      });
+      const existingStatus = await db.insert.status();
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/statuses',
@@ -80,7 +78,7 @@ describe('Status', () => {
         },
       });
       expect(statusCode).toBe(422);
-      const statuses = await app.objection.models.status.query();
+      const statuses = await db.find.statuses();
       expect(statuses).toHaveLength(1);
     });
   });
@@ -88,9 +86,7 @@ describe('Status', () => {
   describe('update', () => {
     let existingStatus;
     beforeEach(async () => {
-      existingStatus = await app.objection.models.status.query().insert({
-        name: random.word(),
-      });
+      existingStatus = await db.insert.status();
     });
 
     it('should update entity and return 302 when using valid name', async () => {
@@ -103,7 +99,7 @@ describe('Status', () => {
         },
       });
       expect(statusCode).toBe(302);
-      const statuses = await app.objection.models.status.query();
+      const statuses = await db.find.statuses();
       expect(statuses).toHaveLength(1);
       expect(statuses[0]).toMatchObject({ name: 'new name' });
     });
@@ -111,16 +107,14 @@ describe('Status', () => {
 
   describe('delete', () => {
     it('should delete entity and return 302 when using valid id', async () => {
-      const existingStatus = await app.objection.models.status.query().insert({
-        name: random.word(),
-      });
+      const existingStatus = await db.insert.status();
       const { statusCode } = await app.inject({
         method: 'delete',
         url: `/statuses/${existingStatus.id}`,
         cookies,
       });
       expect(statusCode).toBe(302);
-      const statuses = await app.objection.models.status.query();
+      const statuses = await db.find.statuses();
       expect(statuses).toHaveLength(0);
     });
   });

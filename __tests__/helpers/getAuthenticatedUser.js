@@ -1,10 +1,11 @@
 import { parse } from 'cookie';
 import { internet } from 'faker';
+import database from './database';
 
-export default async (app, email = internet.email(), password = 'test') => {
-  const user = await app.objection.models.user.query().insert({
-    firstName: 'foo',
-    lastName: 'bar',
+export default async (app) => {
+  const email = internet.email();
+  const password = internet.password();
+  const user = await database(app).insert.user({
     email,
     password,
   });
@@ -13,6 +14,5 @@ export default async (app, email = internet.email(), password = 'test') => {
     url: '/sessions',
     body: { email, password },
   });
-  const cookieString = response.headers['set-cookie'];
-  return { user, cookies: parse(cookieString) };
+  return { user, cookies: parse(response.headers['set-cookie']) };
 };

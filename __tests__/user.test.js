@@ -1,12 +1,14 @@
 import {
-  clearDatabaseState, getAuthenticatedUser, launchApp, shutdownApp,
+  database, getAuthenticatedUser, launchApp, shutdownApp,
 } from './helpers';
 
 describe('Users', () => {
   let app;
+  let db;
 
   beforeAll(async () => {
     app = await launchApp();
+    db = database(app);
   });
 
   afterAll(async () => {
@@ -14,7 +16,7 @@ describe('Users', () => {
   });
 
   beforeEach(async () => {
-    await clearDatabaseState(app);
+    await db.clear();
   });
 
   describe('index', () => {
@@ -50,7 +52,7 @@ describe('Users', () => {
         },
       });
       expect(statusCode).toBe(302);
-      const users = await app.objection.models.user.query();
+      const users = await db.find.users();
       expect(users).toHaveLength(1);
       expect(users[0]).toMatchObject({
         email: 'new@test.com',
@@ -61,11 +63,10 @@ describe('Users', () => {
 
     describe('when using invalid data', () => {
       it('should not create entity and return 422 when existing email', async () => {
-        await app.objection.models.user.query().insert({
+        await db.insert.user({
           firstName: 'foo',
           lastName: 'bar',
           email: 'a@a.com',
-          password: 'test',
         });
         const { statusCode } = await app.inject({
           method: 'post',
@@ -78,7 +79,7 @@ describe('Users', () => {
           },
         });
         expect(statusCode).toBe(422);
-        const users = await app.objection.models.user.query();
+        const users = await db.find.users();
         expect(users).toHaveLength(1);
         expect(users[0]).toMatchObject({
           email: 'a@a.com',
@@ -111,7 +112,7 @@ describe('Users', () => {
           body,
         });
         expect(statusCode).toBe(422);
-        const users = await app.objection.models.user.query();
+        const users = await db.find.users();
         expect(users).toHaveLength(0);
       });
     });
@@ -146,7 +147,7 @@ describe('Users', () => {
         },
       });
       expect(statusCode).toBe(302);
-      const users = await app.objection.models.user.query();
+      const users = await db.find.users();
       expect(users).toHaveLength(1);
       expect(users[0]).toMatchObject({
         email: 'new@test.com',
@@ -171,25 +172,20 @@ describe('Users', () => {
         cookies,
       });
       expect(response.statusCode).toBe(302);
-      const users = await app.objection.models.task.query();
+      const users = await db.find.users();
       expect(users).toHaveLength(0);
     });
 
     it('should not allow to delete other entity and return 422', async () => {
-      const existingUser = await app.objection.models.user.query().insert({
-        firstName: 'foo',
-        lastName: 'bar',
-        email: 'a@a.com',
-        password: 'test',
-      });
+      const existingUser = await db.insert.user();
       const response = await app.inject({
         method: 'delete',
         url: `/users/${existingUser.id}`,
         cookies,
       });
       expect(response.statusCode).toBe(422);
-      const users = await app.objection.models.task.query();
-      expect(users).toHaveLength(0);
+      const users = await db.find.users();
+      expect(users).toHaveLength(2);
     });
   });
 });

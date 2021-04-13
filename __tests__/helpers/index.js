@@ -1,6 +1,7 @@
-import { clearDatabaseState, launchApp, shutdownApp } from './app';
+import { launchApp, shutdownApp } from './app';
+import database from './database';
 import getAuthenticatedUser from './getAuthenticatedUser';
 
 export {
-  clearDatabaseState, launchApp, shutdownApp, getAuthenticatedUser,
+    database, launchApp, shutdownApp, getAuthenticatedUser,
 };
