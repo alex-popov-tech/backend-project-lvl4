@@ -17,7 +17,5 @@ block content
           td= status.createdAt
           td
             a(href=`/statuses/edit/${status.id}`)=t('statuses.index.list.columns.action.edit')
-            +formFor()(action='/statuses' method='post')
-              input(name="_method" type="hidden" value="delete")
-              input(name="id" type="hidden" value=status.id)
+            +formFor()(action=`/statuses/${status.id}?_method=delete` method='post')
               input.btn.btn-link(type="submit" value=t('statuses.index.list.columns.action.delete'))

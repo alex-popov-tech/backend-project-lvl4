@@ -18,6 +18,5 @@ block content
           td= user.createdAt.toLocaleString()
           td
             a(href=`/users/edit/${user.id}`)=t('users.index.list.columns.action.edit')
-            +formFor()(action='/users/${user.id}' method='post')
-              input(name="_method" type="hidden" value="delete")
+            +formFor()(action='/users/${user.id}?_method=delete' method='post')
               input.btn.btn-link(type="submit" value=t('users.index.list.columns.action.delete'))
