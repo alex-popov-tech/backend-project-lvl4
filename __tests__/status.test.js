@@ -1,6 +1,6 @@
 import { random } from 'faker';
 import {
-  database, getAuthenticatedUser, launchApp, shutdownApp,
+  create, database, getAuthenticatedUser, launchApp, shutdownApp,
 } from './helpers';
 
 describe('Status', () => {
@@ -40,7 +40,7 @@ describe('Status', () => {
       expect(statusCode).toBe(200);
     });
     it('should return 200 on edit/:id ', async () => {
-      const existingStatus = await db.insert.status();
+      const existingStatus = await db.insert.status(create.status());
       const { statusCode } = await app.inject({
         method: 'get',
         url: `/statuses/edit/${existingStatus.id}`,
@@ -68,7 +68,7 @@ describe('Status', () => {
     });
 
     it('should not create entity and return 422 when using existing name', async () => {
-      const existingStatus = await db.insert.status();
+      const existingStatus = await db.insert.status(create.status());
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/statuses',
@@ -86,7 +86,7 @@ describe('Status', () => {
   describe('update', () => {
     let existingStatus;
     beforeEach(async () => {
-      existingStatus = await db.insert.status();
+      existingStatus = await db.insert.status(create.status());
     });
 
     it('should update entity and return 302 when using valid name', async () => {
@@ -107,7 +107,7 @@ describe('Status', () => {
 
   describe('delete', () => {
     it('should delete entity and return 302 when using valid id', async () => {
-      const existingStatus = await db.insert.status();
+      const existingStatus = await db.insert.status(create.status());
       const { statusCode } = await app.inject({
         method: 'delete',
         url: `/statuses/${existingStatus.id}`,

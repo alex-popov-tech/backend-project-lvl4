@@ -1,26 +1,9 @@
-import {
-  internet, lorem, name,
-} from 'faker';
-import _ from 'lodash';
-
 export default (app) => ({
   insert: {
-    status: (data = {}) => app.objection.models.status.query()
-      .insert(_.merge({ name: name.title() }, data)),
-    label: (data = {}) => app.objection.models.label.query()
-      .insert(_.merge({ name: name.title() }, data)),
-    user: (data = {}) => app.objection.models.user.query()
-      .insert(_.merge({
-        firstName: name.firstName(),
-        lastName: name.lastName(),
-        email: internet.email(),
-        password: internet.password(),
-      }, data)),
-    task: (data = {}) => app.objection.models.task.query()
-      .insert(_.merge({
-        name: name.title(),
-        description: lorem.paragraph(),
-      }, data)),
+    status: (data) => app.objection.models.status.query().insert(data),
+    label: (data) => app.objection.models.label.query().insert(data),
+    user: (data) => app.objection.models.user.query().insert(data),
+    task: (data) => app.objection.models.task.query().insert(data),
   },
   find: {
     statuses: () => app.objection.models.status.query(),

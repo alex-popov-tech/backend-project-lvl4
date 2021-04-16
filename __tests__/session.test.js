@@ -1,4 +1,6 @@
-import { database, launchApp, shutdownApp } from './helpers';
+import {
+  create, database, launchApp, shutdownApp,
+} from './helpers';
 
 describe('Session', () => {
   let app;
@@ -18,12 +20,12 @@ describe('Session', () => {
   });
 
   it('should login and logout when using valid credentials', async () => {
-    const password = 'test';
-    const { email } = await db.insert.user({ password });
+    const user = create.user();
+    await db.insert.user(user);
     let res = await app.inject({
       method: 'post',
       url: '/sessions',
-      body: { email, password },
+      body: { email: user.email, password: user.password },
     });
     expect(res.statusCode).toBe(302);
     const cookie = res.headers['set-cookie'];

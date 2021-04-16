@@ -1,6 +1,5 @@
-import { random } from 'faker';
 import {
-  database, getAuthenticatedUser, launchApp, shutdownApp,
+  create, database, getAuthenticatedUser, launchApp, shutdownApp,
 } from './helpers';
 
 describe('Label', () => {
@@ -39,7 +38,7 @@ describe('Label', () => {
       expect(statusCode).toBe(200);
     });
     it('should return 200 on edit/:id ', async () => {
-      const existingLabel = await db.insert.label();
+      const existingLabel = await db.insert.label(create.label());
       const { statusCode } = await app.inject({
         method: 'get',
         url: `/labels/edit/${existingLabel.id}`,
@@ -51,23 +50,21 @@ describe('Label', () => {
 
   describe('create', () => {
     it('should create entity and return 302 when using valid name', async () => {
-      const status = {
-        name: random.word(),
-      };
+      const label = create.label();
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/labels',
         cookies,
-        body: status,
+        body: label,
       });
       expect(statusCode).toBe(302);
       const labels = await db.find.labels();
       expect(labels).toHaveLength(1);
-      expect(labels[0]).toMatchObject(status);
+      expect(labels[0]).toMatchObject(label);
     });
 
     it('should not create entity and return 422 when using existing name', async () => {
-      const existingLabel = await db.insert.label();
+      const existingLabel = await db.insert.label(create.label());
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/labels',
@@ -85,7 +82,7 @@ describe('Label', () => {
   describe('update', () => {
     let existingLabel;
     beforeEach(async () => {
-      existingLabel = await db.insert.label();
+      existingLabel = await db.insert.label(create.label());
     });
 
     it('should update entity and return 302 when using valid name', async () => {
@@ -106,7 +103,7 @@ describe('Label', () => {
 
   describe('delete', () => {
     it('should delete entity return 302 when using valid id', async () => {
-      const existingLabel = await db.insert.label();
+      const existingLabel = await db.insert.label(create.label());
       const { statusCode } = await app.inject({
         method: 'delete',
         url: `/labels/${existingLabel.id}`,
