@@ -1,5 +1,6 @@
 {
   "name": "@hexlet/code",
+  "main": "server/index.js",
   "version": "1.0.0",
   "description": "hexlet nodejs backend project lvl 4",
   "scripts": {
