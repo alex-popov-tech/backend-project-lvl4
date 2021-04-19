@@ -185,17 +185,14 @@ describe('Task', () => {
   });
 
   describe('delete', () => {
-    let existingTask;
-    beforeEach(async () => {
-      existingTask = await app.objection.models.task.query().insert({
+    it('should allow to delete own entity and return 302', async () => {
+      const existingTask = await app.objection.models.task.query().insert({
         name: 'test',
         description: 'test',
         statusId: existingStatus.id,
         creatorId: currentUser.id,
         labelIds: existingLabel.id,
       });
-    });
-    it('should delete entity and return 302', async () => {
       const { statusCode } = await app.inject({
         method: 'delete',
         url: `/tasks/${existingTask.id}`,
@@ -207,6 +204,24 @@ describe('Task', () => {
       const labels = await existingTask.$relatedQuery('labels');
       expect(labels).toHaveLength(0);
       expect(await app.objection.models.label.query()).toHaveLength(1);
+    });
+
+    it('should not allow to delete other entity and return 422', async () => {
+      const existingTask = await app.objection.models.task.query().insert({
+        name: 'test',
+        description: 'test',
+        statusId: existingStatus.id,
+        creatorId: existingUser.id,
+        labelIds: existingLabel.id,
+      });
+      const { statusCode } = await app.inject({
+        method: 'delete',
+        url: `/tasks/${existingTask.id}`,
+        cookies,
+      });
+      expect(statusCode).toBe(422);
+      const tasks = await app.objection.models.task.query();
+      expect(tasks).toHaveLength(1);
     });
   });
 });
