@@ -44,6 +44,7 @@ mixin input(name, value = '', errors = [])
       class='form-control'
       class= errors.length ? 'is-invalid' : ''
       value=(value || '')
+      text= name
     )&attributes(attributes)
     if errors.length
       .form-control-feedback.invalid-feedback= errors.map(({ message }) => message).join('\n')
