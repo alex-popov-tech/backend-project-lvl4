@@ -1,5 +1,5 @@
 import {
-  create, database, launchApp, shutdownApp,
+  create, getDatabase, launchApp, shutdownApp,
 } from './helpers';
 
 describe('Session', () => {
@@ -8,14 +8,14 @@ describe('Session', () => {
 
   beforeAll(async () => {
     app = await launchApp();
-    db = database(app);
+    db = getDatabase(app);
   });
 
   afterAll(async () => {
     await shutdownApp(app);
   });
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await db.clear();
   });
 

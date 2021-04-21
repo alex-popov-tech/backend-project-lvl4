@@ -31,8 +31,6 @@ export default (app) => {
     .patch('/users/:id', { preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id } } = req;
       try {
-        console.log(req.params, req.body);
-        console.log(req.user);
         if (req.user.id !== Number(id)) {
           const users = await app.objection.models.user.query();
           req.flash('danger', app.t('users.index.flash.fail.deleteOrEditOtherUser'));

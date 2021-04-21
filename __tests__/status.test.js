@@ -1,6 +1,6 @@
 import { random } from 'faker';
 import {
-  create, database, getAuthenticatedUser, launchApp, shutdownApp,
+  create, getDatabase, getAuthenticatedUser, launchApp, shutdownApp,
 } from './helpers';
 
 describe('Status', () => {
@@ -10,7 +10,7 @@ describe('Status', () => {
 
   beforeAll(async () => {
     app = await launchApp();
-    db = database(app);
+    db = getDatabase(app);
   });
 
   afterAll(async () => {
@@ -18,8 +18,11 @@ describe('Status', () => {
   });
 
   beforeEach(async () => {
-    await db.clear();
     ({ cookies } = await getAuthenticatedUser(app));
+  });
+
+  afterEach(async () => {
+    await db.clear();
   });
 
   describe('index', () => {

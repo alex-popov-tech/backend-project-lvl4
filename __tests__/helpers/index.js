@@ -1,8 +1,8 @@
 import { launchApp, shutdownApp } from './app';
-import database from './database';
+import getDatabase from './getDatabase';
 import create from './fabrics';
 import getAuthenticatedUser from './getAuthenticatedUser';
 
 export {
-  database, launchApp, shutdownApp, getAuthenticatedUser, create,
+  getDatabase, launchApp, shutdownApp, getAuthenticatedUser, create,
 };

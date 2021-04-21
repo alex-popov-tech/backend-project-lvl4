@@ -1,5 +1,5 @@
 import {
-  create, database, getAuthenticatedUser, launchApp, shutdownApp,
+  create, getDatabase, getAuthenticatedUser, launchApp, shutdownApp,
 } from './helpers';
 
 describe('Users', () => {
@@ -8,14 +8,14 @@ describe('Users', () => {
 
   beforeAll(async () => {
     app = await launchApp();
-    db = database(app);
+    db = getDatabase(app);
   });
 
   afterAll(async () => {
     await shutdownApp(app);
   });
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await db.clear();
   });
 

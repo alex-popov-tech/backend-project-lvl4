@@ -1,5 +1,5 @@
 import {
-  create, database, getAuthenticatedUser, launchApp, shutdownApp,
+  create, getDatabase, getAuthenticatedUser, launchApp, shutdownApp,
 } from './helpers';
 
 describe('Label', () => {
@@ -9,7 +9,7 @@ describe('Label', () => {
 
   beforeAll(async () => {
     app = await launchApp();
-    db = database(app);
+    db = getDatabase(app);
   });
 
   afterAll(async () => {
@@ -17,8 +17,11 @@ describe('Label', () => {
   });
 
   beforeEach(async () => {
-    await db.clear();
     ({ cookies } = await getAuthenticatedUser(app));
+  });
+
+  afterEach(async () => {
+    await db.clear();
   });
 
   describe('index', () => {
