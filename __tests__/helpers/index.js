@@ -1,6 +1,8 @@
-import { clearDatabaseState, launchApp, shutdownApp } from './app';
+import { launchApp, shutdownApp } from './app';
+import getDatabaseHelpers from './getDatabaseHelpers';
+import create from './fabrics';
 import getAuthenticatedUser from './getAuthenticatedUser';
 
 export {
-  clearDatabaseState, launchApp, shutdownApp, getAuthenticatedUser,
+  getDatabaseHelpers, launchApp, shutdownApp, getAuthenticatedUser, create,
 };

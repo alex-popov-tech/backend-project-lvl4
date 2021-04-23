@@ -1,33 +1,31 @@
-import { internet } from 'faker';
-import { clearDatabaseState, launchApp, shutdownApp } from './helpers';
+import {
+  create, getDatabaseHelpers, launchApp, shutdownApp,
+} from './helpers';
 
 describe('Session', () => {
   let app;
-  let user;
-
-  beforeEach(async () => {
-    await clearDatabaseState(app);
-    user = await app.objection.models.user.query().insert({
-      firstName: 'foo',
-      lastName: 'bar',
-      email: internet.email(),
-      password: 'test',
-    });
-  });
+  let db;
 
   beforeAll(async () => {
     app = await launchApp();
+    db = getDatabaseHelpers(app);
   });
 
   afterAll(async () => {
     await shutdownApp(app);
   });
 
+  afterEach(async () => {
+    await db.clear();
+  });
+
   it('should login and logout when using valid credentials', async () => {
+    const user = create.user();
+    await db.insert.user(user);
     let res = await app.inject({
       method: 'post',
       url: '/sessions',
-      body: { email: user.email, password: 'test' },
+      body: { email: user.email, password: user.password },
     });
     expect(res.statusCode).toBe(302);
     const cookie = res.headers['set-cookie'];

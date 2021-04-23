@@ -1,18 +1,14 @@
 import { parse } from 'cookie';
-import { internet } from 'faker';
+import getDatabaseHelpers from './getDatabaseHelpers';
+import create from './fabrics';
 
-export default async (app, email = internet.email(), password = 'test') => {
-  const user = await app.objection.models.user.query().insert({
-    firstName: 'foo',
-    lastName: 'bar',
-    email,
-    password,
-  });
+export default async (app) => {
+  const userData = create.user();
+  const user = await getDatabaseHelpers(app).insert.user(userData);
   const response = await app.inject({
     method: 'post',
     url: '/sessions',
-    body: { email, password },
+    body: { email: userData.email, password: userData.password },
   });
-  const cookieString = response.headers['set-cookie'];
-  return { user, cookies: parse(cookieString) };
+  return { user, cookies: parse(response.headers['set-cookie']) };
 };
