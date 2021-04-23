@@ -179,15 +179,12 @@ describe('Task', () => {
   });
 
   describe('delete', () => {
-    let existingTask;
-    beforeEach(async () => {
-      existingTask = await db.insert.task(create.task({
+    it('should delete entity and return 302', async () => {
+      const existingTask = await db.insert.task(create.task({
         status: existingStatus,
         creator: currentUser,
         labels: [existingLabel],
       }));
-    });
-    it('should delete entity and return 302', async () => {
       const { statusCode } = await app.inject({
         method: 'delete',
         url: `/tasks/${existingTask.id}`,
@@ -202,6 +199,12 @@ describe('Task', () => {
     });
 
     it('should not allow to delete other entity and return 422', async () => {
+      const user = await db.insert.user(create.user());
+      const existingTask = await db.insert.task(create.task({
+        status: existingStatus,
+        creator: user,
+        labels: [existingLabel],
+      }));
       const { statusCode } = await app.inject({
         method: 'delete',
         url: `/tasks/${existingTask.id}`,
