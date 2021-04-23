@@ -123,6 +123,7 @@ export default (app) => {
         req.flash('success', app.t('tasks.index.flash.success.edit'));
         await reply.redirect('/tasks');
       } catch ({ message, data }) {
+        console.log(message, req.body)
         const task = new app.objection.models.task();
         task.$set({ id, ...req.body });
         const [statuses, labels, users] = await Promise.all([

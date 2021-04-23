@@ -1,5 +1,5 @@
 import {
-  create, getDatabase, launchApp, shutdownApp,
+  create, getDatabaseHelpers, launchApp, shutdownApp,
 } from './helpers';
 
 describe('Session', () => {
@@ -8,7 +8,7 @@ describe('Session', () => {
 
   beforeAll(async () => {
     app = await launchApp();
-    db = getDatabase(app);
+    db = getDatabaseHelpers(app);
   });
 
   afterAll(async () => {

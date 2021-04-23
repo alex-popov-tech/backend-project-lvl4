@@ -1,6 +1,6 @@
 import { random } from 'faker';
 import {
-  create, getDatabase, getAuthenticatedUser, launchApp, shutdownApp,
+  create, getDatabaseHelpers, getAuthenticatedUser, launchApp, shutdownApp,
 } from './helpers';
 
 describe('Status', () => {
@@ -10,7 +10,7 @@ describe('Status', () => {
 
   beforeAll(async () => {
     app = await launchApp();
-    db = getDatabase(app);
+    db = getDatabaseHelpers(app);
   });
 
   afterAll(async () => {

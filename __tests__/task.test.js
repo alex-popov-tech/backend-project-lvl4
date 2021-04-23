@@ -1,5 +1,5 @@
 import {
-  create, getDatabase, getAuthenticatedUser, launchApp, shutdownApp,
+  create, getDatabaseHelpers, getAuthenticatedUser, launchApp, shutdownApp,
 } from './helpers';
 
 describe('Task', () => {
@@ -12,7 +12,7 @@ describe('Task', () => {
 
   beforeAll(async () => {
     app = await launchApp();
-    db = getDatabase(app);
+    db = getDatabaseHelpers(app);
   });
 
   afterAll(async () => {
@@ -49,9 +49,9 @@ describe('Task', () => {
 
     it('should return 200 on edit/:id ', async () => {
       const existingTask = await db.insert.task(create.task({
-        creatorId: currentUser.id,
-        labelIds: existingLabel.id,
-        statusId: existingStatus.id,
+        creator: currentUser,
+        labels: [existingLabel],
+        status: existingStatus,
       }));
       const { statusCode } = await app.inject({
         method: 'get',
@@ -63,9 +63,9 @@ describe('Task', () => {
 
     it('should return 200 when using filters', async () => {
       const existingTask = await db.insert.task(create.task({
-        creatorId: currentUser.id,
-        labelIds: existingLabel.id,
-        statusId: existingStatus.id,
+        creator: currentUser,
+        labels: [existingLabel],
+        status: existingStatus,
       }));
       const { statusCode } = await app.inject({
         method: 'get',
@@ -85,10 +85,10 @@ describe('Task', () => {
     describe('when using valid data', () => {
       it('should create entity and return 302', async () => {
         const taskData = create.task({
-          creatorId: currentUser.id,
-          statusId: existingStatus.id,
-          assignedId: currentUser.id,
-          labelIds: existingLabel.id,
+          creator: currentUser,
+          status: existingStatus,
+          assigned: currentUser,
+          labels: [existingLabel],
         });
         const { statusCode } = await app.inject({
           method: 'post',
@@ -139,9 +139,9 @@ describe('Task', () => {
     let existingTask;
     beforeEach(async () => {
       existingTask = await db.insert.task(create.task({
-        statusId: existingStatus.id,
-        creatorId: currentUser.id,
-        assignedId: currentUser.id,
+        status: existingStatus,
+        creator: currentUser,
+        assigned: currentUser,
       }));
     });
 
@@ -150,9 +150,10 @@ describe('Task', () => {
       const newStatus = await db.insert.status(create.status());
       const newUser = await db.insert.user(create.user());
       const updatedTaskData = create.task({
-        statusId: newStatus.id,
-        labelIds: newLabel.id,
-        assignedId: newUser.id,
+        status: newStatus,
+        labels: [newLabel],
+        assigned: newUser,
+        creator: currentUser,
       });
       const { statusCode } = await app.inject({
         method: 'patch',
@@ -181,9 +182,9 @@ describe('Task', () => {
     let existingTask;
     beforeEach(async () => {
       existingTask = await db.insert.task(create.task({
-        statusId: existingStatus.id,
-        creatorId: currentUser.id,
-        labelIds: existingLabel.id,
+        status: existingStatus,
+        creator: currentUser,
+        labels: [existingLabel],
       }));
     });
     it('should delete entity and return 302', async () => {

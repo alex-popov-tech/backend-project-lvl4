@@ -14,5 +14,11 @@ export default {
   }, { ...data })),
   task: (data = {}) => (_.merge({
     name: name.title(), description: lorem.paragraph(),
-  }, { ...data })),
+  }, {
+    statusId: data.status.id,
+    creatorId: data?.creator?.id,
+    assignedId: data?.assigned?.id,
+    labelIds: (data.labels || []).map(({ id }) => id),
+    ...data,
+  })),
 };
