@@ -1,17 +1,17 @@
 extends ../layouts/application.pug
 
 block content
-  a(href='/tasks/new')= t('tasks.index.add')
+  a(href='/tasks/new')= t('views.index.tasks.add')
   table.table.table-striped
     thead
       tr
-        th= t('tasks.index.list.columns.id')
-        th= t('tasks.index.list.columns.name')
-        th= t('tasks.index.list.columns.status')
-        th= t('tasks.index.list.columns.creator')
-        th= t('tasks.index.list.columns.assigned')
-        th= t('tasks.index.list.columns.createdAt')
-        th= t('tasks.index.list.columns.labels')
+        th= t('views.index.id')
+        th= t('models.Task.name')
+        th= t('models.Status.name')
+        th= t('models.Task.creator')
+        th= t('models.Task.assigned')
+        th= t('views.index.createdAt')
+        th= t('models.Task.labels')
         th
     tbody
       each task in data.tasks
@@ -24,7 +24,7 @@ block content
           td= task.createdAt
           td= task.labels.map(({ name }) => name).join(', ')
           td
-            a(href=`/tasks/edit/${task.id}`)=t('tasks.index.list.columns.action.edit')
-            +formFor()(action='/tasks/${task.id}?_method=delete' method='post')
+            a(href=`/tasks/edit/${task.id}`)=t('views.buttons.edit')
+            +formFor()(action=`/tasks/${task.id}?_method=delete` method='post')
               input(name="id" type="hidden" value=task.id)
-              input.btn.btn-link(type="submit" value=t('tasks.index.list.columns.action.delete'))
+              input.btn.btn-link(type="submit" value=t('views.buttons.delete'))

@@ -13,219 +13,160 @@ export default {
         signout: 'Выход',
       },
     },
-    welcome: {
-      title: 'Taskmine',
-      description: 'Best task manager ever',
-      flash: {
-        success: {
-          registration: 'Пользователь успешно зарегистрирован',
-          login: 'Вы залогинены',
-          logout: 'Вы разлогинены',
-        },
+    models: {
+      User: {
+        firstName: 'Имя',
+        lastName: 'Фамилия',
+        fullName: 'Полное имя',
+        email: 'Email',
+        password: 'Пароль',
+      },
+      Status: {
+        name: 'Наименование',
+      },
+      Label: {
+        name: 'Наименование',
+      },
+      Task: {
+        name: 'Наименование',
+        description: 'Описание',
+        status: 'Статус',
+        statusId: 'Статус',
+        labels: 'Метки',
+        labelIds: 'Метки',
+        creator: 'Автор',
+        assigned: 'Исполнитель',
+        assignedId: 'Исполнитель',
       },
     },
-    users: {
-      new: {
-        title: 'Регистрация',
-        form: {
-          firstName: 'Имя',
-          lastName: 'Фамилия',
-          email: 'Email',
-          password: 'Пароль',
-          confirm: 'Сохранить',
-        },
-      },
-      edit: {
-        title: 'Изменение пользователя',
+    views: {
+      auth: {
         flash: {
-          fail: 'Не удалось изменить пользователя',
-        },
-        form: {
-          firstName: 'Имя',
-          lastName: 'Фамилия',
-          email: 'Email',
-          password: 'Пароль',
-          confirm: 'Изменить',
+          fail: 'Доступ запрещён! Пожалуйста, авторизируйтесь.',
         },
       },
-      index: {
-        flash: {
-          fail: {
-            deleteOrEditOtherUser: 'Вы не можете редактировать или удалять другого пользователя',
-          },
-        },
-        list: {
-          columns: {
-            id: 'ID',
-            fullName: 'Полное имя',
-            email: 'Email',
-            createdAt: 'Дата создания',
-            action: {
-              edit: 'Изменить',
-              delete: 'Удалить',
-            },
-          },
-        },
+      buttons: {
+        create: 'Создать',
+        edit: 'Изменить',
+        delete: 'Удалить',
+        save: 'Сохранить',
+        signin: 'Войти',
       },
-    },
-    session: {
-      signin: {
-        flash: {
-          fail: 'Неправильный емейл или пароль',
-        },
-        title: 'Вход',
-        form: {
-          email: {
-            title: 'Email',
-          },
-          password: 'Пароль',
-          confirm: 'Войти',
-        },
-      },
-    },
-    statuses: {
-      new: {
-        title: 'Создание статуса',
-        flash: {
-          fail: 'Не удалось создать статус',
-        },
-        form: {
-          name: 'Наименование',
-          confirm: 'Создать',
-        },
-      },
-      edit: {
-        title: 'Изменение статуса',
-        flash: {
-          fail: 'Не удалось изменить статус',
-        },
-        form: {
-          name: 'Наименование',
-          confirm: 'Изменить',
-        },
-      },
-      index: {
-        add: 'Создать статус',
+      welcome: {
+        title: 'Taskmine',
+        description: 'Best task manager ever',
         flash: {
           success: {
-            new: 'Статус успешно создан',
-            edit: 'Статус успешно изменён',
-            delete: 'Статус успешно удалнён',
+            registration: 'Пользователь успешно зарегистрирован',
+            login: 'Вы залогинены',
+            logout: 'Вы разлогинены',
           },
-          fail: {
-            delete: 'Не удалось удалить статус',
-          },
-        },
-        list: {
-          columns: {
-            id: 'ID',
-            name: 'Наименование',
-            createdAt: 'Дата создания',
-            action: {
-              edit: 'Изменить',
-              delete: 'Удалить',
-            },
-          },
-        },
-      },
-    },
-    labels: {
-      new: {
-        title: 'Создание метки',
-        flash: {
-          fail: 'Не удалось создать метку',
-        },
-        form: {
-          name: 'Наименование',
-          confirm: 'Создать',
         },
       },
       index: {
-        add: 'Создать метку',
-        flash: {
-          success: {
-            new: 'Метка успешно создана',
-            edit: 'Метка успешно изменена',
-            delete: 'Метка успешно удалена',
-          },
-          fail: {
-            delete: 'Не удалось удалить метку',
-          },
-        },
-        list: {
-          columns: {
-            id: 'ID',
-            name: 'Наименование',
-            createdAt: 'Дата создания',
-            action: {
-              edit: 'Изменить',
-              delete: 'Удалить',
+        id: 'ID',
+        createdAt: 'Дата создания',
+        statuses: {
+          add: 'Создать статус',
+          flash: {
+            success: {
+              new: 'Статус успешно создан',
+              edit: 'Статус успешно изменён',
+              delete: 'Статус успешно удалнён',
+            },
+            fail: {
+              delete: 'Не удалось удалить статус',
             },
           },
+        },
+        labels: {
+          add: 'Создать метку',
+          flash: {
+            success: {
+              new: 'Метка успешно создана',
+              edit: 'Метка успешно изменена',
+              delete: 'Метка успешно удалена',
+            },
+            fail: {
+              delete: 'Не удалось удалить метку',
+            },
+          },
+        },
+        tasks: {
+          add: 'Создать задачу',
+          flash: {
+            success: {
+              edit: 'Задача успешно изменена',
+              new: 'Задача успешно создана',
+              delete: 'Задача успешно удалена',
+            },
+            fail: {
+              delete: 'Не удалось удалить задачу',
+            },
+          },
+        },
+        users: {
+          flash: {
+            fail: {
+              deleteOrEditOtherUser: 'Вы не можете редактировать или удалять другого пользователя',
+            },
+          },
+          add: 'Создать пользователя',
         },
       },
       edit: {
-        title: 'Изменение метки',
-        flash: {
-          fail: 'Не удалось изменить метку',
-        },
-        form: {
-          name: 'Наименование',
-          confirm: 'Изменить',
-        },
-      },
-    },
-    tasks: {
-      index: {
-        add: 'Создать задачу',
-        flash: {
-          success: {
-            edit: 'Задача успешно изменена',
-            new: 'Задача успешно создана',
+        statuses: {
+          title: 'Изменение статуса',
+          flash: {
+            fail: 'Не удалось изменить статус',
           },
         },
-        list: {
-          columns: {
-            id: 'ID',
-            name: 'Наименование',
-            status: 'Статус',
-            creator: 'Автор',
-            assigned: 'Исполнитель',
-            createdAt: 'Дата создания',
-            labels: 'Метки',
-            action: {
-              edit: 'Изменить',
-              delete: 'Удалить',
-            },
+        labels: {
+          title: 'Изменение метки',
+          flash: {
+            fail: 'Не удалось изменить метку',
+          },
+        },
+        tasks: {
+          title: 'Изменение задачи',
+          flash: {
+            fail: 'Не удалось изменить задачу',
+          },
+        },
+        users: {
+          title: 'Изменение пользователя',
+          flash: {
+            fail: 'Не удалось изменить пользователя',
           },
         },
       },
       new: {
-        title: 'Создание задачи',
-        flash: {
-          fail: 'Не удалось создать задачу',
+        statuses: {
+          title: 'Создание статуса',
+          flash: {
+            fail: 'Не удалось создать статус',
+          },
         },
-        form: {
-          name: 'Наименование',
-          description: 'Описание',
-          status: 'Статус',
-          assigned: 'Исполнитель',
-          labels: 'Метки',
-          confirm: 'Создать',
+        labels: {
+          title: 'Создание метки',
+          flash: {
+            fail: 'Не удалось создать метку',
+          },
         },
-      },
-      edit: {
-        title: 'Изменение задачи',
-        flash: {
-          fail: 'Не удалось изменить задачу',
+        tasks: {
+          title: 'Создание задачи',
+          flash: {
+            fail: 'Не удалось создать задачу',
+          },
         },
-        form: {
-          name: 'Наименование',
-          description: 'Описание',
-          status: 'Статус',
-          assigned: 'Исполнитель',
-          labels: 'Метки',
-          confirm: 'Изменить',
+        users: {
+          title: 'Регистрация',
+        },
+        session: {
+          title: 'Вход',
+          flash: {
+            fail: 'Неправильный емейл или пароль',
+          },
         },
       },
     },

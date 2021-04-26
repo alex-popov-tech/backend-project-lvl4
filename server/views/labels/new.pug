@@ -1,9 +1,9 @@
 extends ../layouts/application.pug
 
 block header
-  =t('labels.new.title')
+  =t('views.new.labels.title')
 
 block content
   +formFor()(action='/labels' method='post')
-    +input(t('labels.new.form.name'), data.label.name, errors.name)(name="name")
-    +submit()(value=t('labels.new.form.confirm'))
+    +input(data.label, 'name', errors)
+    +submit()(value=t('views.buttons.create'))

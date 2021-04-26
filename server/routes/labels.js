@@ -18,12 +18,12 @@ export default (app) => {
       try {
         const newlabel = app.objection.models.label.fromJson(req.body);
         await app.objection.models.label.query().insert(newlabel);
-        req.flash('success', app.t('labels.index.flash.success.new'));
+        req.flash('success', app.t('views.index.labels.flash.success.new'));
         await reply.redirect('/labels');
       } catch ({ data }) {
         const label = new app.objection.models.label();
         label.$set(body);
-        req.flash('danger', app.t('labels.new.flash.fail'));
+        req.flash('danger', app.t('views.new.labels.flash.fail'));
         await reply.code(422).render('labels/new', { data: { label }, errors: data });
       }
     })
@@ -33,12 +33,12 @@ export default (app) => {
         const updatedlabel = app.objection.models.label.fromJson(body);
         const existinglabel = await app.objection.models.label.query().findById(id);
         await existinglabel.$query().patch(updatedlabel);
-        req.flash('success', app.t('labels.index.flash.success.edit'));
+        req.flash('success', app.t('views.index.labels.flash.success.edit'));
         await reply.redirect('/labels');
       } catch ({ message, data }) {
         const label = new app.objection.models.label();
         label.$set({ id, ...req.body });
-        req.flash('danger', app.t('labels.edit.flash.fail'));
+        req.flash('danger', app.t('views.edit.labels.flash.fail'));
         await reply.code(422).render('labels/edit', { data: { label }, errors: data });
       }
     })
@@ -46,11 +46,11 @@ export default (app) => {
       const { params: { id } } = req;
       const relatedTasks = await app.objection.models.task.query().withGraphJoined('labels').where('labels.id', id);
       if (relatedTasks.length > 0) {
-        req.flash('danger', app.t('labels.index.flash.fail.delete'));
+        req.flash('danger', app.t('views.index.labels.flash.fail.delete'));
         return reply.redirect('/labels');
       }
       await app.objection.models.label.query().deleteById(id);
-      req.flash('success', app.t('labels.index.flash.success.delete'));
+      req.flash('success', app.t('views.index.labels.flash.success.delete'));
       return reply.redirect('/labels');
     });
 };

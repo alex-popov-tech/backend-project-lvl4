@@ -38,10 +38,9 @@ export default (app) => {
         app.objection.models.label.query(),
         app.objection.models.user.query(),
       ]);
+      task.$set({ statusId: statuses, labelIds: labels, assignedId: users });
       await reply.render('tasks/new', {
-        data: {
-          task, statuses, users, labels,
-        },
+        data: { task },
         errors: {},
       });
     })
@@ -53,10 +52,9 @@ export default (app) => {
         app.objection.models.label.query(),
         app.objection.models.user.query(),
       ]);
+      task.$set({ statusId: statuses, labelIds: labels, assignedId: users });
       await reply.render('tasks/edit', {
-        data: {
-          statuses, users, task, labels,
-        },
+        data: { task },
         errors: {},
       });
     })
@@ -81,7 +79,7 @@ export default (app) => {
           }, {
             relate: true,
           }));
-        req.flash('success', app.t('tasks.index.flash.success.new'));
+        req.flash('success', app.t('views.index.tasks.flash.success.new'));
         await reply.redirect('/tasks');
       } catch ({ message, data }) {
         const task = new app.objection.models.task();
@@ -91,11 +89,10 @@ export default (app) => {
           app.objection.models.label.query(),
           app.objection.models.user.query(),
         ]);
-        req.flash('danger', app.t('tasks.new.flash.fail'));
+        task.$set({ statusId: statuses, labelIds: labels, assignedId: users });
+        req.flash('danger', app.t('views.new.tasks.flash.fail'));
         await reply.code(422).render('tasks/new', {
-          data: {
-            task, statuses, users, labels,
-          },
+          data: { task },
           errors: data,
         });
       }
@@ -120,7 +117,7 @@ export default (app) => {
             labels: labelIds.map((labelId) => ({ id: labelId })),
             assignedId: Number(assignedId),
           }, { relate: true, unrelate: true, noDelete: true }));
-        req.flash('success', app.t('tasks.index.flash.success.edit'));
+        req.flash('success', app.t('views.index.tasks.flash.success.edit'));
         await reply.redirect('/tasks');
       } catch ({ message, data }) {
         const task = new app.objection.models.task();
@@ -130,11 +127,10 @@ export default (app) => {
           app.objection.models.label.query(),
           app.objection.models.user.query(),
         ]);
-        req.flash('danger', app.t('tasks.edit.flash.fail'));
+        task.$set({ statusId: statuses, labelIds: labels, assignedId: users });
+        req.flash('danger', app.t('views.new.tasks.flash.fail'));
         await reply.code(422).render('tasks/edit', {
-          data: {
-            task, statuses, users, labels,
-          },
+          data: { task },
           errors: data,
         });
       }
@@ -144,17 +140,37 @@ export default (app) => {
       try {
         const task = await app.objection.models.task.query().findById(id);
         if (req.user.id !== task.creatorId) {
-          const tasks = app.objection.models.task.query().withGraphJoined('[status, creator, assigned, labels]');
-          req.flash('danger', app.t('tasks.index.flash.fail.delete'));
-          return reply.code(422).render('tasks/index', { data: { tasks } });
+          const [tasks, statuses, labels, users] = await Promise.all([
+            app.objection.models.task.query().withGraphJoined('[status, creator, assigned, labels]'),
+            app.objection.models.status.query(),
+            app.objection.models.label.query(),
+            app.objection.models.user.query(),
+          ]);
+          console.log('pulled all data before error');
+          req.flash('danger', app.t('views.index.tasks.flash.fail.delete'));
+          return reply.code(422).render('tasks/index', {
+            data: {
+              tasks, statuses, labels, users,
+            },
+          });
         }
+        console.log('before delete task');
         await app.objection.models.task.query().deleteById(id);
-        req.flash('info', app.t('tasks.index.flash.success.delete'));
+        req.flash('info', app.t('views.index.tasks.flash.success.delete'));
         return reply.redirect('/tasks');
       } catch ({ message, errors }) {
-        const tasks = await app.objection.models.task.query();
-        req.flash('danger', app.t('tasks.index.flash.fail.delete'));
-        return reply.code(422).render('tasks/index', { data: { tasks } });
+        const [tasks, statuses, labels, users] = await Promise.all([
+          app.objection.models.task.query().withGraphJoined('[status, creator, assigned, labels]'),
+          app.objection.models.status.query(),
+          app.objection.models.label.query(),
+          app.objection.models.user.query(),
+        ]);
+        req.flash('danger', app.t('views.index.tasks.flash.fail.delete'));
+        return reply.code(422).render('tasks/index', {
+          data: {
+            tasks, statuses, labels, users,
+          },
+        });
       }
     });
 };

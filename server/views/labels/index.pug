@@ -1,13 +1,13 @@
 extends ../layouts/application.pug
 
 block content
-  a(href='/labels/new')= t('labels.index.add')
+  a(href='/labels/new')= t('views.index.labels.add')
   table.table.table-striped
     thead
       tr
-        th=t('labels.index.list.columns.id')
-        th=t('labels.index.list.columns.name')
-        th=t('labels.index.list.columns.createdAt')
+        th=t('views.index.id')
+        th=t('models.Label.name')
+        th=t('views.index.createdAt')
         th
     tbody
       each label in data.labels
@@ -16,6 +16,6 @@ block content
           td= label.name
           td= label.createdAt
           td
-            a(href=`/labels/edit/${label.id}`)=t('labels.index.list.columns.action.edit')
+            a(href=`/labels/edit/${label.id}`)=t('views.buttons.edit')
             +formFor()(action=`/labels/${label.id}?_method=delete` method='post')
-              input.btn.btn-link(type="submit" value=t('labels.index.list.columns.action.delete'))
+              input.btn.btn-link(type="submit" value=t('views.buttons.delete'))

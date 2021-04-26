@@ -1,4 +1,4 @@
-- const getInputName = (entity, property) => `${entity.constructor.name.toLowerCase()}[${property}]`
+- const getEntityName = (entity) => entity.constructor.name
 
 mixin flash(messages = [])
   .container.wrapper.flex
@@ -10,50 +10,59 @@ mixin formFor(entity = null)
   form&attributes(attributes)
     block
 
-mixin select(name, options, errors= [])
-  .form-group(class=(errors && 'has-danger'))
-    label=name
-    select(
-      name=name
-      class='form-control'
-      value=(value || '')
+mixin input(entity, propertyName, errors = {})
+  - propertyErrors = errors[propertyName]
+  - entityName = getEntityName(entity)
+  .form-group
+    label(
+      for= propertyName
+    )= t(`models.${entityName}.${propertyName}`)
+    input.form-control(
+      id= propertyName
+      name= propertyName
+      class=(propertyErrors && 'is-invalid')
+      value=(entity[propertyName] || '')
     )&attributes(attributes)
-      each option in options
-        option(value=option.id)= option.toString()
-    if errors.length
-      .form-control-feedback=errors.map(({ message }) => message).join('\n')
+    if propertyErrors
+      .invalid-feedback=propertyErrors.map(({ message }) => message).join('\n')
 
-mixin multiselect(name, options, errors= [])
-  .form-group(class=(errors && 'has-danger'))
-    label=name
+mixin select(entity, propertyName, errors= [])
+  - propertyErrors = errors[propertyName]
+  .form-group
+    label(
+      for= propertyName
+    )= t(`models.${entityName}.${propertyName}`)
     select(
-      name=name
+      id= propertyName
+      name= propertyName
       class='form-control'
+    )&attributes(attributes)
+      each option in entity[propertyName]
+        option(value=option.id)= option.toString()
+    if propertyErrors
+      .invalid-feedback=propertyErrors.map(({ message }) => message).join('\n')
+
+mixin multiselect(entity, propertyName, errors= [])
+  - propertyErrors = errors[propertyName]
+  .form-group
+    label(
+      for= propertyName
+    )= t(`models.${entityName}.${propertyName}`)
+    select(
       multiple
-    )&attributes(attributes)
-      each option in options
-        option(value=option.id)= option.toString()
-    if errors.length
-      .form-control-feedback=errors.map(({ message }) => message).join('\n')
-
-mixin input(name, value = '', errors = [])
-  .form-group(class=(errors && 'has-danger'))
-    label=name
-    input(
-      name=name
+      id= propertyName
+      name= propertyName
       class='form-control'
-      class= errors.length ? 'is-invalid' : ''
-      value=(value || '')
-      text= name
     )&attributes(attributes)
-    if errors.length
-      .form-control-feedback.invalid-feedback= errors.map(({ message }) => message).join('\n')
+      each option in entity[propertyName]
+        option(value=option.id)= option.toString()
+    if propertyErrors
+      .invalid-feedback=propertyErrors.map(({ message }) => message).join('\n')
 
 mixin submit()
   .form-group
     input(class='btn btn-primary' type='submit')&attributes(attributes)
 
 mixin buttonTo(action, method)
-  form(action=action, method="post")
-    input(name="_method" type="hidden" value=method)
+  form(action=`${action}?_method=${method}`, method="post")
     input(type='submit')&attributes(attributes)

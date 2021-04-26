@@ -104,7 +104,7 @@ const addAuthentification = (app) => {
     'form',
     {
       failureRedirect: '/',
-      failureFlash: app.t('flash.fail.auth'),
+      failureFlash: app.t('views.auth.flash.fail'),
     },
   )(...args));
 };

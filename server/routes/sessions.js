@@ -10,12 +10,12 @@ export default (app) => {
       }
       if (existingUser) {
         await req.login(existingUser);
-        req.flash('success', app.t('welcome.flash.success.login'));
+        req.flash('success', app.t('views.welcome.flash.success.login'));
         return reply.redirect('/');
       }
       const user = new app.objection.models.user();
       user.$set(req.body);
-      req.flash('danger', app.t('session.signin.flash.fail'));
+      req.flash('danger', app.t('views.new.session.flash.fail'));
       return reply.code(404).render('sessions/new', {
         data: { user },
         errors: { email: [{ message: 'User with such credentials pair does not exist' }] },
@@ -23,7 +23,7 @@ export default (app) => {
     }))
     .delete('/sessions', async (req, reply) => {
       req.session.delete();
-      req.flash('info', app.t('welcome.flash.success.logout'));
+      req.flash('info', app.t('views.welcome.flash.success.logout'));
       return reply.redirect('/');
     });
 };

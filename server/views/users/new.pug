@@ -1,12 +1,12 @@
 extends ../layouts/application.pug
 
 block header
-  =t('users.new.title')
+  =t('views.new.users.title')
 
 block content
   +formFor()(action='/users' method='post')
-    +input(t('users.new.form.firstName'), data.user.firstName, errors.firstName)(type="text")
-    +input(t('users.new.form.lastName'), data.user.lastName, errors.lastName)(type="text")
-    +input(t('users.new.form.email'), data.user.email, errors.email)(type="text")
-    +input(t('users.new.form.password'), data.user.password, errors.password)(type="password")
-    +submit()(value=t('users.new.form.confirm'))
+    +input(data.user, 'firstName', errors)(type="text")
+    +input(data.user, 'lastName', errors)(type="text")
+    +input(data.user, 'email', errors)(type="text")
+    +input(data.user, 'password', errors)(type="password")
+    +submit()(value=t('views.buttons.save'))
