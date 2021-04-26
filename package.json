@@ -2,6 +2,10 @@
   "name": "@hexlet/code",
   "version": "1.0.0",
   "description": "hexlet nodejs backend project lvl 4",
+  "engines": {
+    "node": "15.x",
+    "npm": "7.x"
+  },
   "scripts": {
     "clean": "del dist",
     "build:client": "NODE_ENV=production webpack -p",

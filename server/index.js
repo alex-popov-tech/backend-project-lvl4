@@ -126,7 +126,7 @@ const addLocalization = (app) => {
     });
   app.decorate('t', (key) => i18next.t(key));
 };
-export default async () => {
+export default () => {
   const app = fastifyMethodOverride(fastify)({
     logger: {
       prettyPrint: isDevelopment,
