@@ -2,7 +2,7 @@ setup: preparations dependencies migrations
 dependencies:
 	rm -rf node_modules; npm install
 preparations:
-	cp -n .env.example .env;
+	npm run preparations
 
 migrations:
 	npx knex migrate:latest
