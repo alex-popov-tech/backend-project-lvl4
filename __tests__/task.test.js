@@ -94,11 +94,13 @@ describe('Task', () => {
           url: '/tasks',
           cookies,
           body: {
-            name,
-            description,
-            statusId: existingStatus.id,
-            assignedId: null,
-            labelIds: existingLabel.id,
+            data: {
+              name,
+              description,
+              statusId: existingStatus.id,
+              assignedId: null,
+              labelIds: existingLabel.id,
+            },
           },
         });
         expect(statusCode).toBe(302);
@@ -121,16 +123,16 @@ describe('Task', () => {
 
     describe('when using invalid data', () => {
       it.each([
-        ['name', () => ({ description: 'test', statusId: existingStatus.id, creatorId: existingUser.id })],
-        ['description', () => ({ name: 'test', statusId: existingStatus.id, creatorId: existingUser.id })],
-        ['status', () => ({ name: 'test', description: 'test', creatorId: existingUser.id })],
-        ['creator', () => ({ name: 'test', description: 'test', statusId: existingStatus.id })],
-      ])('should not create entity and return 422 when missing required field %s', async (_, data) => {
+        ['name', () => ({ data: { description: 'test', statusId: existingStatus.id, creatorId: existingUser.id } })],
+        ['description', () => ({ data: { name: 'test', statusId: existingStatus.id, creatorId: existingUser.id } })],
+        ['status', () => ({ data: { name: 'test', description: 'test', creatorId: existingUser.id } })],
+        ['creator', () => ({ data: { name: 'test', description: 'test', statusId: existingStatus.id } })],
+      ])('should not create entity and return 422 when missing required field %s', async (_, body) => {
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/tasks',
           cookies,
-          body: data(),
+          body: body(),
         });
         expect(statusCode).toBe(422);
         const tasks = await app.objection.models.task.query();
@@ -168,8 +170,10 @@ describe('Task', () => {
         url: `/tasks/${existingTask.id}`,
         cookies,
         body: {
-          ...updatedTask,
-          labelIds: newLabel.id,
+          data: {
+            ...updatedTask,
+            labelIds: newLabel.id,
+          },
         },
       });
       expect(statusCode).toBe(302);

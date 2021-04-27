@@ -53,7 +53,9 @@ describe('Label', () => {
   describe('create', () => {
     it('should create entity and return 302 when using valid name', async () => {
       const status = {
-        name: random.word(),
+        data: {
+          name: random.word(),
+        },
       };
       const { statusCode } = await app.inject({
         method: 'post',
@@ -64,7 +66,7 @@ describe('Label', () => {
       expect(statusCode).toBe(302);
       const labels = await app.objection.models.label.query();
       expect(labels).toHaveLength(1);
-      expect(labels[0]).toMatchObject(status);
+      expect(labels[0]).toMatchObject(status.data);
     });
 
     it('should not create entity and return 422 when using existing name', async () => {
@@ -76,7 +78,9 @@ describe('Label', () => {
         url: '/labels',
         cookies,
         body: {
-          name: existingLabel.name,
+          data: {
+            name: existingLabel.name,
+          },
         },
       });
       expect(statusCode).toBe(422);
@@ -99,7 +103,9 @@ describe('Label', () => {
         url: `/labels/${existingLabel.id}`,
         cookies,
         body: {
-          name: 'new name',
+          data: {
+            name: 'new name',
+          },
         },
       });
       expect(statusCode).toBe(302);

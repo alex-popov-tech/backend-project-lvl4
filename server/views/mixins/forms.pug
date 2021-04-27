@@ -1,4 +1,5 @@
 - const getEntityName = (entity) => entity.constructor.name
+- const getFormName = (property) => `data[${property}]`
 
 mixin flash(messages = [])
   .container.wrapper.flex
@@ -13,13 +14,14 @@ mixin formFor(entity = null)
 mixin input(entity, propertyName, errors = {})
   - propertyErrors = errors[propertyName]
   - entityName = getEntityName(entity)
+  - formName = getFormName(propertyName)
   .form-group
     label(
-      for= propertyName
+      for= formName
     )= t(`models.${entityName}.${propertyName}`)
     input.form-control(
-      id= propertyName
-      name= propertyName
+      id= formName
+      name= formName
       class=(propertyErrors && 'is-invalid')
       value=(entity[propertyName] || '')
     )&attributes(attributes)
@@ -28,13 +30,14 @@ mixin input(entity, propertyName, errors = {})
 
 mixin select(entity, propertyName, errors= [])
   - propertyErrors = errors[propertyName]
+  - formName = getFormName(propertyName)
   .form-group
     label(
-      for= propertyName
+      for= formName
     )= t(`models.${entityName}.${propertyName}`)
     select(
-      id= propertyName
-      name= propertyName
+      id= formName
+      name= formName
       class='form-control'
     )&attributes(attributes)
       each option in entity[propertyName]
@@ -44,14 +47,15 @@ mixin select(entity, propertyName, errors= [])
 
 mixin multiselect(entity, propertyName, errors= [])
   - propertyErrors = errors[propertyName]
+  - formName = getFormName(propertyName)
   .form-group
     label(
-      for= propertyName
+      for= formName
     )= t(`models.${entityName}.${propertyName}`)
     select(
       multiple
-      id= propertyName
-      name= propertyName
+      id= formName
+      name= formName
       class='form-control'
     )&attributes(attributes)
       each option in entity[propertyName]

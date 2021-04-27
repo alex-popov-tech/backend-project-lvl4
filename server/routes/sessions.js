@@ -14,7 +14,7 @@ export default (app) => {
         return reply.redirect('/');
       }
       const user = new app.objection.models.user();
-      user.$set(req.body);
+      user.$set(req.body.data);
       req.flash('danger', app.t('views.new.session.flash.fail'));
       return reply.code(404).render('sessions/new', {
         data: { user },

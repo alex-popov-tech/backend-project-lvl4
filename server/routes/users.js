@@ -19,7 +19,7 @@ export default (app) => {
     })
     .post('/users', async (req, reply) => {
       try {
-        const newUser = await app.objection.models.user.fromJson(req.body);
+        const newUser = await app.objection.models.user.fromJson(req.body.data);
         await app.objection.models.user.query().insert(newUser);
         await req.login(newUser);
         await reply.redirect('/');
@@ -37,7 +37,7 @@ export default (app) => {
           req.flash('danger', app.t('views.index.users.flash.fail.deleteOrEditOtherUser'));
           return reply.code(422).render('users/index', { data: { users } });
         }
-        const updatedUser = app.objection.models.user.fromJson(req.body);
+        const updatedUser = app.objection.models.user.fromJson(req.body.data);
         const existingUser = await app.objection.models.user.query().findById(id);
         await existingUser.$query().patch(updatedUser);
         req.flash('success', app.t('views.index.users.flash.success.edit'));

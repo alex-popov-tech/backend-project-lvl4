@@ -27,7 +27,7 @@ describe('Session', () => {
     let res = await app.inject({
       method: 'post',
       url: '/sessions',
-      body: { email: user.email, password: 'test' },
+      body: { 'data[email]': user.email, 'data[password]': 'test' },
     });
     expect(res.statusCode).toBe(302);
     const cookie = res.headers['set-cookie'];

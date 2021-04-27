@@ -43,10 +43,12 @@ describe('Users', () => {
         method: 'post',
         url: '/users',
         body: {
-          email: 'new@test.com',
-          password: 'test',
-          firstName: 'test',
-          lastName: 'test',
+          data: {
+            email: 'new@test.com',
+            password: 'test',
+            firstName: 'test',
+            lastName: 'test',
+          },
         },
       });
       expect(statusCode).toBe(302);
@@ -71,10 +73,12 @@ describe('Users', () => {
           method: 'post',
           url: '/users',
           body: {
-            email: 'a@a.com',
-            password: 'test',
-            firstName: 'test',
-            lastName: 'test',
+            data: {
+              email: 'a@a.com',
+              password: 'test',
+              firstName: 'test',
+              lastName: 'test',
+            },
           },
         });
         expect(statusCode).toBe(422);
@@ -89,20 +93,30 @@ describe('Users', () => {
 
       it.each([
         ['empty email', {
-          email: '', password: 'test', firstName: 'test', lastName: 'test',
+          data: {
+            email: '', password: 'test', firstName: 'test', lastName: 'test',
+          },
         }],
         ['email does not match pattern', {
-          email: 'newtest.com', password: 'test', firstName: 'test', lastName: 'test',
+          data: {
+            email: 'newtest.com', password: 'test', firstName: 'test', lastName: 'test',
+          },
         },
         ],
         ['password empty', {
-          email: 'new@test.com', password: '', firstName: 'test', lastName: 'test',
+          data: {
+            email: 'new@test.com', password: '', firstName: 'test', lastName: 'test',
+          },
         },
         ], ['firstName is empty', {
-          email: 'new@test.com', password: 'test', firstName: '', lastName: 'test',
+          data: {
+            email: 'new@test.com', password: 'test', firstName: '', lastName: 'test',
+          },
         },
         ], ['lastName is empty', {
-          email: 'new@test.com', password: 'test', firstName: 'test', lastName: '',
+          data: {
+            email: 'new@test.com', password: 'test', firstName: 'test', lastName: '',
+          },
         },
         ]])('should not create entity and return 422 when %s', async (_, body) => {
         const { statusCode } = await app.inject({
@@ -139,10 +153,12 @@ describe('Users', () => {
         url: `/users/${user.id}`,
         cookies,
         body: {
-          email: 'new@test.com',
-          password: 'test',
-          firstName: 'test',
-          lastName: 'test',
+          data: {
+            email: 'new@test.com',
+            password: 'test',
+            firstName: 'test',
+            lastName: 'test',
+          },
         },
       });
       expect(statusCode).toBe(302);

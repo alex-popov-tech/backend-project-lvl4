@@ -61,11 +61,13 @@ export default (app) => {
     .post('/tasks', { preValidation: app.formAuth }, async (req, reply) => {
       const {
         body: {
-          name, description, statusId, assignedId,
+          data: {
+            name, description, statusId, assignedId,
+          },
         },
       } = req;
       try {
-        const labelIds = formalizeMultiselectValues(req.body.labelIds);
+        const labelIds = formalizeMultiselectValues(req.body.data.labelIds);
         await app.objection
           .models
           .task
@@ -101,11 +103,13 @@ export default (app) => {
       const {
         params: { id },
         body: {
-          name, description, statusId, assignedId,
+          data: {
+            name, description, statusId, assignedId,
+          },
         },
       } = req;
       try {
-        const labelIds = formalizeMultiselectValues(req.body.labelIds);
+        const labelIds = formalizeMultiselectValues(req.body.data.labelIds);
         await app.objection
           .models
           .task
@@ -146,7 +150,6 @@ export default (app) => {
             app.objection.models.label.query(),
             app.objection.models.user.query(),
           ]);
-          console.log('pulled all data before error');
           req.flash('danger', app.t('views.index.tasks.flash.fail.delete'));
           return reply.code(422).render('tasks/index', {
             data: {
@@ -154,7 +157,6 @@ export default (app) => {
             },
           });
         }
-        console.log('before delete task');
         await app.objection.models.task.query().deleteById(id);
         req.flash('info', app.t('views.index.tasks.flash.success.delete'));
         return reply.redirect('/tasks');

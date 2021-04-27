@@ -14,32 +14,30 @@ export default (app) => {
       await reply.render('statuses/edit', { data: { status }, errors: {} });
     })
     .post('/statuses', { preValidation: app.formAuth }, async (req, reply) => {
-      const { body } = req;
+      const { body: { data: reqData } } = req;
       try {
-        const newStatus = app.objection.models.status.fromJson(body);
+        const newStatus = app.objection.models.status.fromJson(reqData);
         await app.objection.models.status.query().insert(newStatus);
         req.flash('success', app.t('views.index.statuses.flash.success.new'));
         await reply.redirect('/statuses');
       } catch ({ message, data }) {
-        console.log(message, data);
         const status = new app.objection.models.status();
-        status.$set(req.body);
+        status.$set(reqData);
         req.flash('danger', app.t('views.new.statuses.flash.fail'));
         await reply.code(422).render('statuses/new', { data: { status }, errors: data });
       }
     })
     .patch('/statuses/:id', { preValidation: app.formAuth }, async (req, reply) => {
-      const { body, params: { id } } = req;
+      const { body: { data: reqData }, params: { id } } = req;
       try {
-        const updatedStatus = app.objection.models.status.fromJson(body);
+        const updatedStatus = app.objection.models.status.fromJson(reqData);
         const existingStatus = await app.objection.models.status.query().findById(id);
         await existingStatus.$query().patch(updatedStatus);
         req.flash('info', app.t('views.index.statuses.flash.success.edit'));
         await reply.redirect('/statuses');
       } catch ({ message, data }) {
-        console.log(message, data);
         const status = new app.objection.models.status();
-        status.$set({ id, ...req.body });
+        status.$set({ id, ...reqData });
         req.flash('danger', app.t('views.edit.statuses.flash.fail'));
         await reply.code(422).render('statuses/edit', { data: { status }, errors: data });
       }
