@@ -27,7 +27,7 @@ describe('Session', () => {
     let res = await app.inject({
       method: 'post',
       url: '/sessions',
-      body: { 'data[email]': user.email, 'data[password]': 'test' },
+      body: { data: { email: user.email, password: 'test' } },
     });
     expect(res.statusCode).toBe(302);
     const cookie = res.headers['set-cookie'];
@@ -49,11 +49,11 @@ describe('Session', () => {
       ['email not exist', { email: 'not@exist.com', password: 'test' }],
       ['empty password', { email: 'a@a.com', password: 'test' }],
       ['password does not match', { email: 'test@test.com', password: 'invalid' }],
-    ])('should not allow login and return 404 when %s', async (_, body) => {
+    ])('should not allow login and return 404 when %s', async (_, data) => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/sessions',
-        body,
+        body: { data },
       });
       expect(statusCode).toBe(404);
     });

@@ -11,7 +11,7 @@ export default async (app, email = internet.email(), password = 'test') => {
   const response = await app.inject({
     method: 'post',
     url: '/sessions',
-    body: { 'data[email]': email, 'data[password]': password },
+    body: { data: { email, password } },
   });
   const cookieString = response.headers['set-cookie'];
   return { user, cookies: parse(cookieString) };
