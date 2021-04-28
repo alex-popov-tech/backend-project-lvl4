@@ -22,7 +22,7 @@ export default (app) => {
       });
     }))
     .delete('/sessions', async (req, reply) => {
-      req.session.delete();
+      req.logOut();
       req.flash('info', app.t('views.welcome.flash.success.logout'));
       return reply.redirect('/');
     });
