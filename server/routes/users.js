@@ -22,10 +22,11 @@ export default (app) => {
         const newUser = await app.objection.models.user.fromJson(req.body.data);
         await app.objection.models.user.query().insert(newUser);
         await req.login(newUser);
+        req.flash('success', app.t('views.welcome.flash.success.registration'));
         await reply.redirect('/');
       } catch ({ data }) {
         const user = new app.objection.models.user();
-        user.$set(req.body);
+        user.$set(req.body.data);
         await reply.code(422).render('users/new', { data: { user }, errors: data });
       }
     })
@@ -44,7 +45,7 @@ export default (app) => {
         return reply.redirect('/users');
       } catch ({ message, data }) {
         const user = new app.objection.models.user();
-        user.$set(req.body);
+        user.$set(req.body.data);
         req.flash('danger', app.t('views.edit.users.flash.fail'));
         return reply.code(422).render('users/edit', { data: { user }, errors: data });
       }
