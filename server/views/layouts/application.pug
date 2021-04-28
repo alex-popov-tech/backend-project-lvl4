@@ -8,10 +8,10 @@ html(lang="en").h-100
   body.d-flex.flex-column.min-vh-100
     nav.navbar.navbar-expand-lg.navbar-light.bg-light.mb-3
       a.navbar-brand(href='/')=t('layout.header.title')
+      ul.navbar-nav.mr-auto
+        li.nav-item
+          a.nav-link(href='/users')=t('layout.header.users')
       if isAuthenticated()
-        ul.navbar-nav.mr-auto
-          li.nav-item
-            a.nav-link(href='/users')=t('layout.header.users')
         ul.navbar-nav.mr-auto
           li.nav-item
             a.nav-link(href='/statuses')=t('layout.header.statuses')
