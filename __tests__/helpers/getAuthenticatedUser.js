@@ -10,7 +10,7 @@ export default async (app, email = internet.email(), password = 'test') => {
   });
   const response = await app.inject({
     method: 'post',
-    url: '/sessions',
+    url: '/session',
     body: { data: { email, password } },
   });
   const cookieString = response.headers['set-cookie'];

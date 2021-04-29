@@ -26,7 +26,7 @@ describe('Session', () => {
   it('should login and logout when using valid credentials', async () => {
     let res = await app.inject({
       method: 'post',
-      url: '/sessions',
+      url: '/session',
       body: { data: { email: user.email, password: 'test' } },
     });
     expect(res.statusCode).toBe(302);
@@ -34,7 +34,7 @@ describe('Session', () => {
     expect(typeof cookie).toBe('string');
     res = await app.inject({
       method: 'delete',
-      url: '/sessions',
+      url: '/session',
       headers: {
         Cookie: cookie,
       },
@@ -52,7 +52,7 @@ describe('Session', () => {
     ])('should not allow login and return 404 when %s', async (_, data) => {
       const { statusCode } = await app.inject({
         method: 'post',
-        url: '/sessions',
+        url: '/session',
         body: { data },
       });
       expect(statusCode).toBe(404);

@@ -26,10 +26,10 @@ html(lang="en").h-100
           li.nav-item
             a.nav-link(href='/users/new')=t('layout.header.signup')
           li.nav-item
-            a.nav-link(href='/sessions/new')=t('layout.header.signin')
+            a.nav-link(href='/session/new')=t('layout.header.signin')
         else
           li.nav-item
-            +buttonTo('/sessions', 'delete')(class='nav-link', value=t('layout.header.signout'))
+            +buttonTo('/session', 'delete')(class='nav-link', value=t('layout.header.signout'))
     +flash(reply.flash())
 
     .container
