@@ -1,5 +1,6 @@
 - const getEntityName = (entity) => entity.constructor.name
 - const getFormName = (property) => `data[${property}]`
+- const getFormId = (property) => `data_${property}`
 
 mixin flash(messages = [])
   .container.wrapper.flex
@@ -15,12 +16,13 @@ mixin input(entity, propertyName, errors = {})
   - propertyErrors = errors[propertyName]
   - entityName = getEntityName(entity)
   - formName = getFormName(propertyName)
+  - formId = getFormId(propertyName)
   .form-group
     label(
       for= formName
     )= t(`models.${entityName}.${propertyName}`)
     input.form-control(
-      id= formName
+      id= formId
       name= formName
       class=(propertyErrors && 'is-invalid')
       value=(entity[propertyName] || '')
@@ -31,12 +33,13 @@ mixin input(entity, propertyName, errors = {})
 mixin select(entity, propertyName, errors= [])
   - propertyErrors = errors[propertyName]
   - formName = getFormName(propertyName)
+  - formId = getFormId(propertyName)
   .form-group
     label(
       for= formName
     )= t(`models.${entityName}.${propertyName}`)
     select(
-      id= formName
+      id= formId
       name= formName
       class='form-control'
     )&attributes(attributes)
@@ -48,13 +51,14 @@ mixin select(entity, propertyName, errors= [])
 mixin multiselect(entity, propertyName, errors= [])
   - propertyErrors = errors[propertyName]
   - formName = getFormName(propertyName)
+  - formId = getFormId(propertyName)
   .form-group
     label(
       for= formName
     )= t(`models.${entityName}.${propertyName}`)
     select(
       multiple
-      id= formName
+      id= formId
       name= formName
       class='form-control'
     )&attributes(attributes)
