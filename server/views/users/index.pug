@@ -18,5 +18,5 @@ block content
           td= user.createdAt.toLocaleString()
           td
             a(href=`/users/${user.id}/edit`)=t('views.buttons.edit')
-            +formFor()(action='/users/${user.id}?_method=delete' method='post')
+            +formFor()(action=`/users/${user.id}?_method=delete` method='post')
               input.btn.btn-link(type="submit" value=t('views.buttons.delete'))
