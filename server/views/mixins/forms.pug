@@ -19,7 +19,7 @@ mixin input(entity, propertyName, errors = {})
   - formId = getFormId(propertyName)
   .form-group
     label(
-      for= formName
+      for= formId
     )= t(`models.${entityName}.${propertyName}`)
     input.form-control(
       id= formId
@@ -36,7 +36,7 @@ mixin select(entity, propertyName, errors= [])
   - formId = getFormId(propertyName)
   .form-group
     label(
-      for= formName
+      for= formId
     )= t(`models.${entityName}.${propertyName}`)
     select(
       id= formId
@@ -54,7 +54,7 @@ mixin multiselect(entity, propertyName, errors= [])
   - formId = getFormId(propertyName)
   .form-group
     label(
-      for= formName
+      for= formId
     )= t(`models.${entityName}.${propertyName}`)
     select(
       multiple
