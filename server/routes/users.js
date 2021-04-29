@@ -59,6 +59,7 @@ export default (app) => {
           return reply.code(422).render('users/index', { data: { users } });
         }
         await req.logout(user);
+        req.flash('success', app.t('views.index.users.flash.success.delete'));
         await app.objection.models.user.query().deleteById(id);
         return reply.redirect('/users');
       } catch ({ data }) {
