@@ -107,6 +107,9 @@ export default {
         },
         users: {
           flash: {
+            success: {
+              edit: 'Пользователь успешно изменён',
+            },
             fail: {
               deleteOrEditOtherUser: 'Вы не можете редактировать или удалять другого пользователя',
             },

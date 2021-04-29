@@ -16,7 +16,7 @@ export default (app) => {
       const user = new app.objection.models.user();
       user.$set(req.body.data);
       req.flash('danger', app.t('views.new.session.flash.fail'));
-      return reply.code(404).render('sessions/new', {
+      return reply.code(404).render('session/new', {
         data: { user },
         errors: { email: [{ message: 'User with such credentials pair does not exist' }] },
       });
