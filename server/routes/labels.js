@@ -8,7 +8,7 @@ export default (app) => {
       const label = new app.objection.models.label();
       await reply.render('labels/new', { data: { label }, errors: {} });
     })
-    .get('/labels/edit/:id', { preValidation: app.formAuth }, async (req, reply) => {
+    .get('/labels/:id/edit', { preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id } } = req;
       const label = await app.objection.models.label.query().findById(id);
       await reply.render('labels/edit', { data: { label }, errors: {} });

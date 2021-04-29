@@ -8,7 +8,7 @@ export default (app) => {
       const user = new app.objection.models.user();
       await reply.render('users/new', { data: { user }, errors: [] });
     })
-    .get('/users/edit/:id', { preValidation: app.formAuth }, async (req, reply) => {
+    .get('/users/:id/edit', { preValidation: app.formAuth }, async (req, reply) => {
       const { user, params: { id } } = req;
       if (user.id !== Number(id)) {
         req.flash('danger', app.t('views.index.users.flash.fail.deleteOrEditOtherUser'));

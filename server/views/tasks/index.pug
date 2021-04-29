@@ -24,7 +24,7 @@ block content
           td= task.createdAt
           td= task.labels.map(({ name }) => name).join(', ')
           td
-            a(href=`/tasks/edit/${task.id}`)=t('views.buttons.edit')
+            a(href=`/tasks/${task.id}/edit`)=t('views.buttons.edit')
             +formFor()(action=`/tasks/${task.id}?_method=delete` method='post')
               input(name="id" type="hidden" value=task.id)
               input.btn.btn-link(type="submit" value=t('views.buttons.delete'))

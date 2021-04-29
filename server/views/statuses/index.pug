@@ -16,6 +16,6 @@ block content
           td= status.name
           td= status.createdAt
           td
-            a(href=`/statuses/edit/${status.id}`)=t('views.buttons.edit')
+            a(href=`/statuses/${status.id}/edit`)=t('views.buttons.edit')
             +formFor()(action=`/statuses/${status.id}?_method=delete` method='post')
               input.btn.btn-link(type="submit" value=t('views.buttons.delete'))

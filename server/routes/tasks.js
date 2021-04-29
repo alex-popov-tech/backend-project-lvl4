@@ -44,7 +44,7 @@ export default (app) => {
         errors: {},
       });
     })
-    .get('/tasks/edit/:id', { preValidation: app.formAuth }, async (req, reply) => {
+    .get('/tasks/:id/edit', { preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id } } = req;
       const [task, statuses, labels, users] = await Promise.all([
         app.objection.models.task.query().findById(id),

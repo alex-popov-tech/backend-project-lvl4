@@ -43,7 +43,7 @@ describe('Status', () => {
       });
       const { statusCode } = await app.inject({
         method: 'get',
-        url: `/statuses/edit/${existingStatus.id}`,
+        url: `/statuses/${existingStatus.id}/edit`,
         cookies,
       });
       expect(statusCode).toBe(200);

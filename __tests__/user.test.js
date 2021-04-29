@@ -25,12 +25,20 @@ describe('Users', () => {
       });
       expect(statusCode).toBe(200);
     });
-
     it('should be available with authentification', async () => {
       const { cookies } = await getAuthenticatedUser(app);
       const { statusCode } = await app.inject({
         method: 'get',
         url: '/users',
+        cookies,
+      });
+      expect(statusCode).toBe(200);
+    });
+    it('should return 200 on :id/edit', async () => {
+      const { cookies, user } = await getAuthenticatedUser(app);
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: `/users/${user.id}/edit`,
         cookies,
       });
       expect(statusCode).toBe(200);

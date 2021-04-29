@@ -55,7 +55,7 @@ describe('Task', () => {
       });
       expect(statusCode).toBe(200);
     });
-    it('should return 200 on edit/:id ', async () => {
+    it('should return 200 on :id/edit', async () => {
       const existingTask = await app.objection.models.task.query().insert({
         name: 'test',
         description: 'test',
@@ -64,7 +64,7 @@ describe('Task', () => {
       });
       const { statusCode } = await app.inject({
         method: 'get',
-        url: `/tasks/edit/${existingTask.id}`,
+        url: `/tasks/${existingTask.id}/edit`,
         cookies,
       });
       expect(statusCode).toBe(200);

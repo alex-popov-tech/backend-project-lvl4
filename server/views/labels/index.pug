@@ -16,6 +16,6 @@ block content
           td= label.name
           td= label.createdAt
           td
-            a(href=`/labels/edit/${label.id}`)=t('views.buttons.edit')
+            a(href=`/labels/${label.id}/edit`)=t('views.buttons.edit')
             +formFor()(action=`/labels/${label.id}?_method=delete` method='post')
               input.btn.btn-link(type="submit" value=t('views.buttons.delete'))

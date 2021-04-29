@@ -8,7 +8,7 @@ export default (app) => {
       const status = new app.objection.models.status();
       await reply.render('statuses/new', { data: { status }, errors: {} });
     })
-    .get('/statuses/edit/:id', { preValidation: app.formAuth }, async (req, reply) => {
+    .get('/statuses/:id/edit', { preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id } } = req;
       const status = await app.objection.models.status.query().findById(id);
       await reply.render('statuses/edit', { data: { status }, errors: {} });
