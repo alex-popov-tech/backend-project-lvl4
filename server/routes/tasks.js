@@ -6,7 +6,7 @@ export default (app) => {
   app
     .get('/tasks', { preValidation: app.formAuth }, async (req, reply) => {
       const statusIds = formalizeMultiselectValues(req.query.statusIds);
-      const labelIds = formalizeMultiselectValues(req.query.labelIds);
+      const labelIds = formalizeMultiselectValues(req.query.labels);
       const executorIds = formalizeMultiselectValues(req.query.executorIds);
       const taskQuery = app.objection.models.task.query().withGraphJoined('[status, creator, executor, labels]');
       if (statusIds.length) {
@@ -38,7 +38,7 @@ export default (app) => {
         app.objection.models.label.query(),
         app.objection.models.user.query(),
       ]);
-      task.$set({ statusId: statuses, labelIds: labels, executorId: users });
+      task.$set({ statusId: statuses, labels, executorId: users });
       await reply.render('tasks/new', {
         data: { task },
         errors: {},
@@ -52,7 +52,7 @@ export default (app) => {
         app.objection.models.label.query(),
         app.objection.models.user.query(),
       ]);
-      task.$set({ statusId: statuses, labelIds: labels, executorId: users });
+      task.$set({ statusId: statuses, labels, executorId: users });
       await reply.render('tasks/edit', {
         data: { task },
         errors: {},
@@ -67,7 +67,7 @@ export default (app) => {
         },
       } = req;
       try {
-        const labelIds = formalizeMultiselectValues(req.body.data.labelIds);
+        const labelIds = formalizeMultiselectValues(req.body.data.labels);
         await app.objection
           .models
           .task
@@ -91,7 +91,7 @@ export default (app) => {
           app.objection.models.label.query(),
           app.objection.models.user.query(),
         ]);
-        task.$set({ statusId: statuses, labelIds: labels, executorId: users });
+        task.$set({ statusId: statuses, labels, executorId: users });
         req.flash('danger', app.t('views.new.tasks.flash.fail'));
         await reply.code(422).render('tasks/new', {
           data: { task },
@@ -109,7 +109,7 @@ export default (app) => {
         },
       } = req;
       try {
-        const labelIds = formalizeMultiselectValues(req.body.data.labelIds);
+        const labelIds = formalizeMultiselectValues(req.body.data.labels);
         await app.objection
           .models
           .task
@@ -132,7 +132,7 @@ export default (app) => {
           app.objection.models.label.query(),
           app.objection.models.user.query(),
         ]);
-        task.$set({ statusId: statuses, labelIds: labels, executorId: users });
+        task.$set({ statusId: statuses, labels, executorId: users });
         req.flash('danger', app.t('views.new.tasks.flash.fail'));
         await reply.code(422).render('tasks/edit', {
           data: { task },

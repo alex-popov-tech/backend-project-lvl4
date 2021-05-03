@@ -20,6 +20,6 @@ export default {
     statusId: data?.status?.id,
     creatorId: data?.creator?.id,
     executorId: data?.executor?.id,
-    labelIds: (data.labels || []).map(({ id }) => id),
+    labels: (data.labels || []).map(({ id }) => id),
   })),
 };

@@ -8,6 +8,6 @@ block content
     +input(data.task, 'name', errors)
     +input(data.task, 'description', errors)
     +select(data.task, 'statusId', errors)
-    +multiselect(data.task, 'labelIds', errors)
+    +multiselect(data.task, 'labels', errors)
     +select(data.task, 'executorId', errors)
     +submit()(value=t('views.buttons.edit'))
