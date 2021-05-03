@@ -17,6 +17,8 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '13.x'
+      - name: Install
+        run: make dependencies
       - name: Build
         run: make build
       - name: Setup
