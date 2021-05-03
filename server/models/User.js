@@ -26,6 +26,6 @@ export default class User extends unique(password(Model)) {
   }
 
   toString() {
-    return `${this.firstName} ${this.lastName} ${this.email}`;
+    return `${this.firstName} ${this.lastName}`;
   }
 }
