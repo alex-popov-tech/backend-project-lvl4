@@ -1,33 +1,34 @@
-import { internet } from 'faker';
-import { clearDatabaseState, launchApp, shutdownApp } from './helpers';
+import {
+  create, getDatabaseHelpers, launchApp, shutdownApp,
+} from './helpers';
 
 describe('Session', () => {
   let app;
-  let user;
-
-  beforeEach(async () => {
-    await clearDatabaseState(app);
-    user = await app.objection.models.user.query().insert({
-      firstName: 'foo',
-      lastName: 'bar',
-      email: internet.email(),
-      password: 'test',
-    });
-  });
+  let db;
+  let existingUserData;
 
   beforeAll(async () => {
     app = await launchApp();
+    db = getDatabaseHelpers(app);
+    existingUserData = create.user();
+    await db.insert.user(existingUserData);
   });
 
   afterAll(async () => {
     await shutdownApp(app);
   });
 
+  afterEach(async () => {
+    await db.clear();
+  });
+
   it('should login and logout when using valid credentials', async () => {
+    const user = create.user();
+    await db.insert.user(user);
     let res = await app.inject({
       method: 'post',
       url: '/session',
-      body: { data: { email: user.email, password: 'test' } },
+      body: { data: user },
     });
     expect(res.statusCode).toBe(302);
     const cookie = res.headers['set-cookie'];
@@ -44,16 +45,16 @@ describe('Session', () => {
 
   describe('when using invalid credentials', () => {
     it.each([
-      ['empty email', { email: '', password: 'test' }],
-      ['email does not match pattern', { email: 'aa.com', password: 'test' }],
-      ['email not exist', { email: 'not@exist.com', password: 'test' }],
-      ['empty password', { email: 'a@a.com', password: 'test' }],
-      ['password does not match', { email: 'test@test.com', password: 'invalid' }],
+      ['empty email', () => create.user({ email: '' })],
+      ['email does not match pattern', () => create.user({ email: 'aa.com' })],
+      ['email not exist', () => create.user({ email: 'not@exist.com' })],
+      ['empty password', () => create.user({ password: '' })],
+      ['password does not match', () => create.user({ email: existingUserData.email, password: 'invalid' })],
     ])('should not allow login and return 404 when %s', async (_, data) => {
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/session',
-        body: { data },
+        body: { data: data() },
       });
       expect(statusCode).toBe(404);
     });
