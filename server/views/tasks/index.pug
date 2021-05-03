@@ -7,6 +7,7 @@ block content
       tr
         th= t('views.index.id')
         th= t('models.Task.name')
+        th= t('models.Task.description')
         th= t('models.Status.name')
         th= t('models.Task.creator')
         th= t('models.Task.executor')
@@ -18,6 +19,7 @@ block content
         tr
           td= task.id
           td= task.name
+          td= task.description
           td= task.status.name
           td= `${task.creator.firstName} ${task.creator.lastName}`
           td= task.executor ? `${task.executor.firstName} ${task.executor.lastName}` : 'none'
