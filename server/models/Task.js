@@ -37,11 +37,11 @@ export default class Task extends Model {
         to: 'users.id',
       },
     },
-    assigned: {
+    executor: {
       relation: Model.HasOneRelation,
       modelClass: User,
       join: {
-        from: 'tasks.assigned_id',
+        from: 'tasks.executor_id',
         to: 'users.id',
       },
     },
@@ -56,7 +56,7 @@ export default class Task extends Model {
       description: { type: 'string' },
       statusId: { type: 'integer' },
       creatorId: { type: 'integer' },
-      assignedId: {
+      executorId: {
         anyOf: [
           { type: 'integer' },
           { type: 'null' },
@@ -72,8 +72,8 @@ export default class Task extends Model {
     withStatusIn(query, statusIds) {
       query.where('status_id', 'in', statusIds);
     },
-    withAssignedIn(query, assignedIds) {
-      query.where('assigned_id', 'in', assignedIds);
+    withExecutorIn(query, assignedIds) {
+      query.where('executor_id', 'in', assignedIds);
     },
   };
 }

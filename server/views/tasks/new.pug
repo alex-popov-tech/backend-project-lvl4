@@ -9,5 +9,5 @@ block content
     +input(data.task, 'description', errors)
     +select(data.task, 'statusId', errors)
     +multiselect(data.task, 'labelIds', errors)
-    +select(data.task, 'assignedId', errors)
+    +select(data.task, 'executorId', errors)
     +submit()(value=t('views.buttons.create'))

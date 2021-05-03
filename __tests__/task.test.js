@@ -75,7 +75,7 @@ describe('Task', () => {
         url: '/tasks',
         cookies,
         query: {
-          assignedId: existingUser.id,
+          executorId: existingUser.id,
           statusIds: existingStatus.id,
           labelIds: existingLabel.id,
         },
@@ -98,7 +98,7 @@ describe('Task', () => {
               name,
               description,
               statusId: existingStatus.id,
-              assignedId: null,
+              executorId: null,
               labelIds: existingLabel.id,
             },
           },
@@ -163,7 +163,7 @@ describe('Task', () => {
         name: 'updated-name',
         description: 'updated-descr',
         statusId: updatedStatus.id,
-        assignedId: existingUser.id,
+        executorId: existingUser.id,
       };
       const { statusCode } = await app.inject({
         method: 'patch',

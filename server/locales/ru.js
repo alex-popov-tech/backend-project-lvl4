@@ -35,8 +35,8 @@ export default {
         labels: 'Метки',
         labelIds: 'Метки',
         creator: 'Автор',
-        assigned: 'Исполнитель',
-        assignedId: 'Исполнитель',
+        executor: 'Исполнитель',
+        executorId: 'Исполнитель',
       },
     },
     views: {

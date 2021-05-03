@@ -9,7 +9,7 @@ block content
         th= t('models.Task.name')
         th= t('models.Status.name')
         th= t('models.Task.creator')
-        th= t('models.Task.assigned')
+        th= t('models.Task.executor')
         th= t('views.index.createdAt')
         th= t('models.Task.labels')
         th
@@ -20,7 +20,7 @@ block content
           td= task.name
           td= task.status.name
           td= `${task.creator.firstName} ${task.creator.lastName}`
-          td= task.assigned ? `${task.assigned.firstName} ${task.assigned.lastName}` : 'none'
+          td= task.executor ? `${task.executor.firstName} ${task.executor.lastName}` : 'none'
           td= task.createdAt
           td= task.labels.map(({ name }) => name).join(', ')
           td
