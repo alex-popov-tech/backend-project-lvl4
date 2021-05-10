@@ -48,6 +48,7 @@
     "fastify-method-override-wrapper": "^1.0.5",
     "fastify-objectionjs": "^0.3.1",
     "fastify-passport": "^0.4.2",
+    "fastify-qs": "^3.0.0",
     "fastify-secure-session": "^2.2.1",
     "fastify-sensible": "^3.1.1",
     "fastify-static": "^4.0.1",

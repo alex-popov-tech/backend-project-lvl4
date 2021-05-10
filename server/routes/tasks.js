@@ -5,18 +5,24 @@ const formalizeMultiselectValues = (values) => [values].flat()
 export default (app) => {
   app
     .get('/tasks', { preValidation: app.formAuth }, async (req, reply) => {
-      const statusIds = formalizeMultiselectValues(req.query.statusIds);
-      const labelIds = formalizeMultiselectValues(req.query.labels);
-      const executorIds = formalizeMultiselectValues(req.query.executorIds);
-      const taskQuery = app.objection.models.task.query().withGraphJoined('[status, creator, executor, labels]');
-      if (statusIds.length) {
-        taskQuery.modify('withStatusIn', statusIds);
+      const {
+        status, label, executor, isCreatorUser,
+      } = (req.query.data || {});
+      console.log(req.query);
+      // const taskQuery = app.objection.models.task.query().withGraphJoined('[status, creator, executor, labels]');
+      const taskQuery = app.objection.models.task.query();
+      if (status) {
+        taskQuery.where('statusId', status);
       }
-      if (executorIds.length) {
-        taskQuery.modify('withExecutorIn', executorIds);
+      if (executor) {
+        taskQuery.where('executorId', executor);
       }
-      if (labelIds.length) {
-        taskQuery.modify('withLabelIn', labelIds);
+      if (isCreatorUser) {
+        taskQuery.where('creatorId', req.user.id);
+      }
+      taskQuery.withGraphJoined('[status, creator, executor, labels]');
+      if (label) {
+        taskQuery.modify('withLabel', label);
       }
 
       const [filteredTasks, statuses, labels, users] = await Promise.all([
@@ -25,9 +31,13 @@ export default (app) => {
         app.objection.models.label.query(),
         app.objection.models.user.query(),
       ]);
+      const task = new app.objection.models.task();
+      task.$set({
+        status: statuses, label: labels, executor: users, isCreatorUser: {},
+      });
       await reply.render('tasks/index', {
         data: {
-          tasks: filteredTasks, statuses, labels, users,
+          task, tasks: filteredTasks, statuses, labels, users,
         },
       });
     })

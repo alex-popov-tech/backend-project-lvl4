@@ -33,10 +33,12 @@ export default {
         status: 'Статус',
         statusId: 'Статус',
         labels: 'Метки',
+        label: 'Метка',
         labelIds: 'Метки',
         creator: 'Автор',
         executor: 'Исполнитель',
         executorId: 'Исполнитель',
+        isCreatorUser: 'Только мои задачи',
       },
     },
     views: {
@@ -51,6 +53,7 @@ export default {
         delete: 'Удалить',
         save: 'Сохранить',
         signin: 'Войти',
+        filter: 'Показать',
       },
       welcome: {
         title: 'Taskmine',

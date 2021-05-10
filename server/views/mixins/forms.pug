@@ -34,6 +34,7 @@ mixin select(entity, propertyName, errors= [])
   - propertyErrors = errors[propertyName]
   - formName = getFormName(propertyName)
   - formId = getFormId(propertyName)
+  - entityName = getEntityName(entity)
   .form-group
     label(
       for= formId
@@ -47,6 +48,27 @@ mixin select(entity, propertyName, errors= [])
         option(value=option.id)= option.toString()
     if propertyErrors
       .invalid-feedback=propertyErrors.map(({ message }) => message).join('\n')
+
+mixin checkbox(entity, propertyName, errors = {})
+  - propertyErrors = errors[propertyName]
+  - formName = getFormName(propertyName)
+  - formId = getFormId(propertyName)
+  - entityName = getEntityName(entity)
+  .form-group.form-check
+    input(
+      id= formId
+      name= formName
+      class='form-check-input'
+      type='checkbox'
+    )&attributes(attributes)
+    label(
+      for= formId
+    )= t(`models.${entityName}.${propertyName}`)
+      each option in entity[propertyName]
+        option(value=option.id)= option.toString()
+    if propertyErrors
+      .invalid-feedback=propertyErrors.map(({ message }) => message).join('\n')
+
 
 mixin multiselect(entity, propertyName, errors= [])
   - propertyErrors = errors[propertyName]

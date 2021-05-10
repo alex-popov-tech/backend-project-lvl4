@@ -1,6 +1,16 @@
 extends ../layouts/application.pug
 
 block content
+
+  .kek= `${data.task.constructor.name}`
+  .jumbotron.p-2
+    +formFor()(action='/tasks' method='get')
+      +select(data.task, 'status', errors)
+      +select(data.task, 'executor', errors)
+      +select(data.task, 'label', errors)
+      +checkbox(data.task, 'isCreatorUser', errors)
+      +submit()(value=t('views.buttons.filter'))
+
   a(href='/tasks/new')= t('views.index.tasks.add')
   table.table.table-striped
     thead

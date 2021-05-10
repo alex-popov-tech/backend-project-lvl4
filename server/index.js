@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import qs from 'qs';
 import fastify from 'fastify';
+import fastifyQs from 'fastify-qs';
 import fastifyErrorPage from 'fastify-error-page';
 import fastifyFormbody from 'fastify-formbody';
 import fastifyMethodOverride from 'fastify-method-override-wrapper';
@@ -86,6 +87,7 @@ const addDatabase = (app) => {
 const addPlugins = (app) => {
   app.register(fastifySensible);
   app.register(fastifyFormbody, { parser: (str) => qs.parse(str) });
+  app.register(fastifyQs, {});
 };
 const addAuthentification = (app) => {
   app.register(fastifySecureSession, {
