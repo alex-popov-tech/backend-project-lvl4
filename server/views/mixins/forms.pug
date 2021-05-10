@@ -44,6 +44,7 @@ mixin select(entity, propertyName, errors= [])
       name= formName
       class='form-control'
     )&attributes(attributes)
+      option
       each option in entity[propertyName]
         option(value=option.id)= option.toString()
     if propertyErrors
