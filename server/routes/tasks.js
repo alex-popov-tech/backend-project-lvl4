@@ -8,8 +8,6 @@ export default (app) => {
       const {
         status, label, executor, isCreatorUser,
       } = (req.query.data || {});
-      console.log(req.query);
-      // const taskQuery = app.objection.models.task.query().withGraphJoined('[status, creator, executor, labels]');
       const taskQuery = app.objection.models.task.query();
       if (status) {
         taskQuery.where('statusId', status);
@@ -33,11 +31,15 @@ export default (app) => {
       ]);
       const task = new app.objection.models.task();
       task.$set({
-        status: statuses, label: labels, executor: users, isCreatorUser: {},
+        status: statuses, label: labels, executor: users,
       });
+      const filter = {
+        status, label, executor, isCreatorUser,
+      };
+      console.log(filter);
       await reply.render('tasks/index', {
         data: {
-          task, tasks: filteredTasks, statuses, labels, users,
+          filter, task, tasks: filteredTasks, statuses, labels, users,
         },
       });
     })
@@ -76,8 +78,8 @@ export default (app) => {
           },
         },
       } = req;
+      const labelIds = formalizeMultiselectValues(req.body.data.labels);
       try {
-        const labelIds = formalizeMultiselectValues(req.body.data.labels);
         await app.objection
           .models
           .task
@@ -95,16 +97,18 @@ export default (app) => {
         await reply.redirect('/tasks');
       } catch ({ message, data }) {
         const task = new app.objection.models.task();
-        task.$set(req.body);
         const [statuses, labels, users] = await Promise.all([
           app.objection.models.status.query(),
           app.objection.models.label.query(),
           app.objection.models.user.query(),
         ]);
         task.$set({ statusId: statuses, labels, executorId: users });
+        const passed = {
+          name, description, statusId, labels: labelIds.join(','), executorId,
+        };
         req.flash('danger', app.t('views.new.tasks.flash.fail'));
         await reply.code(422).render('tasks/new', {
-          data: { task },
+          data: { task, passed },
           errors: data,
         });
       }
@@ -118,8 +122,8 @@ export default (app) => {
           },
         },
       } = req;
+      const labelIds = formalizeMultiselectValues(req.body.data.labels);
       try {
-        const labelIds = formalizeMultiselectValues(req.body.data.labels);
         await app.objection
           .models
           .task
@@ -134,10 +138,8 @@ export default (app) => {
         req.flash('success', app.t('views.index.tasks.flash.success.edit'));
         await reply.redirect('/tasks');
       } catch ({ message, data }) {
-        console.log(message, req.body);
-        const task = new app.objection.models.task();
-        task.$set({ id, ...req.body });
-        const [statuses, labels, users] = await Promise.all([
+        const [task, statuses, labels, users] = await Promise.all([
+          app.objection.models.task.query().findById(id),
           app.objection.models.status.query(),
           app.objection.models.label.query(),
           app.objection.models.user.query(),

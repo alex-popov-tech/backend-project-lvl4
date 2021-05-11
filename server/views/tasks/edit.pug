@@ -5,9 +5,9 @@ block header
 
 block content
   +formFor()(action=`/tasks/${data.task.id}?_method=patch` method='post')
-    +input(data.task, 'name', errors)
-    +input(data.task, 'description', errors)
-    +select(data.task, 'statusId', errors)
-    +multiselect(data.task, 'labels', errors)
-    +select(data.task, 'executorId', errors)
+    +input(data.task, 'name', { errors, defaultValue: data.task })
+    +input(data.task, 'description', { errors, defaultValue: data.task })
+    +select(data.task, 'statusId', { errors, defaultValue: data.task })
+    +multiselect(data.task, 'labels', { errors, })
+    +select(data.task, 'executorId', { errors, defaultValue: data.passed })
     +submit()(value=t('views.buttons.edit'))
