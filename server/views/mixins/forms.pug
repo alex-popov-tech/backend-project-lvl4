@@ -12,12 +12,12 @@ mixin formFor(entity = null)
   form&attributes(attributes)
     block
 
-mixin input(entity, propertyName, options = { errors: {} })
-  - propertyErrors = errors[propertyName]
+mixin input(entity, propertyName, errors = {})
   - entityName = getEntityName(entity)
   - formName = getFormName(propertyName)
   - formId = getFormId(propertyName)
-  - defaultValue = (options.defaultValue || {})[propertyName]
+  - propertyErrors = errors[propertyName]
+  - presetValue = entity[propertyName] || ''
   .form-group
     label(
       for= formId
@@ -26,17 +26,19 @@ mixin input(entity, propertyName, options = { errors: {} })
       id= formId
       name= formName
       class=(propertyErrors && 'is-invalid')
-      value=defaultValue
+      value=presetValue
     )&attributes(attributes)
     if propertyErrors
       .invalid-feedback=propertyErrors.map(({ message }) => message).join('\n')
 
-mixin select(entity, propertyName, options = { errors: {}, defaultValue: '' })
-  - propertyErrors = options.errors[propertyName]
+mixin select(entity, propertyName, values, options = {}, errors = {})
   - formName = getFormName(propertyName)
   - formId = getFormId(propertyName)
   - entityName = getEntityName(entity)
-  - defaultValue = Number((options.defaultValue || {})[propertyName])
+  - isMultiselect = options.isMultiselect
+  - propertyErrors = errors[propertyName]
+  - propertyValues = values
+  - presetValues = entity[propertyName] || (isMultiselect ? [] : '')
   .form-group
     label(
       for= formId
@@ -45,53 +47,33 @@ mixin select(entity, propertyName, options = { errors: {}, defaultValue: '' })
       id= formId
       name= formName
       class='form-control'
+      multiple=isMultiselect
     )&attributes(attributes)
-      option
-      each option in entity[propertyName]
-          option(value=option.id selected=(defaultValue === option.id))= option.toString()
+      if !isMultiselect
+        option
+      each it in values
+          - isSelected = isMultiselect ? presetValues.includes(it.id) : presetValues === it.id
+          option(value=it.id selected=isSelected)= it.toString()
     if propertyErrors
       .invalid-feedback=propertyErrors.map(({ message }) => message).join('\n')
 
-mixin checkbox(entity, propertyName, options = { errors: {}, defaultValue: '' })
-  - propertyErrors = options.errors[propertyName]
+mixin checkbox(entity, propertyName, errors)
+  - propertyErrors = errors[propertyName]
   - formName = getFormName(propertyName)
   - formId = getFormId(propertyName)
   - entityName = getEntityName(entity)
-  - defaultValue = !!(options.defaultValue || {})[propertyName]
+  - value = !!entity[propertyName]
   .form-group.form-check
     input(
       id= formId
       name= formName
       class='form-check-input'
       type='checkbox'
-      checked=defaultValue
+      checked=value
     )&attributes(attributes)
     label(
       for= formId
     )= t(`models.${entityName}.${propertyName}`)
-    if propertyErrors
-      .invalid-feedback=propertyErrors.map(({ message }) => message).join('\n')
-
-
-mixin multiselect(entity, propertyName, options = { errors: {}, defaultValue: {} })
-  - propertyErrors = (options.errors || {})[propertyName]
-  - formName = getFormName(propertyName)
-  - formId = getFormId(propertyName)
-  - defaultValuesString = (options.defaultValue || {})[propertyName]
-  - defaultValues = (defaultValuesString || '').split(',').map((str) => Number(str))
-  .form-group
-  options.defaultValue
-    label(
-      for= formId
-    )= t(`models.${entityName}.${propertyName}`)
-    select(
-      multiple
-      id= formId
-      name= formName
-      class='form-control'
-    )&attributes(attributes)
-      each option in entity[propertyName]
-        option(value=option.id selected=(defaultValues.includes(option.id)))= option.toString()
     if propertyErrors
       .invalid-feedback=propertyErrors.map(({ message }) => message).join('\n')
 

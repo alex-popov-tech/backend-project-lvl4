@@ -5,9 +5,9 @@ block header
 
 block content
   +formFor()(action='/tasks' method='post')
-    +input(data.task, 'name', { errors, defaultValue: data.passed })
-    +input(data.task, 'description', { errors, defaultValue: data.passed })
-    +select(data.task, 'statusId', { errors, defaultValue: data.passed })
-    +multiselect(data.task, 'labels', { errors, defaultValue: data.passed })
-    +select(data.task, 'executorId', { errors, defaultValue: data.passed })
+    +input(data.task, 'name', errors)
+    +input(data.task, 'description',errors)
+    +select(data.task, 'statusId', data.statuses, {}, errors)
+    +select(data.task, 'labels', data.labels, { isMultiselect: true }, errors)
+    +select(data.task, 'executorId', data.users, {}, errors)
     +submit()(value=t('views.buttons.create'))

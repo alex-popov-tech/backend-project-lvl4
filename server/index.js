@@ -134,8 +134,18 @@ const addLocalization = (app) => {
 export default () => {
   const app = fastifyMethodOverride(fastify)({
     logger: {
-      prettyPrint: isDevelopment,
-      level: isDevelopment ? 'trace' : 'info',
+      serializers: {
+        req({
+          method, url, query, body,
+        }) {
+          return {
+            method, url, query, body,
+          };
+        },
+        res({ statusCode }) {
+          return { statusCode };
+        },
+      },
     },
   });
   addHooks(app);

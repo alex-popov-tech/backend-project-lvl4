@@ -5,5 +5,5 @@ block header
 
 block content
   +formFor()(action='/statuses' method='post')
-    +input(data.status, 'name', { errors, defaultValue: data.status })
+    +input(data.status, 'name', errors)
     +submit()(value=t('views.buttons.create'))

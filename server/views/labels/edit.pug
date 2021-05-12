@@ -5,5 +5,5 @@ block header
 
 block content
   +formFor()(action=`/labels/${reply.request.params.id}?_method=patch` method='post')
-    +input(data.label, 'name', { errors, defaultValue: data.label })
+    +input(data.label, 'name', errors)
     +submit()(value=t('views.buttons.edit'))

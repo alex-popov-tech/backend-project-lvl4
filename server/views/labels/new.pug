@@ -5,5 +5,5 @@ block header
 
 block content
   +formFor()(action='/labels' method='post')
-    +input(data.label, 'name', { errors, defaultValue: data.label })
+    +input(data.label, 'name', errors)
     +submit()(value=t('views.buttons.create'))
