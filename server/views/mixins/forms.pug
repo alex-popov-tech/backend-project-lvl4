@@ -31,6 +31,25 @@ mixin input(entity, propertyName, errors = {})
     if propertyErrors
       .invalid-feedback=propertyErrors.map(({ message }) => message).join('\n')
 
+mixin textarea(entity, propertyName, errors = {})
+  - entityName = getEntityName(entity)
+  - formName = getFormName(propertyName)
+  - formId = getFormId(propertyName)
+  - propertyErrors = errors[propertyName]
+  - presetValue = entity[propertyName] || ''
+  .form-group
+    label(
+      for= formId
+    )= t(`models.${entityName}.${propertyName}`)
+    textarea.form-control(
+      id= formId
+      name= formName
+      class=(propertyErrors && 'is-invalid')
+      value=presetValue
+    )&attributes(attributes)
+    if propertyErrors
+      .invalid-feedback=propertyErrors.map(({ message }) => message).join('\n')
+
 mixin select(entity, propertyName, values, options = {}, errors = {})
   - formName = getFormName(propertyName)
   - formId = getFormId(propertyName)

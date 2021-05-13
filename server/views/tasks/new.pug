@@ -6,7 +6,7 @@ block header
 block content
   +formFor()(action='/tasks' method='post')
     +input(data.task, 'name', errors)
-    +input(data.task, 'description',errors)
+    +textarea(data.task, 'description',errors)
     +select(data.task, 'statusId', data.statuses, {}, errors)
     +select(data.task, 'labels', data.labels, { isMultiselect: true }, errors)
     +select(data.task, 'executorId', data.users, {}, errors)
