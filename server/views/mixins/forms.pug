@@ -45,8 +45,7 @@ mixin textarea(entity, propertyName, errors = {})
       id= formId
       name= formName
       class=(propertyErrors && 'is-invalid')
-      value=presetValue
-    )&attributes(attributes)
+    )&attributes(attributes)= presetValue
     if propertyErrors
       .invalid-feedback=propertyErrors.map(({ message }) => message).join('\n')
 
