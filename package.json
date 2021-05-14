@@ -11,9 +11,9 @@
     "clean": "del dist",
     "build-frontend": "NODE_ENV=production webpack -p",
     "build-backend": "NODE_ENV=production babel server --out-dir dist/server && cp -r server/views dist/server/views && cp knexfile.js dist/knexfile.js",
-    "migrate": "NODE_ENV=production npx knex migrate:latest",
+    "migration": "NODE_ENV=production npx knex migrate:latest",
     "build": "npm run clean && npm run build-frontend && npm run build-backend && npm run preparations && npm run migrate",
-    "preparations": "cp -n .env.example .env; cp -r server/views dist/server/views; cp knexfile.js dist/knexfile.js;",
+    "preparation": "cp -n .env.example .env; cp -r server/views dist/server/views; cp knexfile.js dist/knexfile.js;",
     "start": "NODE_ENV=production node dist/server/bin/index.js",
     "test": "NODE_ENV=test jest"
   },
