@@ -6,7 +6,6 @@ export default (app) => {
   app
     .get('/tasks', { preValidation: app.formAuth }, async (req, reply) => {
       const { query: { data = {} } } = req;
-      console.log(data);
       const { isCreatorUser } = data;
       const status = parseInt(data.status, 10);
       const executor = parseInt(data.executor, 10);
@@ -37,7 +36,6 @@ export default (app) => {
       task.$set({
         status, label, executor, isCreatorUser,
       });
-      console.log(task);
       await reply.render('tasks/index', {
         data: {
           tasks, task, statuses, labels, users,
