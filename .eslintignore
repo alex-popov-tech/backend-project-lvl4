@@ -3,3 +3,4 @@ dist
 server/migrations
 server/seeds
 postcss.config.js
+webpack.config.js

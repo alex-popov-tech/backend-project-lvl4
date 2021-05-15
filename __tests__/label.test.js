@@ -40,7 +40,7 @@ describe('Label', () => {
       });
       expect(statusCode).toBe(200);
     });
-    it('should return 200 on edit/:id ', async () => {
+    it('should return 200 on edit/:id', async () => {
       const existingLabel = await db.insert.label(create.label());
       const { statusCode } = await app.inject({
         method: 'get',

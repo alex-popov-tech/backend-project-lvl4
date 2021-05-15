@@ -42,7 +42,7 @@ describe('Status', () => {
       });
       expect(statusCode).toBe(200);
     });
-    it('should return 200 on edit/:id ', async () => {
+    it('should return 200 on edit/:id', async () => {
       const existingStatus = await db.insert.status(create.status());
       const { statusCode } = await app.inject({
         method: 'get',

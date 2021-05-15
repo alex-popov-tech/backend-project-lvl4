@@ -1,4 +1,4 @@
-setup: preparations dependencies migrations
+setup: preparation dependency migration
 dependency:
 	rm -rf node_modules; npm ci
 preparation:
