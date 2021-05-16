@@ -47,7 +47,7 @@ describe('Task', () => {
       expect(statusCode).toBe(200);
     });
 
-    it('should return 200 on edit/:id ', async () => {
+    it('should return 200 on :id/edit', async () => {
       const existingTask = await db.insert.task(create.task({
         creator: currentUser,
         labels: [existingLabel],
@@ -55,24 +55,19 @@ describe('Task', () => {
       }));
       const { statusCode } = await app.inject({
         method: 'get',
-        url: `/tasks/edit/${existingTask.id}`,
+        url: `/tasks/${existingTask.id}/edit`,
         cookies,
       });
       expect(statusCode).toBe(200);
     });
 
     it('should return 200 when using filters', async () => {
-      const existingTask = await db.insert.task(create.task({
-        creator: currentUser,
-        labels: [existingLabel],
-        status: existingStatus,
-      }));
       const { statusCode } = await app.inject({
         method: 'get',
         url: '/tasks',
         cookies,
         query: {
-          assignedId: existingTask.id,
+          executorId: currentUser.id,
           statusIds: existingStatus.id,
           labelIds: existingLabel.id,
         },
@@ -85,16 +80,15 @@ describe('Task', () => {
     describe('when using valid data', () => {
       it('should create entity and return 302', async () => {
         const taskData = create.task({
-          creator: currentUser,
           status: existingStatus,
-          assigned: currentUser,
+          executor: currentUser,
           labels: [existingLabel],
         });
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/tasks',
           cookies,
-          body: taskData,
+          body: { data: taskData },
         });
         expect(statusCode).toBe(302);
 
@@ -103,9 +97,9 @@ describe('Task', () => {
         expect(tasks[0]).toMatchObject({
           name: taskData.name,
           description: taskData.description,
-          creatorId: taskData.creatorId,
-          assignedId: taskData.creatorId,
+          creatorId: currentUser.id,
           statusId: taskData.statusId,
+          executorId: taskData.executorId,
         });
         const labels = await tasks[0].$relatedQuery('labels');
         expect(labels).toHaveLength(1);
@@ -116,17 +110,17 @@ describe('Task', () => {
     });
 
     describe('when using invalid data', () => {
+      // TODO add executors
       it.each([
-        ['name', () => ({ description: 'test', statusId: existingStatus.id, creatorId: currentUser.id })],
-        ['description', () => ({ name: 'test', statusId: existingStatus.id, creatorId: currentUser.id })],
-        ['status', () => ({ name: 'test', description: 'test', creatorId: currentUser.id })],
-        ['creator', () => ({ name: 'test', description: 'test', statusId: existingStatus.id })],
+        ['name', () => create.task({ name: '', status: existingStatus, executor: currentUser })],
+        ['status', () => create.task({ executor: currentUser })],
+        ['executor', () => create.task({ status: existingStatus })],
       ])('should not create entity and return 422 when missing required field %s', async (_, data) => {
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/tasks',
           cookies,
-          body: data(),
+          body: { data: data() },
         });
         expect(statusCode).toBe(422);
         const tasks = await db.find.tasks();
@@ -141,7 +135,7 @@ describe('Task', () => {
       existingTask = await db.insert.task(create.task({
         status: existingStatus,
         creator: currentUser,
-        assigned: currentUser,
+        executor: currentUser,
       }));
     });
 
@@ -152,14 +146,13 @@ describe('Task', () => {
       const updatedTaskData = create.task({
         status: newStatus,
         labels: [newLabel],
-        assigned: newUser,
-        creator: currentUser,
+        executor: newUser,
       });
       const { statusCode } = await app.inject({
         method: 'patch',
         url: `/tasks/${existingTask.id}`,
         cookies,
-        body: updatedTaskData,
+        body: { data: updatedTaskData },
       });
       expect(statusCode).toBe(302);
       const tasks = await db.find.tasks();
@@ -168,7 +161,7 @@ describe('Task', () => {
         name: updatedTaskData.name,
         description: updatedTaskData.description,
         statusId: updatedTaskData.statusId,
-        assignedId: updatedTaskData.assignedId,
+        executorId: updatedTaskData.executorId,
       });
       const labels = await tasks[0].$relatedQuery('labels');
       expect(labels).toHaveLength(1);

@@ -1,12 +1,12 @@
-setup: preparations dependencies migrations
-dependencies:
-	rm -rf node_modules; npm install
-preparations:
-	npm run preparations
+setup: preparation dependency migration
+dependency:
+	rm -rf node_modules; npm ci
+preparation:
+	npm run preparation
 
-migrations:
+migration:
 	npx knex migrate:latest
-seeds:
+seed:
 	npx knex seed:run
 
 dev:

@@ -1,13 +1,13 @@
 extends ../layouts/application.pug
 
 block header
-  = t('tasks.new.title')
+  = t('views.new.tasks.title')
 
 block content
   +formFor()(action='/tasks' method='post')
-    +input(t('tasks.new.form.name'), data.task.name, errors.name)(name="name")
-    +input(t('tasks.new.form.description'), data.task.description, errors.description)(name='description')
-    +select(t('tasks.new.form.status'), data.statuses, errors.statusId)(name='statusId')
-    +multiselect(t('tasks.new.form.labels'), data.labels, errors.labelIds)(name='labelIds')
-    +select(t('tasks.new.form.assigned'), data.users, errors.assignedId)(name='assignedId')
-    +submit()(value=t('tasks.new.form.confirm'))
+    +input(data.task, 'name', errors)
+    +textarea(data.task, 'description',errors)
+    +select(data.task, 'statusId', data.statuses, {}, errors)
+    +select(data.task, 'labels', data.labels, { isMultiselect: true }, errors)
+    +select(data.task, 'executorId', data.users, {}, errors)
+    +submit()(value=t('views.buttons.create'))

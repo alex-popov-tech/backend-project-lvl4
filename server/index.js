@@ -1,10 +1,13 @@
 import dotenv from 'dotenv';
+import qs from 'qs';
 import fastify from 'fastify';
-import fastifyErrorsProperties from 'fastify-errors-properties';
+import fastifyQs from 'fastify-qs';
+import fastifyErrorPage from 'fastify-error-page';
 import fastifyFormbody from 'fastify-formbody';
 import fastifyMethodOverride from 'fastify-method-override-wrapper';
 import fastifyObjection from 'fastify-objectionjs';
 import fastifyPassport from 'fastify-passport';
+import fastifySensible from 'fastify-sensible';
 import fastifySecureSession from 'fastify-secure-session';
 import fastifyStatic from 'fastify-static';
 import fastifyWebpackHMR from 'fastify-webpack-hmr';
@@ -31,7 +34,7 @@ const addErrorHandler = (app) => {
     return;
   }
   if (isDevelopment) {
-    app.register(fastifyErrorsProperties);
+    app.register(fastifyErrorPage);
   } else {
     const rollbar = new Rollbar({
       accessToken: process.env.ROLLBAR_TOKEN,
@@ -82,7 +85,9 @@ const addDatabase = (app) => {
   });
 };
 const addPlugins = (app) => {
-  app.register(fastifyFormbody);
+  app.register(fastifySensible);
+  app.register(fastifyFormbody, { parser: (str) => qs.parse(str) });
+  app.register(fastifyQs, {});
 };
 const addAuthentification = (app) => {
   app.register(fastifySecureSession, {
@@ -104,7 +109,7 @@ const addAuthentification = (app) => {
     'form',
     {
       failureRedirect: '/',
-      failureFlash: app.t('flash.fail.auth'),
+      failureFlash: app.t('views.auth.flash.fail'),
     },
   )(...args));
 };
@@ -129,8 +134,18 @@ const addLocalization = (app) => {
 export default () => {
   const app = fastifyMethodOverride(fastify)({
     logger: {
-      prettyPrint: isDevelopment,
-      level: isDevelopment ? 'trace' : 'info',
+      serializers: {
+        req({
+          method, url, query, body,
+        }) {
+          return {
+            method, url, query, body,
+          };
+        },
+        res({ statusCode }) {
+          return { statusCode };
+        },
+      },
     },
   });
   addHooks(app);

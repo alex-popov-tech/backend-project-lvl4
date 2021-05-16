@@ -1,30 +1,41 @@
 extends ../layouts/application.pug
 
 block content
-  a(href='/tasks/new')= t('tasks.index.add')
+
+  .jumbotron.p-2
+    +formFor()(action='/tasks' method='get')
+      +select(data.task, 'status', data.statuses, {}, {})
+      +select(data.task, 'label', data.labels, {}, {})
+      +select(data.task, 'executor', data.users, {}, {})
+      +checkbox(data.task, 'isCreatorUser', {})
+      +submit()(value=t('views.buttons.filter'))
+
+  a(href='/tasks/new')= t('views.index.tasks.add')
   table.table.table-striped
     thead
       tr
-        th= t('tasks.index.list.columns.id')
-        th= t('tasks.index.list.columns.name')
-        th= t('tasks.index.list.columns.status')
-        th= t('tasks.index.list.columns.creator')
-        th= t('tasks.index.list.columns.assigned')
-        th= t('tasks.index.list.columns.createdAt')
-        th= t('tasks.index.list.columns.labels')
+        th= t('views.index.id')
+        th= t('models.Task.name')
+        th= t('models.Task.description')
+        th= t('models.Status.name')
+        th= t('models.Task.creator')
+        th= t('models.Task.executor')
+        th= t('views.index.createdAt')
+        th= t('models.Task.labels')
         th
     tbody
       each task in data.tasks
         tr
           td= task.id
           td= task.name
+          td= task.description
           td= task.status.name
           td= `${task.creator.firstName} ${task.creator.lastName}`
-          td= task.assigned ? `${task.assigned.firstName} ${task.assigned.lastName}` : 'none'
+          td= task.executor ? `${task.executor.firstName} ${task.executor.lastName}` : 'none'
           td= task.createdAt
           td= task.labels.map(({ name }) => name).join(', ')
           td
-            a(href=`/tasks/edit/${task.id}`)=t('tasks.index.list.columns.action.edit')
-            +formFor()(action='/tasks/${task.id}?_method=delete' method='post')
+            a(href=`/tasks/${task.id}/edit`)=t('views.buttons.edit')
+            +formFor()(action=`/tasks/${task.id}?_method=delete` method='post')
               input(name="id" type="hidden" value=task.id)
-              input.btn.btn-link(type="submit" value=t('tasks.index.list.columns.action.delete'))
+              input.btn.btn-link(type="submit" value=t('views.buttons.delete'))

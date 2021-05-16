@@ -1,13 +1,13 @@
 extends ../layouts/application.pug
 
 block header
-  = t('tasks.edit.title')
+  = t('views.edit.tasks.title')
 
 block content
-  +formFor()(action=`/tasks/${data.task.id}?_method=patch'` method='post')
-    +input(t('tasks.edit.form.name'), data.task.name, errors.name)(name="name")
-    +input(t('tasks.edit.form.description'), data.task.description, errors.description)(name='description')
-    +select(t('tasks.edit.form.status'), data.statuses, errors.statusId)(name='statusId')
-    +multiselect(t('tasks.edit.form.labels'), data.labels, errors.labelIds)(name='labelIds')
-    +select(t('tasks.edit.form.assigned'), data.users, errors.assignedId)(name='assignedId')
-    +submit()(value=t('tasks.edit.form.confirm'))
+  +formFor()(action=`/tasks/${data.task.id}?_method=patch` method='post')
+    +input(data.task, 'name', errors)
+    +textarea(data.task, 'description',errors)
+    +select(data.task, 'statusId', data.statuses, {}, errors)
+    +select(data.task, 'labels', data.labels, { isMultiselect: true }, errors)
+    +select(data.task, 'executorId', data.users, {}, errors)
+    +submit()(value=t('views.buttons.edit'))

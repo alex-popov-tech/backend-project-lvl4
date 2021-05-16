@@ -40,11 +40,11 @@ describe('Label', () => {
       });
       expect(statusCode).toBe(200);
     });
-    it('should return 200 on edit/:id ', async () => {
+    it('should return 200 on edit/:id', async () => {
       const existingLabel = await db.insert.label(create.label());
       const { statusCode } = await app.inject({
         method: 'get',
-        url: `/labels/edit/${existingLabel.id}`,
+        url: `/labels/${existingLabel.id}/edit`,
         cookies,
       });
       expect(statusCode).toBe(200);
@@ -58,7 +58,7 @@ describe('Label', () => {
         method: 'post',
         url: '/labels',
         cookies,
-        body: label,
+        body: { data: label },
       });
       expect(statusCode).toBe(302);
       const labels = await db.find.labels();
@@ -73,7 +73,9 @@ describe('Label', () => {
         url: '/labels',
         cookies,
         body: {
-          name: existingLabel.name,
+          data: {
+            name: existingLabel.name,
+          },
         },
       });
       expect(statusCode).toBe(422);
@@ -89,18 +91,21 @@ describe('Label', () => {
     });
 
     it('should update entity and return 302 when using valid name', async () => {
+      const updatedLabelData = create.label();
       const { statusCode } = await app.inject({
         method: 'patch',
         url: `/labels/${existingLabel.id}`,
         cookies,
         body: {
-          name: 'new name',
+          data: {
+            name: updatedLabelData.name,
+          },
         },
       });
       expect(statusCode).toBe(302);
       const labels = await db.find.labels();
       expect(labels).toHaveLength(1);
-      expect(labels[0]).toMatchObject({ name: 'new name' });
+      expect(labels[0]).toMatchObject(updatedLabelData);
     });
   });
 

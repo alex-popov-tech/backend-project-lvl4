@@ -17,10 +17,12 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '13.x'
-      - name: Setup
-        run: make setup
+      - name: Install
+        run: make dependency
       - name: Build
         run: make build
+      - name: Setup
+        run: make setup
       - name: Lint
         run: make lint
       - name: Test

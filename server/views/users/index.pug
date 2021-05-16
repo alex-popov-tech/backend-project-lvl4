@@ -4,10 +4,10 @@ block content
   table.table.table-striped
     thead
       tr
-        th= t('users.index.list.columns.id')
-        th= t('users.index.list.columns.fullName')
-        th= t('users.index.list.columns.email')
-        th= t('users.index.list.columns.createdAt')
+        th= t('views.index.id')
+        th= t('models.User.fullName')
+        th= t('models.User.email')
+        th= t('views.index.createdAt')
         th
     tbody
       each user in data.users
@@ -17,6 +17,6 @@ block content
           td= user.email
           td= user.createdAt.toLocaleString()
           td
-            a(href=`/users/edit/${user.id}`)=t('users.index.list.columns.action.edit')
-            +formFor()(action='/users/${user.id}?_method=delete' method='post')
-              input.btn.btn-link(type="submit" value=t('users.index.list.columns.action.delete'))
+            a(href=`/users/${user.id}/edit`)=t('views.buttons.edit')
+            +formFor()(action=`/users/${user.id}?_method=delete` method='post')
+              input.btn.btn-link(type="submit" value=t('views.buttons.delete'))

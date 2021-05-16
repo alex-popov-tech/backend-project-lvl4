@@ -42,11 +42,11 @@ describe('Status', () => {
       });
       expect(statusCode).toBe(200);
     });
-    it('should return 200 on edit/:id ', async () => {
+    it('should return 200 on edit/:id', async () => {
       const existingStatus = await db.insert.status(create.status());
       const { statusCode } = await app.inject({
         method: 'get',
-        url: `/statuses/edit/${existingStatus.id}`,
+        url: `/statuses/${existingStatus.id}/edit`,
         cookies,
       });
       expect(statusCode).toBe(200);
@@ -56,7 +56,9 @@ describe('Status', () => {
   describe('create', () => {
     it('should create entity and return 302 when using valid name', async () => {
       const status = {
-        name: random.word(),
+        data: {
+          name: random.word(),
+        },
       };
       const { statusCode } = await app.inject({
         method: 'post',
@@ -67,7 +69,7 @@ describe('Status', () => {
       expect(statusCode).toBe(302);
       const statuses = await db.find.statuses();
       expect(statuses).toHaveLength(1);
-      expect(statuses[0]).toMatchObject(status);
+      expect(statuses[0]).toMatchObject(status.data);
     });
 
     it('should not create entity and return 422 when using existing name', async () => {
@@ -77,7 +79,9 @@ describe('Status', () => {
         url: '/statuses',
         cookies,
         body: {
-          name: existingStatus.name,
+          data: {
+            name: existingStatus.name,
+          },
         },
       });
       expect(statusCode).toBe(422);
@@ -98,7 +102,9 @@ describe('Status', () => {
         url: `/statuses/${existingStatus.id}`,
         cookies,
         body: {
-          name: 'new name',
+          data: {
+            name: 'new name',
+          },
         },
       });
       expect(statusCode).toBe(302);

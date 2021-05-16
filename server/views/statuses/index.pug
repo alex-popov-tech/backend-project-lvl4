@@ -1,13 +1,13 @@
 extends ../layouts/application.pug
 
 block content
-  a(href='/statuses/new')= t('statuses.index.add')
+  a(href='/statuses/new')= t('views.index.statuses.add')
   table.table.table-striped
     thead
       tr
-        th=t('statuses.index.list.columns.id')
-        th=t('statuses.index.list.columns.name')
-        th=t('statuses.index.list.columns.createdAt')
+        th=t('views.index.id')
+        th=t('models.Status.name')
+        th=t('views.index.createdAt')
         th
     tbody
       each status in data.statuses
@@ -16,6 +16,6 @@ block content
           td= status.name
           td= status.createdAt
           td
-            a(href=`/statuses/edit/${status.id}`)=t('statuses.index.list.columns.action.edit')
+            a(href=`/statuses/${status.id}/edit`)=t('views.buttons.edit')
             +formFor()(action=`/statuses/${status.id}?_method=delete` method='post')
-              input.btn.btn-link(type="submit" value=t('statuses.index.list.columns.action.delete'))
+              input.btn.btn-link(type="submit" value=t('views.buttons.delete'))

@@ -8,37 +8,37 @@ export default (app) => {
       const status = new app.objection.models.status();
       await reply.render('statuses/new', { data: { status }, errors: {} });
     })
-    .get('/statuses/edit/:id', { preValidation: app.formAuth }, async (req, reply) => {
+    .get('/statuses/:id/edit', { preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id } } = req;
       const status = await app.objection.models.status.query().findById(id);
       await reply.render('statuses/edit', { data: { status }, errors: {} });
     })
     .post('/statuses', { preValidation: app.formAuth }, async (req, reply) => {
-      const { body } = req;
+      const { body: { data: reqData } } = req;
       try {
-        const newStatus = app.objection.models.status.fromJson(body);
+        const newStatus = app.objection.models.status.fromJson(reqData);
         await app.objection.models.status.query().insert(newStatus);
-        req.flash('success', app.t('statuses.index.flash.success.new'));
+        req.flash('success', app.t('views.index.statuses.flash.success.new'));
         await reply.redirect('/statuses');
-      } catch ({ data }) {
+      } catch ({ message, data }) {
         const status = new app.objection.models.status();
-        status.$set(req.body);
-        req.flash('danger', app.t('statuses.new.flash.fail'));
+        status.$set(reqData);
+        req.flash('danger', app.t('views.new.statuses.flash.fail'));
         await reply.code(422).render('statuses/new', { data: { status }, errors: data });
       }
     })
     .patch('/statuses/:id', { preValidation: app.formAuth }, async (req, reply) => {
-      const { body, params: { id } } = req;
+      const { body: { data: reqData }, params: { id } } = req;
       try {
-        const updatedStatus = app.objection.models.status.fromJson(body);
+        const updatedStatus = app.objection.models.status.fromJson(reqData);
         const existingStatus = await app.objection.models.status.query().findById(id);
         await existingStatus.$query().patch(updatedStatus);
-        req.flash('info', app.t('statuses.index.flash.success.edit'));
+        req.flash('info', app.t('views.index.statuses.flash.success.edit'));
         await reply.redirect('/statuses');
       } catch ({ message, data }) {
         const status = new app.objection.models.status();
-        status.$set({ id, ...req.body });
-        req.flash('danger', app.t('statuses.edit.flash.fail'));
+        status.$set({ id, ...reqData });
+        req.flash('danger', app.t('views.edit.statuses.flash.fail'));
         await reply.code(422).render('statuses/edit', { data: { status }, errors: data });
       }
     })
@@ -47,13 +47,13 @@ export default (app) => {
       const relatedTasksCount = await app.objection.models.task.query().where('statusId', id).resultSize();
       if (relatedTasksCount > 0) {
         const statuses = await app.objection.models.status.query();
-        req.flash('danger', app.t('statuses.index.flash.fail.delete'));
+        req.flash('danger', app.t('views.index.statuses.flash.fail.delete'));
         return reply.code(422).render('/statuses/index', {
           data: { statuses },
         });
       }
       await app.objection.models.status.query().deleteById(id);
-      req.flash('success', app.t('statuses.index.flash.success.delete'));
+      req.flash('success', app.t('views.index.statuses.flash.success.delete'));
       return reply.redirect('/statuses');
     });
 };

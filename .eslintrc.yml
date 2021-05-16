@@ -4,6 +4,7 @@ root: true
 
 extends:
   - 'airbnb-base'
+  - 'plugin:jest/recommended'
 
 parser: babel-eslint
 
@@ -18,3 +19,9 @@ rules:
   new-cap:
     - error
     - properties: false
+  no-param-reassign:
+    - error
+    - props: true
+      ignorePropertyModificationsFor:
+        - req
+        - reply

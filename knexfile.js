@@ -1,7 +1,7 @@
 const path = require('path');
 
 const migrations = {
-  directory: path.resolve('server', 'migrations'),
+  directory: path.resolve(__dirname, 'server', 'migrations'),
 };
 
 module.exports = {

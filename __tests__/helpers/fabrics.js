@@ -15,10 +15,11 @@ export default {
   task: (data = {}) => (_.merge({
     name: name.title(), description: lorem.paragraph(),
   }, {
-    statusId: data.status.id,
+    name: data?.name,
+    description: data?.description,
+    statusId: data?.status?.id,
     creatorId: data?.creator?.id,
-    assignedId: data?.assigned?.id,
-    labelIds: (data.labels || []).map(({ id }) => id),
-    ...data,
+    executorId: data?.executor?.id,
+    labels: (data.labels || []).map(({ id }) => id),
   })),
 };
