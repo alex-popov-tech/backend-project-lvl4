@@ -3,7 +3,7 @@ name: nodejs
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
 
 jobs:
@@ -17,12 +17,10 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '13.x'
-      - name: Install
-        run: make dependency
-      - name: Build
-        run: make build
       - name: Setup
         run: make setup
+      - name: Build
+        run: make build
       - name: Lint
         run: make lint
       - name: Test
