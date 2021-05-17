@@ -6,6 +6,8 @@
 [![Actions Status](https://github.com/alex-popov-tech/backend-project-lvl4/workflows/hexlet-check/badge.svg)](https://github.com/alex-popov-tech/backend-project-lvl4/actions)
 ### Build, linter, tests stasus
 [![Actions Status](https://github.com/alex-popov-tech/backend-project-lvl4/workflows/nodejs/badge.svg)](https://github.com/alex-popov-tech/backend-project-lvl4/actions)
+### Codeclimate
+[![Maintainability](https://api.codeclimate.com/v1/badges/b9efb9f741b64a32d3ce/maintainability)](https://codeclimate.com/github/alex-popov-tech/backend-project-lvl4/maintainability)
 
 ## How to install
 
