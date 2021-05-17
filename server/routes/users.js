@@ -1,6 +1,6 @@
 export default (app) => {
   app
-    .get('/users', async (req, reply) => {
+    .get('/users', { name: 'users' }, async (req, reply) => {
       const users = await app.objection.models.user.query();
       await reply.render('users/index', { data: { users } });
     })
@@ -23,7 +23,7 @@ export default (app) => {
         await app.objection.models.user.query().insert(newUser);
         await req.login(newUser);
         req.flash('success', app.t('views.welcome.flash.success.registration'));
-        await reply.redirect('/');
+        await reply.redirect(app.reverse('welcome'));
       } catch ({ data }) {
         const user = new app.objection.models.user();
         user.$set(req.body.data);
@@ -42,7 +42,7 @@ export default (app) => {
         const existingUser = await app.objection.models.user.query().findById(id);
         await existingUser.$query().patch(updatedUser);
         req.flash('success', app.t('views.index.users.flash.success.edit'));
-        return reply.redirect('/users');
+        return reply.redirect(app.reverse('users'));
       } catch ({ message, data }) {
         const user = new app.objection.models.user();
         user.$set(req.body.data);
@@ -61,7 +61,7 @@ export default (app) => {
         await req.logout(user);
         req.flash('success', app.t('views.index.users.flash.success.delete'));
         await app.objection.models.user.query().deleteById(id);
-        return reply.redirect('/users');
+        return reply.redirect(app.reverse('users'));
       } catch ({ data }) {
         req.flash('danger', app.t('views.index.users.flash.fail.deleteOrEditOtherUser'));
         return reply.code(422).render('users/edit', { data: { user }, errors: data });

@@ -11,7 +11,7 @@ export default (app) => {
       if (existingUser) {
         await req.login(existingUser);
         req.flash('success', app.t('views.welcome.flash.success.login'));
-        return reply.redirect('/');
+        return reply.redirect(app.reverse('welcome'));
       }
       const user = new app.objection.models.user();
       user.$set(req.body.data);
@@ -24,6 +24,6 @@ export default (app) => {
     .delete('/session', async (req, reply) => {
       req.logOut();
       req.flash('info', app.t('views.welcome.flash.success.logout'));
-      return reply.redirect('/');
+      return reply.redirect(app.reverse('welcome'));
     });
 };

@@ -1,3 +1,3 @@
 export default (app) => {
-  app.get('/', async (req, reply) => reply.render('welcome/index'));
+  app.get('/', { name: 'welcome' }, async (req, reply) => reply.render('welcome/index'));
 };

@@ -1,6 +1,6 @@
 export default (app) => {
   app
-    .get('/statuses', { preValidation: app.formAuth }, async (req, reply) => {
+    .get('/statuses', { name: 'statuses', preValidation: app.formAuth }, async (req, reply) => {
       const statuses = await app.objection.models.status.query();
       await reply.render('statuses/index', { data: { statuses } });
     })
@@ -19,7 +19,7 @@ export default (app) => {
         const newStatus = app.objection.models.status.fromJson(reqData);
         await app.objection.models.status.query().insert(newStatus);
         req.flash('success', app.t('views.index.statuses.flash.success.new'));
-        await reply.redirect('/statuses');
+        await reply.redirect(app.reverse('statuses'));
       } catch ({ message, data }) {
         const status = new app.objection.models.status();
         status.$set(reqData);
@@ -34,7 +34,7 @@ export default (app) => {
         const existingStatus = await app.objection.models.status.query().findById(id);
         await existingStatus.$query().patch(updatedStatus);
         req.flash('info', app.t('views.index.statuses.flash.success.edit'));
-        await reply.redirect('/statuses');
+        await reply.redirect(app.reverse('statuses'));
       } catch ({ message, data }) {
         const status = new app.objection.models.status();
         status.$set({ id, ...reqData });
@@ -54,6 +54,6 @@ export default (app) => {
       }
       await app.objection.models.status.query().deleteById(id);
       req.flash('success', app.t('views.index.statuses.flash.success.delete'));
-      return reply.redirect('/statuses');
+      return reply.redirect(app.reverse('statuses'));
     });
 };

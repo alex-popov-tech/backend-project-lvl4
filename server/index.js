@@ -4,6 +4,7 @@ import fastify from 'fastify';
 import fastifyQs from 'fastify-qs';
 import fastifyErrorPage from 'fastify-error-page';
 import fastifyFormbody from 'fastify-formbody';
+import { plugin as fastifyReverseRoutes } from 'fastify-reverse-routes';
 import fastifyMethodOverride from 'fastify-method-override-wrapper';
 import fastifyObjection from 'fastify-objectionjs';
 import fastifyPassport from 'fastify-passport';
@@ -54,6 +55,7 @@ const addTemplatesEngine = (app) => {
     defaultContext: {
       _,
       t: (key) => i18next.t(key),
+      route: (name) => app.reverse(name),
     },
   });
   app.decorateReply('render', function render(viewPath, locals) {
@@ -88,6 +90,7 @@ const addPlugins = (app) => {
   app.register(fastifySensible);
   app.register(fastifyFormbody, { parser: (str) => qs.parse(str) });
   app.register(fastifyQs, {});
+  app.register(fastifyReverseRoutes);
 };
 const addAuthentification = (app) => {
   app.register(fastifySecureSession, {

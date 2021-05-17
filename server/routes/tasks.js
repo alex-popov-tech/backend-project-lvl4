@@ -4,7 +4,7 @@ const formalizeMultiselectValues = (values) => [values].flat()
 
 export default (app) => {
   app
-    .get('/tasks', { preValidation: app.formAuth }, async (req, reply) => {
+    .get('/tasks', { name: 'tasks', preValidation: app.formAuth }, async (req, reply) => {
       const { query: { data = {} } } = req;
       const { isCreatorUser } = data;
       const status = parseInt(data.status, 10);
@@ -93,7 +93,7 @@ export default (app) => {
             relate: true,
           }));
         req.flash('success', app.t('views.index.tasks.flash.success.new'));
-        await reply.redirect('/tasks');
+        await reply.redirect(app.reverse('tasks'));
       } catch ({ message, data: errors }) {
         const task = new app.objection.models.task();
         const [statuses, labels, users] = await Promise.all([
@@ -132,7 +132,7 @@ export default (app) => {
             executorId,
           }, { relate: true, unrelate: true, noDelete: true }));
         req.flash('success', app.t('views.index.tasks.flash.success.edit'));
-        await reply.redirect('/tasks');
+        await reply.redirect(app.reverse('tasks'));
       } catch ({ message, data: errors }) {
         const [task, statuses, labels, users] = await Promise.all([
           app.objection.models.task.query().findById(id),
@@ -172,7 +172,7 @@ export default (app) => {
         }
         await app.objection.models.task.query().deleteById(id);
         req.flash('info', app.t('views.index.tasks.flash.success.delete'));
-        return reply.redirect('/tasks');
+        return reply.redirect(app.reverse('tasks'));
       } catch ({ message, errors }) {
         const [tasks, statuses, labels, users] = await Promise.all([
           app.objection.models.task.query().withGraphJoined('[status, creator, executor, labels]'),

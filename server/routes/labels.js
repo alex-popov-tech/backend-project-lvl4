@@ -1,6 +1,6 @@
 export default (app) => {
   app
-    .get('/labels', { preValidation: app.formAuth }, async (req, reply) => {
+    .get('/labels', { name: 'labels', preValidation: app.formAuth }, async (req, reply) => {
       const labels = await app.objection.models.label.query();
       await reply.render('labels/index', { data: { labels } });
     })
@@ -19,7 +19,7 @@ export default (app) => {
         const newlabel = app.objection.models.label.fromJson(reqData);
         await app.objection.models.label.query().insert(newlabel);
         req.flash('success', app.t('views.index.labels.flash.success.new'));
-        await reply.redirect('/labels');
+        await reply.redirect(app.reverse('labels'));
       } catch ({ data }) {
         const label = new app.objection.models.label();
         label.$set(reqData);
@@ -34,7 +34,7 @@ export default (app) => {
         const existinglabel = await app.objection.models.label.query().findById(id);
         await existinglabel.$query().patch(updatedlabel);
         req.flash('success', app.t('views.index.labels.flash.success.edit'));
-        await reply.redirect('/labels');
+        await reply.redirect(app.reverse('labels'));
       } catch ({ message, data }) {
         const label = new app.objection.models.label();
         label.$set({ id, ...reqData });
@@ -47,10 +47,10 @@ export default (app) => {
       const relatedTasks = await app.objection.models.task.query().withGraphJoined('labels').where('labels.id', id);
       if (relatedTasks.length > 0) {
         req.flash('danger', app.t('views.index.labels.flash.fail.delete'));
-        return reply.redirect('/labels');
+        return reply.redirect(app.reverse('labels'));
       }
       await app.objection.models.label.query().deleteById(id);
       req.flash('success', app.t('views.index.labels.flash.success.delete'));
-      return reply.redirect('/labels');
+      return reply.redirect(app.reverse('labels'));
     });
 };
