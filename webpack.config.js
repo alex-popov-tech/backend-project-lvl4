@@ -1,7 +1,8 @@
 const path = require('path');
 require('dotenv').config();
 
-const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+const { NODE_ENV, HOST, PORT } = process.env;
+const mode = NODE_ENV === 'production' ? 'production' : 'development';
 
 module.exports = {
   mode,
@@ -11,8 +12,8 @@ module.exports = {
     publicPath: '/assets/',
   },
   devServer: {
-    host: 'localhost',
-    port: 5001,
+    host: HOST || 'localhost',
+    port: PORT || 5001,
   },
   module: {
     rules: [
