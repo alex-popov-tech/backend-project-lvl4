@@ -37,6 +37,7 @@
   },
   "homepage": "https://github.com/alex-popov-tech/backend-project-lvl4#readme",
   "dependencies": {
+    "autoprefixer": "^9.8.6",
     "bootstrap": "^4.6.0",
     "cookie": "^0.4.1",
     "dotenv": "^8.2.0",
@@ -60,14 +61,14 @@
     "objection": "^2.2.2",
     "objection-password": "^3.0.0",
     "objection-unique": "^1.2.1",
+    "pg": "^8.6.0",
     "pino-pretty": "^4.1.0",
     "point-of-view": "^4.3.0",
     "precss": "^4.0.0",
     "pug": "^3.0.0",
     "qs": "^6.10.1",
     "rollbar": "^2.19.2",
-    "sqlite3": "^5.0.2",
-    "autoprefixer": "^9.8.6"
+    "sqlite3": "^5.0.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",

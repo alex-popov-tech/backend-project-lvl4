@@ -1,5 +1,7 @@
 const path = require('path');
+require('dotenv').config();
 
+const { DATABASE_URL } = process.env;
 const migrations = {
   directory: path.resolve(__dirname, 'server', 'migrations'),
 };
@@ -25,10 +27,8 @@ module.exports = {
   },
 
   production: {
-    client: 'sqlite3',
-    connection: {
-      filename: 'prod.sqlite3',
-    },
+    client: 'pg',
+    connection: DATABASE_URL,
     useNullAsDefault: true,
     migrations,
   },
