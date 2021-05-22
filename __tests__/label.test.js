@@ -1,5 +1,5 @@
 import {
-  create, getDatabaseHelpers, getAuthenticatedUser, launchApp, shutdownApp,
+  create, getDatabaseHelpers, createNewAuthenticatedUser, launchApp, shutdownApp,
 } from './helpers';
 
 describe('Label', () => {
@@ -17,7 +17,7 @@ describe('Label', () => {
   });
 
   beforeEach(async () => {
-    ({ cookies } = await getAuthenticatedUser(app));
+    ({ cookies } = await createNewAuthenticatedUser(app));
   });
 
   afterEach(async () => {
@@ -26,22 +26,24 @@ describe('Label', () => {
 
   describe('index', () => {
     it('should not be available without authentification', async () => {
+      await db.model.insert.label(create.label());
       const { statusCode } = await app.inject({
         method: 'get',
-        url: '/labels',
+        url: app.reverse('labels'),
       });
       expect(statusCode).toBe(302);
     });
     it('should be available with authentification', async () => {
+      await db.model.insert.label(create.label());
       const { statusCode } = await app.inject({
         method: 'get',
-        url: '/labels',
+        url: app.reverse('labels'),
         cookies,
       });
       expect(statusCode).toBe(200);
     });
     it('should return 200 on edit/:id', async () => {
-      const existingLabel = await db.insert.label(create.label());
+      const existingLabel = await db.model.insert.label(create.label());
       const { statusCode } = await app.inject({
         method: 'get',
         url: `/labels/${existingLabel.id}/edit`,
@@ -61,33 +63,33 @@ describe('Label', () => {
         body: { data: label },
       });
       expect(statusCode).toBe(302);
-      const labels = await db.find.labels();
+      const labels = await db.model.find.labels();
       expect(labels).toHaveLength(1);
       expect(labels[0]).toMatchObject(label);
     });
 
     it('should not create entity and return 422 when using existing name', async () => {
-      const existingLabel = await db.insert.label(create.label());
+      const labelData = create.label();
+      await db.model.insert.label(labelData);
       const { statusCode } = await app.inject({
         method: 'post',
         url: '/labels',
         cookies,
         body: {
-          data: {
-            name: existingLabel.name,
-          },
+          data: labelData,
         },
       });
       expect(statusCode).toBe(422);
-      const labels = await db.find.labels();
+      const labels = await db.model.find.labels();
       expect(labels).toHaveLength(1);
+      expect(labels[0]).toMatchObject(labelData);
     });
   });
 
   describe('update', () => {
     let existingLabel;
     beforeEach(async () => {
-      existingLabel = await db.insert.label(create.label());
+      existingLabel = await db.model.insert.label(create.label());
     });
 
     it('should update entity and return 302 when using valid name', async () => {
@@ -97,13 +99,11 @@ describe('Label', () => {
         url: `/labels/${existingLabel.id}`,
         cookies,
         body: {
-          data: {
-            name: updatedLabelData.name,
-          },
+          data: updatedLabelData,
         },
       });
       expect(statusCode).toBe(302);
-      const labels = await db.find.labels();
+      const labels = await db.model.find.labels();
       expect(labels).toHaveLength(1);
       expect(labels[0]).toMatchObject(updatedLabelData);
     });
@@ -111,15 +111,19 @@ describe('Label', () => {
 
   describe('delete', () => {
     it('should delete entity return 302 when using valid id', async () => {
-      const existingLabel = await db.insert.label(create.label());
+      const [existingLabel] = await Promise.all([
+        db.model.insert.label(create.label()),
+        db.model.insert.label(create.label()),
+      ]);
       const { statusCode } = await app.inject({
         method: 'delete',
         url: `/labels/${existingLabel.id}`,
         cookies,
       });
       expect(statusCode).toBe(302);
-      const labels = await db.find.labels();
-      expect(labels).toHaveLength(0);
+      const labels = await db.model.find.labels();
+      expect(labels).toHaveLength(1);
+      expect(labels[0].id).not.toBe(existingLabel.id);
     });
 
     it('should return 302 when using invalid id', async () => {

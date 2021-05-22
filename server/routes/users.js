@@ -4,7 +4,7 @@ export default (app) => {
       const users = await app.objection.models.user.query();
       await reply.render('users/index', { data: { users } });
     })
-    .get('/users/new', async (req, reply) => {
+    .get('/users/new', { name: 'newUser' }, async (req, reply) => {
       const user = new app.objection.models.user();
       await reply.render('users/new', { data: { user }, errors: [] });
     })

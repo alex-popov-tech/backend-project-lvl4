@@ -4,7 +4,7 @@ export default (app) => {
       const labels = await app.objection.models.label.query();
       await reply.render('labels/index', { data: { labels } });
     })
-    .get('/labels/new', { preValidation: app.formAuth }, async (req, reply) => {
+    .get('/labels/new', { name: 'newLabels',preValidation: app.formAuth }, async (req, reply) => {
       const label = new app.objection.models.label();
       await reply.render('labels/new', { data: { label }, errors: {} });
     })

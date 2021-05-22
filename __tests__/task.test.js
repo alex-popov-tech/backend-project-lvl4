@@ -1,5 +1,5 @@
 import {
-  create, getDatabaseHelpers, getAuthenticatedUser, launchApp, shutdownApp,
+  create, getDatabaseHelpers, createNewAuthenticatedUser, launchApp, shutdownApp,
 } from './helpers';
 
 describe('Task', () => {
@@ -20,9 +20,9 @@ describe('Task', () => {
   });
 
   beforeEach(async () => {
-    ({ user: currentUser, cookies } = await getAuthenticatedUser(app));
-    existingStatus = await db.insert.status(create.status());
-    existingLabel = await db.insert.label(create.label());
+    ({ user: currentUser, cookies } = await createNewAuthenticatedUser(app));
+    existingStatus = await db.model.insert.status(create.status());
+    existingLabel = await db.model.insert.label(create.label());
   });
 
   afterEach(async () => {
@@ -31,24 +31,32 @@ describe('Task', () => {
 
   describe('index', () => {
     it('should not be available without authentification', async () => {
+      await db.model.insert.task(create.task({
+        creator: currentUser,
+        status: existingStatus,
+      }));
       const { statusCode } = await app.inject({
         method: 'get',
-        url: '/tasks',
+        url: app.reverse('tasks'),
       });
       expect(statusCode).toBe(302);
     });
 
     it('should be available with authentification', async () => {
+      await db.model.insert.task(create.task({
+        creator: currentUser,
+        status: existingStatus,
+      }));
       const { statusCode } = await app.inject({
         method: 'get',
-        url: '/tasks',
+        url: app.reverse('tasks'),
         cookies,
       });
       expect(statusCode).toBe(200);
     });
 
     it('should return 200 on :id/edit', async () => {
-      const existingTask = await db.insert.task(create.task({
+      const existingTask = await db.model.insert.task(create.task({
         creator: currentUser,
         labels: [existingLabel],
         status: existingStatus,
@@ -62,6 +70,11 @@ describe('Task', () => {
     });
 
     it('should return 200 when using filters', async () => {
+      await db.model.insert.task(create.task({
+        creator: currentUser,
+        labels: [existingLabel],
+        status: existingStatus,
+      }));
       const { statusCode } = await app.inject({
         method: 'get',
         url: '/tasks',
@@ -92,7 +105,7 @@ describe('Task', () => {
         });
         expect(statusCode).toBe(302);
 
-        const tasks = await db.find.tasks();
+        const tasks = await db.model.find.tasks();
         expect(tasks).toHaveLength(1);
         expect(tasks[0]).toMatchObject({
           name: taskData.name,
@@ -110,20 +123,19 @@ describe('Task', () => {
     });
 
     describe('when using invalid data', () => {
-      // TODO add executors
       it.each([
         ['name', () => create.task({ name: '', status: existingStatus, executor: currentUser })],
         ['status', () => create.task({ executor: currentUser })],
         ['executor', () => create.task({ status: existingStatus })],
-      ])('should not create entity and return 422 when missing required field %s', async (_, data) => {
+      ])('should not create entity and return 422 when missing required field %s', async (_, getData) => {
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/tasks',
           cookies,
-          body: { data: data() },
+          body: { data: getData() },
         });
         expect(statusCode).toBe(422);
-        const tasks = await db.find.tasks();
+        const tasks = await db.model.find.tasks();
         expect(tasks).toHaveLength(0);
       });
     });
@@ -132,7 +144,7 @@ describe('Task', () => {
   describe('update', () => {
     let existingTask;
     beforeEach(async () => {
-      existingTask = await db.insert.task(create.task({
+      existingTask = await db.model.insert.task(create.task({
         status: existingStatus,
         creator: currentUser,
         executor: currentUser,
@@ -140,9 +152,9 @@ describe('Task', () => {
     });
 
     it('should update entity and return 302 when using valid data', async () => {
-      const newLabel = await db.insert.label(create.label());
-      const newStatus = await db.insert.status(create.status());
-      const newUser = await db.insert.user(create.user());
+      const newLabel = await db.model.insert.label(create.label());
+      const newStatus = await db.model.insert.status(create.status());
+      const newUser = await db.model.insert.user(create.user());
       const updatedTaskData = create.task({
         status: newStatus,
         labels: [newLabel],
@@ -155,7 +167,7 @@ describe('Task', () => {
         body: { data: updatedTaskData },
       });
       expect(statusCode).toBe(302);
-      const tasks = await db.find.tasks();
+      const tasks = await db.model.find.tasks();
       expect(tasks).toHaveLength(1);
       expect(tasks[0]).toMatchObject({
         name: updatedTaskData.name,
@@ -173,27 +185,34 @@ describe('Task', () => {
 
   describe('delete', () => {
     it('should delete entity and return 302', async () => {
-      const existingTask = await db.insert.task(create.task({
-        status: existingStatus,
-        creator: currentUser,
-        labels: [existingLabel],
-      }));
+      const [existingTask] = await Promise.all([
+        db.model.insert.task(create.task({
+          status: existingStatus,
+          creator: currentUser,
+          labels: [existingLabel],
+        })),
+        db.model.insert.task(create.task({
+          status: existingStatus,
+          creator: currentUser,
+        })),
+      ]);
       const { statusCode } = await app.inject({
         method: 'delete',
         url: `/tasks/${existingTask.id}`,
         cookies,
       });
       expect(statusCode).toBe(302);
-      const tasks = await db.find.tasks();
-      expect(tasks).toHaveLength(0);
+      const tasks = await db.model.find.tasks();
+      expect(tasks).toHaveLength(1);
+      expect(tasks[0].id).not.toBe(existingTask.id);
       const labels = await existingTask.$relatedQuery('labels');
       expect(labels).toHaveLength(0);
-      expect(await db.find.labels()).toHaveLength(1);
+      expect(await db.model.find.labels()).toHaveLength(1);
     });
 
     it('should not allow to delete other entity and return 422', async () => {
-      const user = await db.insert.user(create.user());
-      const existingTask = await db.insert.task(create.task({
+      const user = await db.model.insert.user(create.user());
+      const existingTask = await db.model.insert.task(create.task({
         status: existingStatus,
         creator: user,
         labels: [existingLabel],

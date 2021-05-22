@@ -42,7 +42,7 @@ export default (app) => {
         },
       });
     })
-    .get('/tasks/new', { preValidation: app.formAuth }, async (req, reply) => {
+    .get('/tasks/new', { name: 'newTask', preValidation: app.formAuth }, async (req, reply) => {
       const task = new app.objection.models.task();
       const [statuses, labels, users] = await Promise.all([
         app.objection.models.status.query(),

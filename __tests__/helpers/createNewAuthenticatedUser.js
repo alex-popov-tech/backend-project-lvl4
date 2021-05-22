@@ -4,7 +4,7 @@ import create from './fabrics';
 
 export default async (app) => {
   const userData = create.user();
-  const user = await getDatabaseHelpers(app).insert.user(userData);
+  const user = await getDatabaseHelpers(app).model.insert.user(userData);
   const response = await app.inject({
     method: 'post',
     url: '/session',

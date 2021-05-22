@@ -1,6 +1,6 @@
 export default (app) => {
   app
-    .get('/session/new', async (req, reply) => {
+    .get('/session/new', { name: 'newSession' }, async (req, reply) => {
       const user = new app.objection.models.user();
       await reply.render('session/new', { data: { user }, errors: {} });
     })

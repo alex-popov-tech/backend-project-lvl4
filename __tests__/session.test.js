@@ -11,7 +11,7 @@ describe('Session', () => {
     app = await launchApp();
     db = getDatabaseHelpers(app);
     existingUserData = create.user();
-    await db.insert.user(existingUserData);
+    await db.model.insert.user(existingUserData);
   });
 
   afterAll(async () => {
@@ -24,7 +24,7 @@ describe('Session', () => {
 
   it('should login and logout when using valid credentials', async () => {
     const user = create.user();
-    await db.insert.user(user);
+    await db.model.insert.user(user);
     let res = await app.inject({
       method: 'post',
       url: '/session',
