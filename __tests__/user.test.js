@@ -112,7 +112,7 @@ describe('Users', () => {
             email: 'new@test.com', password: 'test', firstName: 'test', lastName: '',
           },
         },
-        ]])('should not create entity and return 422 when %s', async (_, body) => {
+        ]])('should not create entity and return 422 when %s', async (name, body) => {
         const { statusCode } = await app.inject({
           method: 'post',
           url: '/users',
