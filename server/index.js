@@ -113,10 +113,11 @@ const addAuthentification = (app) => {
   )(...args));
 };
 const addHooks = (app) => {
-  app.decorateReply('locals', {});
   app.addHook('preHandler', async (req, reply) => {
     // eslint-disable-next-line
-    reply.locals.isAuthenticated = () => req.isAuthenticated()
+    reply.locals = {
+      isAuthenticated: () => req.isAuthenticated(),
+    };
   });
 };
 const addLocalization = (app) => {
