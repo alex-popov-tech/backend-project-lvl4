@@ -4,16 +4,11 @@ export default (app) => {
       const labels = await app.objection.models.label.query();
       await reply.render('labels/index', { data: { labels } });
     })
-    .get('/labels/new', { name: 'newLabels', preValidation: app.formAuth }, async (req, reply) => {
+    .get('/labels/new', { name: 'newLabel', preValidation: app.formAuth }, async (req, reply) => {
       const label = new app.objection.models.label();
       await reply.render('labels/new', { data: { label }, errors: {} });
     })
-    .get('/labels/:id/edit', { preValidation: app.formAuth }, async (req, reply) => {
-      const { params: { id } } = req;
-      const label = await app.objection.models.label.query().findById(id);
-      await reply.render('labels/edit', { data: { label }, errors: {} });
-    })
-    .post('/labels', { preValidation: app.formAuth }, async (req, reply) => {
+    .post('/labels', { name: 'createLabel', preValidation: app.formAuth }, async (req, reply) => {
       const { body: { data: reqData } } = req;
       try {
         const newlabel = app.objection.models.label.fromJson(reqData);
@@ -27,7 +22,12 @@ export default (app) => {
         await reply.code(422).render('labels/new', { data: { label }, errors: data });
       }
     })
-    .patch('/labels/:id', { preValidation: app.formAuth }, async (req, reply) => {
+    .get('/labels/:id/edit', { name: 'editLabel', preValidation: app.formAuth }, async (req, reply) => {
+      const { params: { id } } = req;
+      const label = await app.objection.models.label.query().findById(id);
+      await reply.render('labels/edit', { data: { label }, errors: {} });
+    })
+    .patch('/labels/:id', { name: 'updateLabel', preValidation: app.formAuth }, async (req, reply) => {
       const { body: { data: reqData }, params: { id } } = req;
       try {
         const updatedlabel = app.objection.models.label.fromJson(reqData);
@@ -42,7 +42,7 @@ export default (app) => {
         await reply.code(422).render('labels/edit', { data: { label }, errors: data });
       }
     })
-    .delete('/labels/:id', async (req, reply) => {
+    .delete('/labels/:id', { name: 'destroyLabel' }, async (req, reply) => {
       const { params: { id } } = req;
       const relatedTasks = await app.objection.models.task.query().withGraphJoined('labels').where('labels.id', id);
       if (relatedTasks.length > 0) {

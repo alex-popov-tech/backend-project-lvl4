@@ -8,16 +8,7 @@ export default (app) => {
       const user = new app.objection.models.user();
       await reply.render('users/new', { data: { user }, errors: [] });
     })
-    .get('/users/:id/edit', { preValidation: app.formAuth }, async (req, reply) => {
-      const { user, params: { id } } = req;
-      if (user.id !== Number(id)) {
-        req.flash('danger', app.t('views.index.users.flash.fail.deleteOrEditOtherUser'));
-        const users = await app.objection.models.user.query();
-        return reply.code(422).render('users/index', { data: { users } });
-      }
-      return reply.render('users/edit', { data: { user }, errors: [] });
-    })
-    .post('/users', async (req, reply) => {
+    .post('/users', { name: 'createUser' }, async (req, reply) => {
       try {
         const newUser = await app.objection.models.user.fromJson(req.body.data);
         await app.objection.models.user.query().insert(newUser);
@@ -30,7 +21,16 @@ export default (app) => {
         await reply.code(422).render('users/new', { data: { user }, errors: data });
       }
     })
-    .patch('/users/:id', { preValidation: app.formAuth }, async (req, reply) => {
+    .get('/users/:id/edit', { name: 'editUser', preValidation: app.formAuth }, async (req, reply) => {
+      const { user, params: { id } } = req;
+      if (user.id !== Number(id)) {
+        req.flash('danger', app.t('views.index.users.flash.fail.deleteOrEditOtherUser'));
+        const users = await app.objection.models.user.query();
+        return reply.code(422).render('users/index', { data: { users } });
+      }
+      return reply.render('users/edit', { data: { user }, errors: [] });
+    })
+    .patch('/users/:id', { name: 'updateUser', preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id } } = req;
       try {
         if (req.user.id !== Number(id)) {
@@ -50,7 +50,7 @@ export default (app) => {
         return reply.code(422).render('users/edit', { data: { user }, errors: data });
       }
     })
-    .delete('/users/:id', { preValidation: app.formAuth }, async (req, reply) => {
+    .delete('/users/:id', { name: 'destroyUser', preValidation: app.formAuth }, async (req, reply) => {
       const { user, params: { id } } = req;
       try {
         if (user.id !== Number(id)) {

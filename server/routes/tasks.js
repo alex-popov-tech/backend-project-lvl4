@@ -56,23 +56,7 @@ export default (app) => {
         errors: {},
       });
     })
-    .get('/tasks/:id/edit', { preValidation: app.formAuth }, async (req, reply) => {
-      const { params: { id } } = req;
-      const [task, statuses, labels, users] = await Promise.all([
-        app.objection.models.task.query().findById(id).withGraphJoined('[labels]'),
-        app.objection.models.status.query(),
-        app.objection.models.label.query(),
-        app.objection.models.user.query(),
-      ]);
-      task.$set({ labels: task.labels.map((label) => label.id) });
-      await reply.render('tasks/edit', {
-        data: {
-          task, statuses, labels, users,
-        },
-        errors: {},
-      });
-    })
-    .post('/tasks', { preValidation: app.formAuth }, async (req, reply) => {
+    .post('/tasks', { name: 'createTask', preValidation: app.formAuth }, async (req, reply) => {
       const { body: { data } } = req;
       const { name, description } = data;
       const statusId = Number(data.statusId);
@@ -113,7 +97,23 @@ export default (app) => {
         });
       }
     })
-    .patch('/tasks/:id', { preValidation: app.formAuth }, async (req, reply) => {
+    .get('/tasks/:id/edit', { name: 'editTask', preValidation: app.formAuth }, async (req, reply) => {
+      const { params: { id } } = req;
+      const [task, statuses, labels, users] = await Promise.all([
+        app.objection.models.task.query().findById(id).withGraphJoined('[labels]'),
+        app.objection.models.status.query(),
+        app.objection.models.label.query(),
+        app.objection.models.user.query(),
+      ]);
+      task.$set({ labels: task.labels.map((label) => label.id) });
+      await reply.render('tasks/edit', {
+        data: {
+          task, statuses, labels, users,
+        },
+        errors: {},
+      });
+    })
+    .patch('/tasks/:id', { name: 'updateTask', preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id }, body: { data } } = req;
       const { name, description } = data;
       const statusId = Number(data.statusId);
@@ -152,7 +152,7 @@ export default (app) => {
         });
       }
     })
-    .delete('/tasks/:id', { preValidation: app.formAuth }, async (req, reply) => {
+    .delete('/tasks/:id', { name: 'destroyTask', preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id } } = req;
       try {
         const task = await app.objection.models.task.query().findById(id);

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {
   create, getDatabaseHelpers, createNewAuthenticatedUser, launchApp, shutdownApp,
 } from './helpers';
@@ -35,14 +36,14 @@ describe('Task', () => {
         creator: currentUser,
         status: existingStatus,
       }));
-      const { statusCode } = await app.inject({
+      const { statusCode, headers: { location } } = await app.inject({
         method: 'get',
         url: app.reverse('tasks'),
       });
+      expect(location).toBe(app.reverse('welcome'));
       expect(statusCode).toBe(302);
     });
-
-    it('should be available with authentification', async () => {
+    it('should render all tasks', async () => {
       await db.model.insert.task(create.task({
         creator: currentUser,
         status: existingStatus,
@@ -54,22 +55,7 @@ describe('Task', () => {
       });
       expect(statusCode).toBe(200);
     });
-
-    it('should return 200 on :id/edit', async () => {
-      const existingTask = await db.model.insert.task(create.task({
-        creator: currentUser,
-        labels: [existingLabel],
-        status: existingStatus,
-      }));
-      const { statusCode } = await app.inject({
-        method: 'get',
-        url: `/tasks/${existingTask.id}/edit`,
-        cookies,
-      });
-      expect(statusCode).toBe(200);
-    });
-
-    it('should return 200 when using filters', async () => {
+    it('should render filtered tasks', async () => {
       await db.model.insert.task(create.task({
         creator: currentUser,
         labels: [existingLabel],
@@ -77,7 +63,7 @@ describe('Task', () => {
       }));
       const { statusCode } = await app.inject({
         method: 'get',
-        url: '/tasks',
+        url: app.reverse('tasks'),
         cookies,
         query: {
           executorId: currentUser.id,
@@ -90,54 +76,58 @@ describe('Task', () => {
   });
 
   describe('create', () => {
-    describe('when using valid data', () => {
-      it('should create entity and return 302', async () => {
-        const taskData = create.task({
-          status: existingStatus,
-          executor: currentUser,
-          labels: [existingLabel],
-        });
-        const { statusCode } = await app.inject({
-          method: 'post',
-          url: '/tasks',
-          cookies,
-          body: { data: taskData },
-        });
-        expect(statusCode).toBe(302);
-
-        const tasks = await db.model.find.tasks();
-        expect(tasks).toHaveLength(1);
-        expect(tasks[0]).toMatchObject({
-          name: taskData.name,
-          description: taskData.description,
-          creatorId: currentUser.id,
-          statusId: taskData.statusId,
-          executorId: taskData.executorId,
-        });
-        const labels = await tasks[0].$relatedQuery('labels');
-        expect(labels).toHaveLength(1);
-        expect(labels[0]).toMatchObject({
-          name: existingLabel.name,
-        });
+    it('should not be available without authentification', async () => {
+      const { statusCode, headers: { location } } = await app.inject({
+        method: 'get',
+        url: app.reverse('newTask'),
       });
+      expect(location).toBe(app.reverse('welcome'));
+      expect(statusCode).toBe(302);
     });
-
-    describe('when using invalid data', () => {
-      it.each([
-        ['name', () => create.task({ name: '', status: existingStatus, executor: currentUser })],
-        ['status', () => create.task({ executor: currentUser })],
-        ['executor', () => create.task({ status: existingStatus })],
-      ])('should not create entity and return 422 when missing required field %s', async (_, getData) => {
-        const { statusCode } = await app.inject({
-          method: 'post',
-          url: '/tasks',
-          cookies,
-          body: { data: getData() },
-        });
-        expect(statusCode).toBe(422);
-        const tasks = await db.model.find.tasks();
-        expect(tasks).toHaveLength(0);
+    it('should render new label page', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: app.reverse('newTask'),
+        cookies,
       });
+      expect(statusCode).toBe(200);
+    });
+    it('should create entity and return 302', async () => {
+      const taskData = create.task({
+        status: existingStatus,
+        executor: currentUser,
+        labels: [existingLabel],
+      });
+      const { statusCode, headers: { location } } = await app.inject({
+        method: 'post',
+        url: app.reverse('createTask'),
+        cookies,
+        body: { data: taskData },
+      });
+      expect(location).toBe(app.reverse('tasks'));
+      expect(statusCode).toBe(302);
+
+      const tasks = await db.model.find.tasks();
+      expect(tasks).toHaveLength(1);
+      expect(tasks[0]).toMatchObject({ ..._.omit(taskData, 'labels'), creatorId: currentUser.id });
+      const labels = await tasks[0].$relatedQuery('labels');
+      expect(labels).toHaveLength(1);
+      expect(labels[0]).toMatchObject(existingLabel);
+    });
+    it.each([
+      ['name', () => create.task({ name: '', status: existingStatus, executor: currentUser })],
+      ['status', () => create.task({ executor: currentUser })],
+      ['executor', () => create.task({ status: existingStatus })],
+    ])('should not create entity and return 422 when missing required field %s', async (name, getData) => {
+      const { statusCode } = await app.inject({
+        method: 'post',
+        url: app.reverse('createTask'),
+        cookies,
+        body: { data: getData() },
+      });
+      expect(statusCode).toBe(422);
+      const tasks = await db.model.find.tasks();
+      expect(tasks).toHaveLength(0);
     });
   });
 
@@ -151,6 +141,23 @@ describe('Task', () => {
       }));
     });
 
+    it('should not be available without authentification', async () => {
+      await db.model.insert.label(create.label());
+      const { statusCode, headers: { location } } = await app.inject({
+        method: 'get',
+        url: app.reverse('editTask', { id: existingTask.id }),
+      });
+      expect(location).toBe(app.reverse('welcome'));
+      expect(statusCode).toBe(302);
+    });
+    it('should render edit task page', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: app.reverse('editTask', { id: existingTask.id }),
+        cookies,
+      });
+      expect(statusCode).toBe(200);
+    });
     it('should update entity and return 302 when using valid data', async () => {
       const newLabel = await db.model.insert.label(create.label());
       const newStatus = await db.model.insert.status(create.status());
@@ -160,31 +167,42 @@ describe('Task', () => {
         labels: [newLabel],
         executor: newUser,
       });
-      const { statusCode } = await app.inject({
+      const { statusCode, headers: { location } } = await app.inject({
         method: 'patch',
-        url: `/tasks/${existingTask.id}`,
+        url: app.reverse('updateTask', { id: existingTask.id }),
         cookies,
         body: { data: updatedTaskData },
       });
+      expect(location).toBe(app.reverse('tasks'));
       expect(statusCode).toBe(302);
       const tasks = await db.model.find.tasks();
       expect(tasks).toHaveLength(1);
-      expect(tasks[0]).toMatchObject({
-        name: updatedTaskData.name,
-        description: updatedTaskData.description,
-        statusId: updatedTaskData.statusId,
-        executorId: updatedTaskData.executorId,
-      });
+      expect(tasks[0]).toMatchObject({ ..._.omit(updatedTaskData, 'labels'), creatorId: currentUser.id });
       const labels = await tasks[0].$relatedQuery('labels');
       expect(labels).toHaveLength(1);
       expect(labels[0]).toMatchObject({
         name: newLabel.name,
       });
     });
+    it.each([
+      ['name', () => create.task({ name: '', status: existingStatus, executor: currentUser })],
+      ['status', () => create.task({ executor: currentUser })],
+    ])('should not update entity and return 422 when missing required field %s', async (name, getData) => {
+      const { statusCode } = await app.inject({
+        method: 'patch',
+        url: app.reverse('updateTask', { id: existingTask.id }),
+        cookies,
+        body: { data: getData() },
+      });
+      expect(statusCode).toBe(422);
+      const tasks = await db.model.find.tasks();
+      expect(tasks).toHaveLength(1);
+      expect(tasks[0]).toMatchObject(_.omit(existingTask, 'labels'));
+    });
   });
 
-  describe('delete', () => {
-    it('should delete entity and return 302', async () => {
+  describe('destroy', () => {
+    it('should destroy entity and return 302', async () => {
       const [existingTask] = await Promise.all([
         db.model.insert.task(create.task({
           status: existingStatus,
@@ -196,12 +214,13 @@ describe('Task', () => {
           creator: currentUser,
         })),
       ]);
-      const { statusCode } = await app.inject({
+      const { statusCode, headers: { location } } = await app.inject({
         method: 'delete',
-        url: `/tasks/${existingTask.id}`,
+        url: app.reverse('destroyTask', { id: existingTask.id }),
         cookies,
       });
       expect(statusCode).toBe(302);
+      expect(location).toBe(app.reverse('tasks'));
       const tasks = await db.model.find.tasks();
       expect(tasks).toHaveLength(1);
       expect(tasks[0].id).not.toBe(existingTask.id);
@@ -210,7 +229,7 @@ describe('Task', () => {
       expect(await db.model.find.labels()).toHaveLength(1);
     });
 
-    it('should not allow to delete other entity and return 422', async () => {
+    it('should not allow to destroy other entity and return 422', async () => {
       const user = await db.model.insert.user(create.user());
       const existingTask = await db.model.insert.task(create.task({
         status: existingStatus,
@@ -219,7 +238,7 @@ describe('Task', () => {
       }));
       const { statusCode } = await app.inject({
         method: 'delete',
-        url: `/tasks/${existingTask.id}`,
+        url: app.reverse('destroyTask', { id: existingTask.id }),
         cookies,
       });
       expect(statusCode).toBe(422);

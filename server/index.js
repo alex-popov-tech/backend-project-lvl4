@@ -28,15 +28,13 @@ dotenv.config();
 
 const mode = process.env.NODE_ENV || 'development';
 const isDevelopment = mode === 'development';
-const isTest = mode === 'test';
+const isProduction = mode === 'production';
 
 const addErrorHandler = (app) => {
-  if (isTest) {
-    return;
-  }
   if (isDevelopment) {
     app.register(fastifyErrorPage);
-  } else {
+  }
+  if (isProduction) {
     const rollbar = new Rollbar({
       accessToken: process.env.ROLLBAR_TOKEN,
       captureUncaught: true,
@@ -58,7 +56,7 @@ const addTemplatesEngine = (app) => {
       route: (name) => app.reverse(name),
     },
   });
-  app.decorateReply('render', function render(viewPath, locals) {
+  app.decorateReply('render', async function render(viewPath, locals) {
     return this.view(viewPath, {
       ...locals,
       reply: this,
@@ -66,14 +64,12 @@ const addTemplatesEngine = (app) => {
   });
 };
 const addAssets = (app) => {
-  if (isTest) {
-    return;
-  }
   if (isDevelopment) {
     app.register(fastifyWebpackHMR, {
       config: path.join(__dirname, '..', 'webpack.config.js'),
     });
-  } else {
+  }
+  if (isProduction) {
     app.register(fastifyStatic, {
       root: path.join(__dirname, '..', 'assets'),
       prefix: '/assets',
@@ -117,11 +113,10 @@ const addAuthentification = (app) => {
   )(...args));
 };
 const addHooks = (app) => {
+  app.decorateReply('locals', {});
   app.addHook('preHandler', async (req, reply) => {
     // eslint-disable-next-line
-    reply.locals = {
-      isAuthenticated: () => req.isAuthenticated(),
-    };
+    reply.locals.isAuthenticated = () => req.isAuthenticated()
   });
 };
 const addLocalization = (app) => {
@@ -134,23 +129,24 @@ const addLocalization = (app) => {
     });
   app.decorate('t', (key) => i18next.t(key));
 };
-export default () => {
+const createLoggedApp = () => {
   const app = fastifyMethodOverride(fastify)({
     logger: {
       serializers: {
-        req({
-          method, url, query, body,
-        }) {
-          return {
-            method, url, query, body,
-          };
-        },
-        res({ statusCode }) {
-          return { statusCode };
-        },
+        req: (it) => _.pick(it, 'method', 'url', 'query'),
+        res: (it) => _.pick(it, 'statusCode'),
       },
     },
   });
+  app.addHook('preHandler', async (req) => {
+    if (req.body) {
+      req.log.info({ body: req.body });
+    }
+  });
+  return app;
+};
+export default () => {
+  const app = createLoggedApp();
   addHooks(app);
   addPlugins(app);
   addAuthentification(app);

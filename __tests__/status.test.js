@@ -27,14 +27,14 @@ describe('Status', () => {
   describe('index', () => {
     it('should not be available without authentification', async () => {
       await db.model.insert.status(create.status());
-      const { statusCode } = await app.inject({
+      const { statusCode, headers: { location } } = await app.inject({
         method: 'get',
         url: app.reverse('statuses'),
       });
       expect(statusCode).toBe(302);
+      expect(location).toBe(app.reverse('welcome'));
     });
-
-    it('should be available with authentification', async () => {
+    it('should render all statuses', async () => {
       await db.model.insert.status(create.status());
       const { statusCode } = await app.inject({
         method: 'get',
@@ -43,38 +43,45 @@ describe('Status', () => {
       });
       expect(statusCode).toBe(200);
     });
-    it('should return 200 on edit/:id', async () => {
-      const existingStatus = await db.model.insert.status(create.status());
+  });
+
+  describe('create', () => {
+    it('should not be available without authentification', async () => {
+      const { statusCode, headers: { location } } = await app.inject({
+        method: 'get',
+        url: app.reverse('newStatus'),
+      });
+      expect(statusCode).toBe(302);
+      expect(location).toBe(app.reverse('welcome'));
+    });
+    it('should render new status page', async () => {
       const { statusCode } = await app.inject({
         method: 'get',
-        url: `/statuses/${existingStatus.id}/edit`,
+        url: app.reverse('newStatus'),
         cookies,
       });
       expect(statusCode).toBe(200);
     });
-  });
-
-  describe('create', () => {
     it('should create entity and return 302 when using valid name', async () => {
       const statusData = create.status();
-      const { statusCode } = await app.inject({
+      const { statusCode, headers: { location } } = await app.inject({
         method: 'post',
-        url: '/statuses',
+        url: app.reverse('createStatus'),
         cookies,
         body: { data: statusData },
       });
       expect(statusCode).toBe(302);
+      expect(location).toBe(app.reverse('statuses'));
       const statuses = await db.model.find.statuses();
       expect(statuses).toHaveLength(1);
       expect(statuses[0]).toMatchObject(statusData);
     });
-
     it('should not create entity and return 422 when using existing name', async () => {
       const existingStatusData = create.status();
       await db.model.insert.status(existingStatusData);
       const { statusCode } = await app.inject({
         method: 'post',
-        url: '/statuses',
+        url: app.reverse('createStatus'),
         cookies,
         body: {
           data: existingStatusData,
@@ -86,41 +93,71 @@ describe('Status', () => {
     });
   });
 
-  describe('update', () => {
+  describe('edit', () => {
     let existingStatus;
     beforeEach(async () => {
       existingStatus = await db.model.insert.status(create.status());
     });
 
-    it('should update entity and return 302 when using valid name', async () => {
-      const updatedStatus = create.status();
-      const { statusCode } = await app.inject({
-        method: 'patch',
-        url: `/statuses/${existingStatus.id}`,
-        cookies,
-        body: {
-          data: updatedStatus,
-        },
+    it('should not be available without authentification', async () => {
+      await db.model.insert.label(create.label());
+      const { statusCode, headers: { location } } = await app.inject({
+        method: 'get',
+        url: app.reverse('editStatus', { id: existingStatus.id }),
       });
       expect(statusCode).toBe(302);
+      expect(location).toBe(app.reverse('welcome'));
+    });
+    it('should render edit status page', async () => {
+      const { statusCode } = await app.inject({
+        method: 'get',
+        url: app.reverse('editStatus', { id: existingStatus.id }),
+        cookies,
+      });
+      expect(statusCode).toBe(200);
+    });
+    it('should update entity and return 302 when using valid name', async () => {
+      const updatedStatus = create.status();
+      const { statusCode, headers: { location } } = await app.inject({
+        method: 'patch',
+        url: app.reverse('updateStatus', { id: existingStatus.id }),
+        cookies,
+        body: { data: updatedStatus },
+      });
+      expect(statusCode).toBe(302);
+      expect(location).toBe(app.reverse('statuses'));
       const statuses = await db.model.find.statuses();
       expect(statuses).toHaveLength(1);
       expect(statuses[0]).toMatchObject(updatedStatus);
     });
+    it('should not update entity when using invalid name', async () => {
+      const updatedStatus = create.status({ name: '' });
+      const { statusCode } = await app.inject({
+        method: 'patch',
+        url: app.reverse('updateStatus', { id: existingStatus.id }),
+        cookies,
+        body: { data: updatedStatus },
+      });
+      expect(statusCode).toBe(422);
+      const statuses = await db.model.find.statuses();
+      expect(statuses).toHaveLength(1);
+      expect(statuses[0]).toMatchObject(existingStatus);
+    });
   });
 
-  describe('delete', () => {
-    it('should delete entity and return 302 when using valid id', async () => {
+  describe('destroy', () => {
+    it('should destroy entity and return 302 when using valid id', async () => {
       const [existingStatus] = await Promise.all([
         db.model.insert.status(create.status()),
         db.model.insert.status(create.status()),
       ]);
-      const { statusCode } = await app.inject({
+      const { statusCode, headers: { location } } = await app.inject({
         method: 'delete',
-        url: `/statuses/${existingStatus.id}`,
+        url: app.reverse('destroyStatus', { id: existingStatus.id }),
         cookies,
       });
       expect(statusCode).toBe(302);
+      expect(location).toBe(app.reverse('statuses'));
       const statuses = await db.model.find.statuses();
       expect(statuses).toHaveLength(1);
       expect(statuses[0].id).not.toBe(existingStatus.id);
@@ -128,11 +165,12 @@ describe('Status', () => {
   });
 
   it('should return 302 when using invalid id', async () => {
-    const res = await app.inject({
+    const { statusCode, headers: { location } } = await app.inject({
       method: 'delete',
-      url: '/statuses/-1',
+      url: app.reverse('destroyStatus', { id: 999 }),
       cookies,
     });
-    expect(res.statusCode).toBe(302);
+    expect(statusCode).toBe(302);
+    expect(location).toBe(app.reverse('statuses'));
   });
 });
