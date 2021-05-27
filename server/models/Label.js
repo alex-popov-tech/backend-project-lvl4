@@ -1,10 +1,10 @@
 import { Model } from 'objection';
 import objectionUnique from 'objection-unique';
-import Task from './Task';
+import Base from './Base';
 
 const unique = objectionUnique({ fields: ['name'] });
 
-export default class Label extends unique(Model) {
+export default class Label extends unique(Base) {
   static get tableName() {
     return 'labels';
   }
@@ -12,7 +12,7 @@ export default class Label extends unique(Model) {
   static relationMappings = {
     tasks: {
       relation: Model.ManyToManyRelation,
-      modelClass: Task,
+      modelClass: 'Task',
       join: {
         from: 'labels.id',
         to: 'tasks.id',

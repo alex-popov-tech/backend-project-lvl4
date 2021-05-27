@@ -1,9 +1,7 @@
 import { Model } from 'objection';
-import Label from './Label';
-import Status from './Status';
-import User from './User';
+import Base from './Base';
 
-export default class Task extends Model {
+export default class Task extends Base {
   static tableName = 'tasks';
 
   static pickJsonSchemaProperties = true;
@@ -11,7 +9,7 @@ export default class Task extends Model {
   static relationMappings = {
     labels: {
       relation: Model.ManyToManyRelation,
-      modelClass: Label,
+      modelClass: 'Label',
       join: {
         from: 'tasks.id',
         through: {
@@ -22,8 +20,8 @@ export default class Task extends Model {
       },
     },
     status: {
-      relation: Model.BelongsOneRelation,
-      modelClass: Status,
+      relation: Model.BelongsToOneRelation,
+      modelClass: 'Status',
       join: {
         from: 'tasks.status_id',
         to: 'statuses.id',
@@ -31,15 +29,15 @@ export default class Task extends Model {
     },
     creator: {
       relation: Model.BelongsToOneRelation,
-      modelClass: User,
+      modelClass: 'User',
       join: {
         from: 'tasks.creator_id',
         to: 'users.id',
       },
     },
     executor: {
-      relation: Model.BelongsOneRelation,
-      modelClass: User,
+      relation: Model.BelongsToOneRelation,
+      modelClass: 'User',
       join: {
         from: 'tasks.executor_id',
         to: 'users.id',

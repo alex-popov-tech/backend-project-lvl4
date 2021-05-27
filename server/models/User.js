@@ -1,12 +1,12 @@
 import { Model } from 'objection';
 import objectionPassword from 'objection-password';
 import objectionUnique from 'objection-unique';
-import Task from './Task';
+import Base from './Base';
 
 const password = objectionPassword();
 const unique = objectionUnique({ fields: ['email'] });
 
-export default class User extends unique(password(Model)) {
+export default class User extends unique(password(Base)) {
   static get tableName() {
     return 'users';
   }
@@ -14,7 +14,7 @@ export default class User extends unique(password(Model)) {
   static relationMappings = {
     ownTasks: {
       relation: Model.HasManyRelation,
-      modelClass: Task,
+      modelClass: 'Task',
       join: {
         from: 'users.id',
         to: 'tasks.creator_id',
@@ -22,7 +22,7 @@ export default class User extends unique(password(Model)) {
     },
     assignedTasks: {
       relation: Model.HasManyRelation,
-      modelClass: Task,
+      modelClass: 'Task',
       join: {
         from: 'users.id',
         to: 'tasks.executor_id',
