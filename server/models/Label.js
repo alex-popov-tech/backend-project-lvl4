@@ -9,6 +9,20 @@ export default class Label extends unique(Model) {
     return 'labels';
   }
 
+  static relationMappings = {
+    tasks: {
+      relation: Model.ManyToManyRelation,
+      modelClass: Task,
+      join: {
+        from: 'labels.id',
+        to: 'tasks.id',
+        through: {
+          from: 'tasks_labels.label_id',
+          to: 'tasks_labels.task_id',
+        },
+      },
+    },
+  };
 
   static pickJsonSchemaProperties = true;
 
