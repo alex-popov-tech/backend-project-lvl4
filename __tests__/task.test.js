@@ -75,7 +75,7 @@ describe('Task', () => {
     });
   });
 
-  describe('create', () => {
+  describe('new', () => {
     it('should not be available without authentification', async () => {
       const { statusCode, headers: { location } } = await app.inject({
         method: 'get',
@@ -84,7 +84,7 @@ describe('Task', () => {
       expect(location).toBe(app.reverse('welcome'));
       expect(statusCode).toBe(302);
     });
-    it('should render new label page', async () => {
+    it('should render page', async () => {
       const { statusCode } = await app.inject({
         method: 'get',
         url: app.reverse('newTask'),
@@ -92,6 +92,9 @@ describe('Task', () => {
       });
       expect(statusCode).toBe(200);
     });
+  });
+
+  describe('create', () => {
     it('should create entity and return 302', async () => {
       const taskData = create.task({
         status: existingStatus,
@@ -131,7 +134,7 @@ describe('Task', () => {
     });
   });
 
-  describe('update', () => {
+  describe('edit', () => {
     let existingTask;
     beforeEach(async () => {
       existingTask = await db.model.insert.task(create.task({
@@ -150,7 +153,7 @@ describe('Task', () => {
       expect(location).toBe(app.reverse('welcome'));
       expect(statusCode).toBe(302);
     });
-    it('should render edit task page', async () => {
+    it('should render task page', async () => {
       const { statusCode } = await app.inject({
         method: 'get',
         url: app.reverse('editTask', { id: existingTask.id }),
@@ -158,6 +161,18 @@ describe('Task', () => {
       });
       expect(statusCode).toBe(200);
     });
+  });
+
+  describe('update', () => {
+    let existingTask;
+    beforeEach(async () => {
+      existingTask = await db.model.insert.task(create.task({
+        status: existingStatus,
+        creator: currentUser,
+        executor: currentUser,
+      }));
+    });
+
     it('should update entity and return 302 when using valid data', async () => {
       const newLabel = await db.model.insert.label(create.label());
       const newStatus = await db.model.insert.status(create.status());

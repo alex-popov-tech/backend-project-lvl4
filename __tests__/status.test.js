@@ -34,7 +34,7 @@ describe('Status', () => {
       expect(statusCode).toBe(302);
       expect(location).toBe(app.reverse('welcome'));
     });
-    it('should render all statuses', async () => {
+    it('should render page', async () => {
       await db.model.insert.status(create.status());
       const { statusCode } = await app.inject({
         method: 'get',
@@ -45,7 +45,7 @@ describe('Status', () => {
     });
   });
 
-  describe('create', () => {
+  describe('new', () => {
     it('should not be available without authentification', async () => {
       const { statusCode, headers: { location } } = await app.inject({
         method: 'get',
@@ -54,7 +54,7 @@ describe('Status', () => {
       expect(statusCode).toBe(302);
       expect(location).toBe(app.reverse('welcome'));
     });
-    it('should render new status page', async () => {
+    it('should render page', async () => {
       const { statusCode } = await app.inject({
         method: 'get',
         url: app.reverse('newStatus'),
@@ -62,6 +62,9 @@ describe('Status', () => {
       });
       expect(statusCode).toBe(200);
     });
+  });
+
+  describe('create', () => {
     it('should create entity and return 302 when using valid name', async () => {
       const statusData = create.status();
       const { statusCode, headers: { location } } = await app.inject({
@@ -108,7 +111,7 @@ describe('Status', () => {
       expect(statusCode).toBe(302);
       expect(location).toBe(app.reverse('welcome'));
     });
-    it('should render edit status page', async () => {
+    it('should render page', async () => {
       const { statusCode } = await app.inject({
         method: 'get',
         url: app.reverse('editStatus', { id: existingStatus.id }),
@@ -116,6 +119,14 @@ describe('Status', () => {
       });
       expect(statusCode).toBe(200);
     });
+  });
+
+  describe('update', () => {
+    let existingStatus;
+    beforeEach(async () => {
+      existingStatus = await db.model.insert.status(create.status());
+    });
+
     it('should update entity and return 302 when using valid name', async () => {
       const updatedStatus = create.status();
       const { statusCode, headers: { location } } = await app.inject({

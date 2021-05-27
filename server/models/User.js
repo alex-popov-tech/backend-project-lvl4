@@ -1,6 +1,7 @@
 import { Model } from 'objection';
 import objectionPassword from 'objection-password';
 import objectionUnique from 'objection-unique';
+import Task from './Task';
 
 const password = objectionPassword();
 const unique = objectionUnique({ fields: ['email'] });
@@ -9,6 +10,25 @@ export default class User extends unique(password(Model)) {
   static get tableName() {
     return 'users';
   }
+
+  static relationMappings = {
+    ownTasks: {
+      relation: Model.HasManyRelation,
+      modelClass: Task,
+      join: {
+        from: 'users.id',
+        to: 'tasks.creator_id',
+      },
+    },
+    assignedTasks: {
+      relation: Model.HasManyRelation,
+      modelClass: Task,
+      join: {
+        from: 'users.id',
+        to: 'tasks.executor_id',
+      },
+    },
+  };
 
   static pickJsonSchemaProperties = true;
 

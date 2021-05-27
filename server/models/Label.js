@@ -1,5 +1,6 @@
 import { Model } from 'objection';
 import objectionUnique from 'objection-unique';
+import Task from './Task';
 
 const unique = objectionUnique({ fields: ['name'] });
 
@@ -7,6 +8,7 @@ export default class Label extends unique(Model) {
   static get tableName() {
     return 'labels';
   }
+
 
   static pickJsonSchemaProperties = true;
 

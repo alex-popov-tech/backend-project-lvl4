@@ -22,7 +22,7 @@ export default class Task extends Model {
       },
     },
     status: {
-      relation: Model.HasOneRelation,
+      relation: Model.BelongsOneRelation,
       modelClass: Status,
       join: {
         from: 'tasks.status_id',
@@ -38,7 +38,7 @@ export default class Task extends Model {
       },
     },
     executor: {
-      relation: Model.HasOneRelation,
+      relation: Model.BelongsOneRelation,
       modelClass: User,
       join: {
         from: 'tasks.executor_id',

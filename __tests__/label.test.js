@@ -45,7 +45,7 @@ describe('Label', () => {
     });
   });
 
-  describe('create', () => {
+  describe('new', () => {
     it('should not be available without authentification', async () => {
       const { statusCode, headers: { location } } = await app.inject({
         method: 'get',
@@ -54,7 +54,7 @@ describe('Label', () => {
       expect(statusCode).toBe(302);
       expect(location).toBe(app.reverse('welcome'));
     });
-    it('should render new label page', async () => {
+    it('should render page', async () => {
       const { statusCode } = await app.inject({
         method: 'get',
         url: app.reverse('newLabel'),
@@ -62,6 +62,9 @@ describe('Label', () => {
       });
       expect(statusCode).toBe(200);
     });
+  });
+
+  describe('create', () => {
     it('should create entity and return 302 when using valid name', async () => {
       const label = create.label();
       const { statusCode, headers: { location } } = await app.inject({
@@ -101,7 +104,6 @@ describe('Label', () => {
     });
 
     it('should not be available without authentification', async () => {
-      await db.model.insert.label(create.label());
       const { statusCode, headers: { location } } = await app.inject({
         method: 'get',
         url: app.reverse('editLabel', { id: existingLabel.id }),
@@ -109,7 +111,7 @@ describe('Label', () => {
       expect(statusCode).toBe(302);
       expect(location).toBe(app.reverse('welcome'));
     });
-    it('should render edit label page', async () => {
+    it('should render page', async () => {
       const { statusCode } = await app.inject({
         method: 'get',
         url: app.reverse('editLabel', { id: existingLabel.id }),
@@ -117,6 +119,14 @@ describe('Label', () => {
       });
       expect(statusCode).toBe(200);
     });
+  });
+
+  describe('update', () => {
+    let existingLabel;
+    beforeEach(async () => {
+      existingLabel = await db.model.insert.label(create.label());
+    });
+
     it('should update entity and return 302 when using valid name', async () => {
       const updatedLabelData = create.label();
       const { statusCode, headers: { location } } = await app.inject({

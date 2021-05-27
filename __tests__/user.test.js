@@ -42,8 +42,8 @@ describe('Users', () => {
     });
   });
 
-  describe('create', () => {
-    it('should render new label page', async () => {
+  describe('new', () => {
+    it('should render page', async () => {
       const { statusCode } = await app.inject({
         method: 'get',
         url: app.reverse('newUser'),
@@ -51,6 +51,9 @@ describe('Users', () => {
       });
       expect(statusCode).toBe(200);
     });
+  });
+
+  describe('create', () => {
     it('should create entity and return 302 when using valid data', async () => {
       const userData = create.user();
       const { statusCode, headers: { location } } = await app.inject({
@@ -105,7 +108,7 @@ describe('Users', () => {
       expect(statusCode).toBe(302);
       expect(location).toBe(app.reverse('welcome'));
     });
-    it('should render edit user page', async () => {
+    it('should render page', async () => {
       const { statusCode } = await app.inject({
         method: 'get',
         url: app.reverse('editUser', { id: existingUser.id }),
@@ -113,6 +116,9 @@ describe('Users', () => {
       });
       expect(statusCode).toBe(200);
     });
+  });
+
+  describe('update', () => {
     it('should allow to update own entity and return 302', async () => {
       const userData = create.user();
       const { statusCode, headers: { location } } = await app.inject({
