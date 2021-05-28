@@ -4,7 +4,7 @@ block header
   =t('views.new.users.title')
 
 block content
-  +formFor()(action='createUser' method='post')
+  +formFor()(action=route('createUser') method='post')
     +input(data.user, 'firstName', errors)(type="text")
     +input(data.user, 'lastName', errors)(type="text")
     +input(data.user, 'email', errors)(type="text")
