@@ -10,6 +10,7 @@ describe('Task', () => {
   let currentUser;
   let existingStatus;
   let existingLabel;
+  let existingTask;
 
   beforeAll(async () => {
     app = await launchApp();
@@ -24,6 +25,12 @@ describe('Task', () => {
     ({ user: currentUser, cookies } = await createNewAuthenticatedUser(app));
     existingStatus = await db.model.insert.status(create.status());
     existingLabel = await db.model.insert.label(create.label());
+    existingTask = await db.model.insert.task(create.task({
+      status: existingStatus,
+      creator: currentUser,
+      executor: currentUser,
+      labels: [existingLabel],
+    }));
   });
 
   afterEach(async () => {
@@ -32,10 +39,6 @@ describe('Task', () => {
 
   describe('index', () => {
     it('should not be available without authentification', async () => {
-      await db.model.insert.task(create.task({
-        creator: currentUser,
-        status: existingStatus,
-      }));
       const { statusCode, headers: { location } } = await app.inject({
         method: 'get',
         url: app.reverse('tasks'),
@@ -44,10 +47,6 @@ describe('Task', () => {
       expect(statusCode).toBe(302);
     });
     it('should render all tasks', async () => {
-      await db.model.insert.task(create.task({
-        creator: currentUser,
-        status: existingStatus,
-      }));
       const { statusCode } = await app.inject({
         method: 'get',
         url: app.reverse('tasks'),
@@ -56,11 +55,6 @@ describe('Task', () => {
       expect(statusCode).toBe(200);
     });
     it('should render filtered tasks', async () => {
-      await db.model.insert.task(create.task({
-        creator: currentUser,
-        labels: [existingLabel],
-        status: existingStatus,
-      }));
       const { statusCode } = await app.inject({
         method: 'get',
         url: app.reverse('tasks'),
@@ -110,7 +104,7 @@ describe('Task', () => {
       expect(location).toBe(app.reverse('tasks'));
       expect(statusCode).toBe(302);
 
-      const tasks = await db.model.find.tasks();
+      const tasks = await db.model.find.tasks().whereNot('id', existingTask.id);
       expect(tasks).toHaveLength(1);
       expect(tasks[0]).toMatchObject({ ..._.omit(taskData, 'labels'), creatorId: currentUser.id });
       const labels = await tasks[0].$relatedQuery('labels');
@@ -129,23 +123,13 @@ describe('Task', () => {
         body: { data: getData() },
       });
       expect(statusCode).toBe(422);
-      const tasks = await db.model.find.tasks();
+      const tasks = await db.model.find.tasks().whereNot('id', existingTask.id);
       expect(tasks).toHaveLength(0);
     });
   });
 
   describe('edit', () => {
-    let existingTask;
-    beforeEach(async () => {
-      existingTask = await db.model.insert.task(create.task({
-        status: existingStatus,
-        creator: currentUser,
-        executor: currentUser,
-      }));
-    });
-
     it('should not be available without authentification', async () => {
-      await db.model.insert.label(create.label());
       const { statusCode, headers: { location } } = await app.inject({
         method: 'get',
         url: app.reverse('editTask', { id: existingTask.id }),
@@ -164,15 +148,6 @@ describe('Task', () => {
   });
 
   describe('update', () => {
-    let existingTask;
-    beforeEach(async () => {
-      existingTask = await db.model.insert.task(create.task({
-        status: existingStatus,
-        creator: currentUser,
-        executor: currentUser,
-      }));
-    });
-
     it('should update entity and return 302 when using valid data', async () => {
       const newLabel = await db.model.insert.label(create.label());
       const newStatus = await db.model.insert.status(create.status());
@@ -210,25 +185,17 @@ describe('Task', () => {
         body: { data: getData() },
       });
       expect(statusCode).toBe(422);
-      const tasks = await db.model.find.tasks();
-      expect(tasks).toHaveLength(1);
-      expect(tasks[0]).toMatchObject(_.omit(existingTask, 'labels'));
+      const tasks = await db.model.find.tasks().whereNot('id', existingTask.id);
+      expect(tasks).toHaveLength(0);
     });
   });
 
   describe('destroy', () => {
     it('should destroy entity and return 302', async () => {
-      const [existingTask] = await Promise.all([
-        db.model.insert.task(create.task({
-          status: existingStatus,
-          creator: currentUser,
-          labels: [existingLabel],
-        })),
-        db.model.insert.task(create.task({
-          status: existingStatus,
-          creator: currentUser,
-        })),
-      ]);
+      const leftStatus = await db.model.insert.task(create.task({
+        status: existingStatus,
+        creator: currentUser,
+      }));
       const { statusCode, headers: { location } } = await app.inject({
         method: 'delete',
         url: app.reverse('destroyTask', { id: existingTask.id }),
@@ -238,26 +205,23 @@ describe('Task', () => {
       expect(location).toBe(app.reverse('tasks'));
       const tasks = await db.model.find.tasks();
       expect(tasks).toHaveLength(1);
-      expect(tasks[0].id).not.toBe(existingTask.id);
-      const labels = await existingTask.$relatedQuery('labels');
-      expect(labels).toHaveLength(0);
-      expect(await db.model.find.labels()).toHaveLength(1);
+      expect(tasks[0].id).toBe(leftStatus.id);
     });
 
     it('should not allow to destroy other entity and return 422', async () => {
       const user = await db.model.insert.user(create.user());
-      const existingTask = await db.model.insert.task(create.task({
+      const otherUserTask = await db.model.insert.task(create.task({
         status: existingStatus,
         creator: user,
         labels: [existingLabel],
       }));
       const { statusCode } = await app.inject({
         method: 'delete',
-        url: app.reverse('destroyTask', { id: existingTask.id }),
+        url: app.reverse('destroyTask', { id: otherUserTask.id }),
         cookies,
       });
       expect(statusCode).toBe(422);
-      const tasks = await app.objection.models.task.query();
+      const tasks = await db.model.find.tasks().whereNot('id', existingTask.id);
       expect(tasks).toHaveLength(1);
     });
   });

@@ -63,14 +63,12 @@ describe('Users', () => {
       });
       expect(statusCode).toBe(302);
       expect(location).toBe(app.reverse('welcome'));
-      const users = await db.model.find.users();
-      expect(users).toHaveLength(2);
-      expect(_.omit(users.find(({ firstName }) => firstName === userData.firstName), 'password'))
-        .toMatchObject(_.omit(userData, 'password'));
+      const users = await db.model.find.users().whereNot('id', existingUser.id);
+      expect(users).toHaveLength(1);
+      expect(_.omit(users[0], 'password')).toMatchObject(_.omit(userData, 'password'));
     });
     it('should not create entity and return 422 when existing email', async () => {
-      const userData = create.user();
-      await db.model.insert.user(userData);
+      const userData = create.user({ email: existingUser.email });
       const { statusCode } = await app.inject({
         method: 'post',
         url: app.reverse('createUser'),
@@ -78,7 +76,7 @@ describe('Users', () => {
       });
       expect(statusCode).toBe(422);
       const users = await db.model.find.users();
-      expect(users).toHaveLength(2);
+      expect(users).toHaveLength(1);
     });
 
     it.each([

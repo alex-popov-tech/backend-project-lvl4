@@ -6,6 +6,7 @@ describe('Label', () => {
   let app;
   let cookies;
   let db;
+  let existingLabel;
 
   beforeAll(async () => {
     app = await launchApp();
@@ -18,6 +19,7 @@ describe('Label', () => {
 
   beforeEach(async () => {
     ({ cookies } = await createNewAuthenticatedUser(app));
+    existingLabel = await db.model.insert.label(create.label());
   });
 
   afterEach(async () => {
@@ -26,7 +28,6 @@ describe('Label', () => {
 
   describe('index', () => {
     it('should not be available without authentification', async () => {
-      await db.model.insert.label(create.label());
       const { statusCode, headers: { location } } = await app.inject({
         method: 'get',
         url: app.reverse('labels'),
@@ -35,7 +36,6 @@ describe('Label', () => {
       expect(statusCode).toBe(302);
     });
     it('should render all labels', async () => {
-      await db.model.insert.label(create.label());
       const { statusCode } = await app.inject({
         method: 'get',
         url: app.reverse('labels'),
@@ -75,13 +75,12 @@ describe('Label', () => {
       });
       expect(statusCode).toBe(302);
       expect(location).toBe(app.reverse('labels'));
-      const labels = await db.model.find.labels();
+      const labels = await db.model.find.labels().whereNot('id', existingLabel.id);
       expect(labels).toHaveLength(1);
       expect(labels[0]).toMatchObject(label);
     });
     it('should not create entity and return 422 when using existing name', async () => {
-      const labelData = create.label();
-      await db.model.insert.label(labelData);
+      const labelData = create.label({ name: existingLabel.name });
       const { statusCode } = await app.inject({
         method: 'post',
         url: app.reverse('createLabel'),
@@ -98,11 +97,6 @@ describe('Label', () => {
   });
 
   describe('edit', () => {
-    let existingLabel;
-    beforeEach(async () => {
-      existingLabel = await db.model.insert.label(create.label());
-    });
-
     it('should not be available without authentification', async () => {
       const { statusCode, headers: { location } } = await app.inject({
         method: 'get',
@@ -122,11 +116,6 @@ describe('Label', () => {
   });
 
   describe('update', () => {
-    let existingLabel;
-    beforeEach(async () => {
-      existingLabel = await db.model.insert.label(create.label());
-    });
-
     it('should update entity and return 302 when using valid name', async () => {
       const updatedLabelData = create.label();
       const { statusCode, headers: { location } } = await app.inject({
@@ -158,10 +147,7 @@ describe('Label', () => {
 
   describe('destroy', () => {
     it('should destroy entity return 302 when using valid id', async () => {
-      const [existingLabel] = await Promise.all([
-        db.model.insert.label(create.label()),
-        db.model.insert.label(create.label()),
-      ]);
+      await db.model.insert.label(create.label());
       const { statusCode, headers: { location } } = await app.inject({
         method: 'delete',
         url: app.reverse('destroyLabel', { id: existingLabel.id }),

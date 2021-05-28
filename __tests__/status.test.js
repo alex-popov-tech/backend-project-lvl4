@@ -6,6 +6,7 @@ describe('Status', () => {
   let app;
   let cookies;
   let db;
+  let existingStatus;
 
   beforeAll(async () => {
     app = await launchApp();
@@ -18,6 +19,7 @@ describe('Status', () => {
 
   beforeEach(async () => {
     ({ cookies } = await createNewAuthenticatedUser(app));
+    existingStatus = await db.model.insert.status(create.status());
   });
 
   afterEach(async () => {
@@ -26,7 +28,6 @@ describe('Status', () => {
 
   describe('index', () => {
     it('should not be available without authentification', async () => {
-      await db.model.insert.status(create.status());
       const { statusCode, headers: { location } } = await app.inject({
         method: 'get',
         url: app.reverse('statuses'),
@@ -35,7 +36,6 @@ describe('Status', () => {
       expect(location).toBe(app.reverse('welcome'));
     });
     it('should render page', async () => {
-      await db.model.insert.status(create.status());
       const { statusCode } = await app.inject({
         method: 'get',
         url: app.reverse('statuses'),
@@ -75,13 +75,12 @@ describe('Status', () => {
       });
       expect(statusCode).toBe(302);
       expect(location).toBe(app.reverse('statuses'));
-      const statuses = await db.model.find.statuses();
+      const statuses = await db.model.find.statuses().whereNot('id', existingStatus.id);
       expect(statuses).toHaveLength(1);
       expect(statuses[0]).toMatchObject(statusData);
     });
     it('should not create entity and return 422 when using existing name', async () => {
-      const existingStatusData = create.status();
-      await db.model.insert.status(existingStatusData);
+      const existingStatusData = create.status({ name: existingStatus.name });
       const { statusCode } = await app.inject({
         method: 'post',
         url: app.reverse('createStatus'),
@@ -97,11 +96,6 @@ describe('Status', () => {
   });
 
   describe('edit', () => {
-    let existingStatus;
-    beforeEach(async () => {
-      existingStatus = await db.model.insert.status(create.status());
-    });
-
     it('should not be available without authentification', async () => {
       await db.model.insert.label(create.label());
       const { statusCode, headers: { location } } = await app.inject({
@@ -122,11 +116,6 @@ describe('Status', () => {
   });
 
   describe('update', () => {
-    let existingStatus;
-    beforeEach(async () => {
-      existingStatus = await db.model.insert.status(create.status());
-    });
-
     it('should update entity and return 302 when using valid name', async () => {
       const updatedStatus = create.status();
       const { statusCode, headers: { location } } = await app.inject({
@@ -158,10 +147,7 @@ describe('Status', () => {
 
   describe('destroy', () => {
     it('should destroy entity and return 302 when using valid id', async () => {
-      const [existingStatus] = await Promise.all([
-        db.model.insert.status(create.status()),
-        db.model.insert.status(create.status()),
-      ]);
+      await db.model.insert.status(create.status());
       const { statusCode, headers: { location } } = await app.inject({
         method: 'delete',
         url: app.reverse('destroyStatus', { id: existingStatus.id }),
