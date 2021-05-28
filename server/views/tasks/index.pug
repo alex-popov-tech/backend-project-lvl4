@@ -36,6 +36,5 @@ block content
           td= task.labels.map(({ name }) => name).join(', ')
           td
             a(href=route('editTask', { id: task.id }))=t('views.buttons.edit')
-            +formFor()(action=`${route('editTask', { id: task.id })}?_method=delete` method='post')
-              input(name="id" type="hidden" value=task.id)
+            +formFor()(action=`${route('destroyTask', { id: task.id })}?_method=delete` method='post')
               input.btn.btn-link(type="submit" value=t('views.buttons.delete'))
