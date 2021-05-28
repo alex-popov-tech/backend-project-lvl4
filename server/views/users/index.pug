@@ -17,6 +17,6 @@ block content
           td= user.email
           td= user.createdAt.toLocaleString()
           td
-            a(href=`/users/${user.id}/edit`)=t('views.buttons.edit')
-            +formFor()(action=`/users/${user.id}?_method=delete` method='post')
+            a(href=route('editUser', { id: user.id }))=t('views.buttons.edit')
+            +formFor()(action=`${route('destroyUser', { id: user.id })}?_method=delete` method='post')
               input.btn.btn-link(type="submit" value=t('views.buttons.delete'))

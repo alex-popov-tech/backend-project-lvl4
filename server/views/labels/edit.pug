@@ -4,6 +4,6 @@ block header
   =t('views.edit.labels.title')
 
 block content
-  +formFor()(action=`/labels/${reply.request.params.id}?_method=patch` method='post')
+  +formFor()(action=`${route('updateLabel', { id: reply.request.params.id })}?_method=patch` method='post')
     +input(data.label, 'name', errors)
     +submit()(value=t('views.buttons.edit'))

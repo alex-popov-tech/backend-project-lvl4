@@ -1,5 +1,5 @@
 import getDatabaseHelpers from './getDatabaseHelpers';
-import create from './fabrics';
+import create from './factories';
 
 export default async (app) => {
   const userData = create.user();

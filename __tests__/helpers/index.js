@@ -1,6 +1,6 @@
 import { launchApp, shutdownApp } from './app';
 import getDatabaseHelpers from './getDatabaseHelpers';
-import create from './fabrics';
+import create from './factories';
 import createNewAuthenticatedUser from './createNewAuthenticatedUser';
 
 export {

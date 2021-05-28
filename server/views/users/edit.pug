@@ -4,9 +4,9 @@ block header
   =t('views.edit.users.title')
 
 block content
-  +formFor()(action=`/users/${data.user.id}?_method=patch` method='post')
-    +input(data.user, 'firstName', {errors, defaultValue: data.user })(type="text")
-    +input(data.user, 'lastName', {errors, defaultValue: data.user })(type="text")
-    +input(data.user, 'email', {errors, defaultValue: data.user })(type="text")
-    +input(data.user, 'password', {errors, defaultValue: data.user })(type="password")
+  +formFor()(action=`${route('updateUser', { id: data.user.id })}?_method=patch` method='post')
+    +input(data.user, 'firstName', {errors })(type="text")
+    +input(data.user, 'lastName', {errors })(type="text")
+    +input(data.user, 'email', {errors })(type="text")
+    +input(data.user, 'password', {errors })(type="password")
     +submit()(value=t('views.buttons.edit'))

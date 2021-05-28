@@ -4,7 +4,7 @@ export default (app) => {
       const user = new app.objection.models.user();
       await reply.render('session/new', { data: { user }, errors: {} });
     })
-    .post('/session', app.passport.authenticate('form', async (req, reply, err, existingUser) => {
+    .post('/session', { name: 'createSession' }, app.passport.authenticate('form', async (req, reply, err, existingUser) => {
       if (err) {
         return app.httpErrors.internalServerError(err);
       }
@@ -21,7 +21,7 @@ export default (app) => {
         errors: { email: [{ message: 'User with such credentials pair does not exist' }] },
       });
     }))
-    .delete('/session', async (req, reply) => {
+    .delete('/session', { name: 'destroySession' }, async (req, reply) => {
       req.logOut();
       req.flash('info', app.t('views.welcome.flash.success.logout'));
       return reply.redirect(app.reverse('welcome'));

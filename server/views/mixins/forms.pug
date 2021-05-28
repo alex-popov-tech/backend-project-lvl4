@@ -1,6 +1,6 @@
 - const getEntityName = (entity) => entity.constructor.name
-- const getFormName = (property) => `data[${property}]`
-- const getFormId = (property) => `data_${property}`
+- const getFieldName = (property) => `data[${property}]`
+- const getFieldId = (property) => `data_${property}`
 
 mixin flash(messages = [])
   .container.wrapper.flex
@@ -8,14 +8,14 @@ mixin flash(messages = [])
       each text in texts
         div.alert(class=`alert-${type}`)= text
 
-mixin formFor(entity = null)
+mixin formFor()
   form&attributes(attributes)
     block
 
 mixin input(entity, propertyName, errors = {})
   - entityName = getEntityName(entity)
-  - formName = getFormName(propertyName)
-  - formId = getFormId(propertyName)
+  - formName = getFieldName(propertyName)
+  - formId = getFieldId(propertyName)
   - propertyErrors = errors[propertyName]
   - presetValue = entity[propertyName] || ''
   .form-group
@@ -33,8 +33,8 @@ mixin input(entity, propertyName, errors = {})
 
 mixin textarea(entity, propertyName, errors = {})
   - entityName = getEntityName(entity)
-  - formName = getFormName(propertyName)
-  - formId = getFormId(propertyName)
+  - formName = getFieldName(propertyName)
+  - formId = getFieldId(propertyName)
   - propertyErrors = errors[propertyName]
   - presetValue = entity[propertyName] || ''
   .form-group
@@ -50,8 +50,8 @@ mixin textarea(entity, propertyName, errors = {})
       .invalid-feedback=propertyErrors.map(({ message }) => message).join('\n')
 
 mixin select(entity, propertyName, values, options = {}, errors = {})
-  - formName = getFormName(propertyName)
-  - formId = getFormId(propertyName)
+  - formName = getFieldName(propertyName)
+  - formId = getFieldId(propertyName)
   - entityName = getEntityName(entity)
   - isMultiselect = options.isMultiselect
   - propertyErrors = errors[propertyName]
@@ -77,8 +77,8 @@ mixin select(entity, propertyName, values, options = {}, errors = {})
 
 mixin checkbox(entity, propertyName, errors)
   - propertyErrors = errors[propertyName]
-  - formName = getFormName(propertyName)
-  - formId = getFormId(propertyName)
+  - formName = getFieldName(propertyName)
+  - formId = getFieldId(propertyName)
   - entityName = getEntityName(entity)
   - value = !!entity[propertyName]
   .form-group.form-check

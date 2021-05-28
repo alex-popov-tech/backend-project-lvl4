@@ -53,7 +53,7 @@ const addTemplatesEngine = (app) => {
     defaultContext: {
       _,
       t: (key) => i18next.t(key),
-      route: (name) => app.reverse(name),
+      route: (name, args, options) => app.reverse(name, args, options),
     },
   });
   app.decorateReply('render', async function render(viewPath, locals) {

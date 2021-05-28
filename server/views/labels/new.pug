@@ -4,6 +4,6 @@ block header
   =t('views.new.labels.title')
 
 block content
-  +formFor()(action='/labels' method='post')
+  +formFor()(action=route('createLabel') method='post')
     +input(data.label, 'name', errors)
     +submit()(value=t('views.buttons.create'))

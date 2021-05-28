@@ -4,7 +4,7 @@ block header
   =t('views.new.session.title')
 
 block content
-  +formFor()(action='/session' method='post')
+  +formFor()(action=route('createSession') method='post')
     +input(data.user, 'email', errors)(type="text")
     +input(data.user, 'password', errors)(type="password")
     +submit()(value=t('views.buttons.signin'))
