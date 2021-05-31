@@ -19,13 +19,13 @@ export default (app) => {
         return reply.redirect(app.reverse('statuses'));
       } catch (error) {
         if (error instanceof ValidationError) {
-        const status = new app.objection.models.status();
-        status.$set(reqData);
-        req.flash('danger', app.t('views.new.statuses.flash.fail'));
-        return reply.code(422).render('statuses/new', { data: { status }, errors: error.data });
+          const status = new app.objection.models.status();
+          status.$set(reqData);
+          req.flash('danger', app.t('views.new.statuses.flash.fail'));
+          return reply.code(422).render('statuses/new', { data: { status }, errors: error.data });
+        }
+        throw error;
       }
-      throw error;
-    }
     })
     .get('/statuses/:id/edit', { name: 'editStatus', preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id } } = req;
@@ -42,13 +42,13 @@ export default (app) => {
         return reply.redirect(app.reverse('statuses'));
       } catch (error) {
         if (error instanceof ValidationError) {
-        const status = new app.objection.models.status();
-        status.$set({ id, ...reqData });
-        req.flash('danger', app.t('views.edit.statuses.flash.fail'));
-        return reply.code(422).render('statuses/edit', { data: { status }, errors: error.data });
+          const status = new app.objection.models.status();
+          status.$set({ id, ...reqData });
+          req.flash('danger', app.t('views.edit.statuses.flash.fail'));
+          return reply.code(422).render('statuses/edit', { data: { status }, errors: error.data });
+        }
+        throw error;
       }
-      throw error;
-    }
     })
     .delete('/statuses/:id', { name: 'destroyStatus', preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id } } = req;

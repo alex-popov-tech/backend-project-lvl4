@@ -81,26 +81,26 @@ export default (app) => {
         req.flash('success', app.t('views.index.tasks.flash.success.new'));
         return reply.redirect(app.reverse('tasks'));
       } catch (error) {
-        console.log(error instanceof ValidationError, error.message, JSON.stringify(error.data))
-                if (error instanceof ValidationError) {
-        const task = new app.objection.models.task();
-        const [statuses, labels, users] = await Promise.all([
-          app.objection.models.status.query(),
-          app.objection.models.label.query(),
-          app.objection.models.user.query(),
-        ]);
-        task.$set({
-          name, description, statusId, executorId, labels: labelIds,
-        });
-        req.flash('danger', app.t('views.new.tasks.flash.fail'));
-        return reply.code(422).render('tasks/new', {
-          data: {
-            task, statuses, labels, users,
-          },
-          errors: error.data,
-        });
-      }
-      throw error;
+        console.log(error instanceof ValidationError, error.message, JSON.stringify(error.data));
+        if (error instanceof ValidationError) {
+          const task = new app.objection.models.task();
+          const [statuses, labels, users] = await Promise.all([
+            app.objection.models.status.query(),
+            app.objection.models.label.query(),
+            app.objection.models.user.query(),
+          ]);
+          task.$set({
+            name, description, statusId, executorId, labels: labelIds,
+          });
+          req.flash('danger', app.t('views.new.tasks.flash.fail'));
+          return reply.code(422).render('tasks/new', {
+            data: {
+              task, statuses, labels, users,
+            },
+            errors: error.data,
+          });
+        }
+        throw error;
       }
     })
     .get('/tasks/:id/edit', { name: 'editTask', preValidation: app.formAuth }, async (req, reply) => {
@@ -112,7 +112,7 @@ export default (app) => {
         app.objection.models.user.query(),
       ]);
       task.$set({ labels: task.labels.map((label) => label.id) });
-     return reply.render('tasks/edit', {
+      return reply.render('tasks/edit', {
         data: {
           task, statuses, labels, users,
         },
@@ -141,33 +141,33 @@ export default (app) => {
         return reply.redirect(app.reverse('tasks'));
       } catch (error) {
         if (error instanceof ValidationError) {
-        const [task, statuses, labels, users] = await Promise.all([
-          app.objection.models.task.query().findById(id),
-          app.objection.models.status.query(),
-          app.objection.models.label.query(),
-          app.objection.models.user.query(),
-        ]);
-        task.$set({
-          name, description, statusId, executorId, labels: labelIds,
-        });
-        req.flash('danger', app.t('views.new.tasks.flash.fail'));
-        return reply.code(422).render('tasks/edit', {
-          data: {
-            task, statuses, labels, users,
-          },
-          errors: error.data,
-        });
-      }
-      throw error;
+          const [task, statuses, labels, users] = await Promise.all([
+            app.objection.models.task.query().findById(id),
+            app.objection.models.status.query(),
+            app.objection.models.label.query(),
+            app.objection.models.user.query(),
+          ]);
+          task.$set({
+            name, description, statusId, executorId, labels: labelIds,
+          });
+          req.flash('danger', app.t('views.new.tasks.flash.fail'));
+          return reply.code(422).render('tasks/edit', {
+            data: {
+              task, statuses, labels, users,
+            },
+            errors: error.data,
+          });
+        }
+        throw error;
       }
     })
     .delete('/tasks/:id', { name: 'destroyTask', preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id } } = req;
       try {
         const task = await app.objection.models.task.query().findById(id);
-        console.log(req.user.id, task.creatorId, )
+        console.log(req.user.id, task.creatorId);
         if (req.user.id !== task.creatorId) {
-          console.log('its others task')
+          console.log('its others task');
           const [tasks, statuses, labels, users] = await Promise.all([
             app.objection.models.task.query().withGraphJoined('[status, creator, executor, labels]'),
             app.objection.models.status.query(),
@@ -181,28 +181,28 @@ export default (app) => {
             },
           });
         }
-        console.log('unrelate')
+        console.log('unrelate');
         await task.$relatedQuery('labels').unrelate();
         await app.objection.models.task.query().deleteById(id);
-                console.log('delete')
+        console.log('delete');
         req.flash('info', app.t('views.index.tasks.flash.success.delete'));
         return reply.redirect(app.reverse('tasks'));
       } catch (error) {
-                if (error instanceof ValidationError) {
-        const [tasks, statuses, labels, users] = await Promise.all([
-          app.objection.models.task.query().withGraphJoined('[status, creator, executor, labels]'),
-          app.objection.models.status.query(),
-          app.objection.models.label.query(),
-          app.objection.models.user.query(),
-        ]);
-        req.flash('danger', app.t('views.index.tasks.flash.fail.delete'));
-        return reply.code(422).render('tasks/index', {
-          data: {
-            tasks, statuses, labels, users,
-          },
-        });
-      }
-      throw error;
+        if (error instanceof ValidationError) {
+          const [tasks, statuses, labels, users] = await Promise.all([
+            app.objection.models.task.query().withGraphJoined('[status, creator, executor, labels]'),
+            app.objection.models.status.query(),
+            app.objection.models.label.query(),
+            app.objection.models.user.query(),
+          ]);
+          req.flash('danger', app.t('views.index.tasks.flash.fail.delete'));
+          return reply.code(422).render('tasks/index', {
+            data: {
+              tasks, statuses, labels, users,
+            },
+          });
+        }
+        throw error;
       }
     });
 };

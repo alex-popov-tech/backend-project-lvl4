@@ -42,12 +42,12 @@ export default (app) => {
         return reply.redirect(app.reverse('labels'));
       } catch (error) {
         if (error instanceof ValidationError) {
-        const label = new app.objection.models.label();
-        label.$set({ id, ...reqData });
-        req.flash('danger', app.t('views.edit.labels.flash.fail'));
-        return reply.code(422).render('labels/edit', { data: { label }, errors: error.data });
-      }
-      throw error;
+          const label = new app.objection.models.label();
+          label.$set({ id, ...reqData });
+          req.flash('danger', app.t('views.edit.labels.flash.fail'));
+          return reply.code(422).render('labels/edit', { data: { label }, errors: error.data });
+        }
+        throw error;
       }
     })
     .delete('/labels/:id', { name: 'destroyLabel' }, async (req, reply) => {

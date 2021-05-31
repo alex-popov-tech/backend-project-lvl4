@@ -65,13 +65,13 @@ export default class Task extends Base {
 
   static modifiers = {
     withStatus(query, statusId) {
-      query.where('statusId', status);
+      query.where('statusId', statusId);
     },
     withCreator(query, userId) {
-      query.where('creatorId', req.user.id);
+      query.where('creatorId', userId);
     },
     withExecutor(query, executorId) {
-      query.where('executorId', executor);
+      query.where('executorId', executorId);
     },
     withLabel(query, labelId) {
       query.whereExists(Task.relatedQuery('labels').where('labels.id', labelId));

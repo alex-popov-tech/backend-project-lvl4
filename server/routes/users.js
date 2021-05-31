@@ -18,12 +18,12 @@ export default (app) => {
         req.flash('success', app.t('views.welcome.flash.success.registration'));
         return reply.redirect(app.reverse('welcome'));
       } catch (error) {
-                        if (error instanceof ValidationError) {
-        const user = new app.objection.models.user();
-        user.$set(req.body.data);
-        return reply.code(422).render('users/new', { data: { user }, errors: error.data });
-      }
-      throw error;
+        if (error instanceof ValidationError) {
+          const user = new app.objection.models.user();
+          user.$set(req.body.data);
+          return reply.code(422).render('users/new', { data: { user }, errors: error.data });
+        }
+        throw error;
       }
     })
     .get('/users/:id/edit', { name: 'editUser', preValidation: app.formAuth }, async (req, reply) => {
@@ -49,14 +49,14 @@ export default (app) => {
         req.flash('success', app.t('views.index.users.flash.success.edit'));
         return reply.redirect(app.reverse('users'));
       } catch (error) {
-                                if (error instanceof ValidationError) {
-        const user = new app.objection.models.user();
-        user.$set(req.body.data);
-        req.flash('danger', app.t('views.edit.users.flash.fail'));
-        return reply.code(422).render('users/edit', { data: { user }, errors: error.data });
+        if (error instanceof ValidationError) {
+          const user = new app.objection.models.user();
+          user.$set(req.body.data);
+          req.flash('danger', app.t('views.edit.users.flash.fail'));
+          return reply.code(422).render('users/edit', { data: { user }, errors: error.data });
+        }
+        throw error;
       }
-      throw error;
-    }
     })
     .delete('/users/:id', { name: 'destroyUser', preValidation: app.formAuth }, async (req, reply) => {
       const { user, params: { id } } = req;
@@ -72,10 +72,10 @@ export default (app) => {
         return reply.redirect(app.reverse('users'));
       } catch (error) {
         if (error instanceof ValidationError) {
-        req.flash('danger', app.t('views.index.users.flash.fail.deleteOrEditOtherUser'));
-        return reply.code(422).render('users/edit', { data: { user }, errors: error.data });
+          req.flash('danger', app.t('views.index.users.flash.fail.deleteOrEditOtherUser'));
+          return reply.code(422).render('users/edit', { data: { user }, errors: error.data });
+        }
+        throw error;
       }
-      throw error;
-    }
     });
 };
