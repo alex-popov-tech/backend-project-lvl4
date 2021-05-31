@@ -18,7 +18,7 @@ export default (app) => {
       req.flash('danger', app.t('views.new.session.flash.fail'));
       return reply.code(404).render('session/new', {
         data: { user },
-        errors: { email: [{ message: 'User with such credentials pair does not exist' }] },
+        errors: { email: [{ message: app.t('views.new.session.flash.fail') }] },
       });
     }))
     .delete('/session', { name: 'destroySession' }, async (req, reply) => {

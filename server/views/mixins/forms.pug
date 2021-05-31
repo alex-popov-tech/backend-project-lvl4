@@ -66,6 +66,7 @@ mixin select(entity, propertyName, values, options = {}, errors = {})
       name= formName
       class='form-control'
       multiple=isMultiselect
+      class=(propertyErrors && 'is-invalid')
     )&attributes(attributes)
       if !isMultiselect
         option

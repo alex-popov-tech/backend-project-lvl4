@@ -1,12 +1,14 @@
+import { ValidationError } from 'objection';
+
 export default (app) => {
   app
     .get('/users', { name: 'users' }, async (req, reply) => {
       const users = await app.objection.models.user.query();
-      await reply.render('users/index', { data: { users } });
+      return reply.render('users/index', { data: { users } });
     })
     .get('/users/new', { name: 'newUser' }, async (req, reply) => {
       const user = new app.objection.models.user();
-      await reply.render('users/new', { data: { user }, errors: [] });
+      return reply.render('users/new', { data: { user }, errors: [] });
     })
     .post('/users', { name: 'createUser' }, async (req, reply) => {
       try {
@@ -14,11 +16,14 @@ export default (app) => {
         await app.objection.models.user.query().insert(newUser);
         await req.login(newUser);
         req.flash('success', app.t('views.welcome.flash.success.registration'));
-        await reply.redirect(app.reverse('welcome'));
-      } catch ({ data }) {
+        return reply.redirect(app.reverse('welcome'));
+      } catch (error) {
+                        if (error instanceof ValidationError) {
         const user = new app.objection.models.user();
         user.$set(req.body.data);
-        await reply.code(422).render('users/new', { data: { user }, errors: data });
+        return reply.code(422).render('users/new', { data: { user }, errors: error.data });
+      }
+      throw error;
       }
     })
     .get('/users/:id/edit', { name: 'editUser', preValidation: app.formAuth }, async (req, reply) => {
@@ -28,7 +33,7 @@ export default (app) => {
         const users = await app.objection.models.user.query();
         return reply.code(422).render('users/index', { data: { users } });
       }
-      return reply.render('users/edit', { data: { user }, errors: [] });
+      return reply.render('users/edit', { data: { user }, errors: {} });
     })
     .patch('/users/:id', { name: 'updateUser', preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id } } = req;
@@ -43,12 +48,15 @@ export default (app) => {
         await existingUser.$query().patch(updatedUser);
         req.flash('success', app.t('views.index.users.flash.success.edit'));
         return reply.redirect(app.reverse('users'));
-      } catch ({ message, data }) {
+      } catch (error) {
+                                if (error instanceof ValidationError) {
         const user = new app.objection.models.user();
         user.$set(req.body.data);
         req.flash('danger', app.t('views.edit.users.flash.fail'));
-        return reply.code(422).render('users/edit', { data: { user }, errors: data });
+        return reply.code(422).render('users/edit', { data: { user }, errors: error.data });
       }
+      throw error;
+    }
     })
     .delete('/users/:id', { name: 'destroyUser', preValidation: app.formAuth }, async (req, reply) => {
       const { user, params: { id } } = req;
@@ -62,9 +70,12 @@ export default (app) => {
         req.flash('success', app.t('views.index.users.flash.success.delete'));
         await app.objection.models.user.query().deleteById(id);
         return reply.redirect(app.reverse('users'));
-      } catch ({ data }) {
+      } catch (error) {
+        if (error instanceof ValidationError) {
         req.flash('danger', app.t('views.index.users.flash.fail.deleteOrEditOtherUser'));
-        return reply.code(422).render('users/edit', { data: { user }, errors: data });
+        return reply.code(422).render('users/edit', { data: { user }, errors: error.data });
       }
+      throw error;
+    }
     });
 };
