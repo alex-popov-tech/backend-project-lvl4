@@ -71,8 +71,8 @@ export default (app) => {
         await app.objection.models.user.query().deleteById(id);
         return reply.redirect(app.reverse('users'));
       } catch (error) {
-          req.flash('danger', app.t('views.index.users.flash.fail.deleteOrEditOtherUser'));
-          return reply.code(422).render('users/edit', { data: { user }, errors: error.data });
+        req.flash('danger', app.t('views.index.users.flash.fail.deleteOrEditOtherUser'));
+        return reply.code(422).render('users/edit', { data: { user }, errors: error.data });
       }
     });
 };

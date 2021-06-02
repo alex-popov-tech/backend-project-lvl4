@@ -159,16 +159,15 @@ describe('Status', () => {
       expect(statuses).toHaveLength(1);
       expect(statuses[0].id).not.toBe(existingStatus.id);
     });
-    
-  it('should return 302 when using invalid id', async () => {
-    const { statusCode, headers: { location } } = await app.inject({
-      method: 'delete',
-      url: app.reverse('destroyStatus', { id: 999 }),
-      cookies,
-    });
-    expect(statusCode).toBe(302);
-    expect(location).toBe(app.reverse('statuses'));
-  });
-  });
 
+    it('should return 302 when using invalid id', async () => {
+      const { statusCode, headers: { location } } = await app.inject({
+        method: 'delete',
+        url: app.reverse('destroyStatus', { id: 999 }),
+        cookies,
+      });
+      expect(statusCode).toBe(302);
+      expect(location).toBe(app.reverse('statuses'));
+    });
+  });
 });
