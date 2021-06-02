@@ -162,27 +162,8 @@ export default (app) => {
     })
     .delete('/tasks/:id', { name: 'destroyTask', preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id } } = req;
-      try {
-        const task = await app.objection.models.task.query().findById(id);
-        if (req.user.id !== task.creatorId) {
-          const [tasks, statuses, labels, users] = await Promise.all([
-            app.objection.models.task.query().withGraphJoined('[status, creator, executor, labels]'),
-            app.objection.models.status.query(),
-            app.objection.models.label.query(),
-            app.objection.models.user.query(),
-          ]);
-          req.flash('danger', app.t('views.index.tasks.flash.fail.delete'));
-          return reply.code(422).render('tasks/index', {
-            data: {
-              tasks, statuses, labels, users,
-            },
-          });
-        }
-        await task.$relatedQuery('labels').unrelate();
-        await app.objection.models.task.query().deleteById(id);
-        req.flash('info', app.t('views.index.tasks.flash.success.delete'));
-        return reply.redirect(app.reverse('tasks'));
-      } catch (error) {
+      const task = await app.objection.models.task.query().findById(id);
+      if (req.user.id !== task.creatorId) {
         const [tasks, statuses, labels, users] = await Promise.all([
           app.objection.models.task.query().withGraphJoined('[status, creator, executor, labels]'),
           app.objection.models.status.query(),
@@ -196,5 +177,9 @@ export default (app) => {
           },
         });
       }
+      await task.$relatedQuery('labels').unrelate();
+      await app.objection.models.task.query().deleteById(id);
+      req.flash('info', app.t('views.index.tasks.flash.success.delete'));
+      return reply.redirect(app.reverse('tasks'));
     });
 };

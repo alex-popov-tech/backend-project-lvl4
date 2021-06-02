@@ -60,19 +60,14 @@ export default (app) => {
     })
     .delete('/users/:id', { name: 'destroyUser', preValidation: app.formAuth }, async (req, reply) => {
       const { user, params: { id } } = req;
-      try {
-        if (user.id !== Number(id)) {
-          const users = await app.objection.models.user.query();
-          req.flash('danger', app.t('views.index.users.flash.fail.deleteOrEditOtherUser'));
-          return reply.code(422).render('users/index', { data: { users } });
-        }
-        await req.logout(user);
-        req.flash('success', app.t('views.index.users.flash.success.delete'));
-        await app.objection.models.user.query().deleteById(id);
-        return reply.redirect(app.reverse('users'));
-      } catch (error) {
+      if (user.id !== Number(id)) {
+        const users = await app.objection.models.user.query();
         req.flash('danger', app.t('views.index.users.flash.fail.deleteOrEditOtherUser'));
-        return reply.code(422).render('users/edit', { data: { user }, errors: error.data });
+        return reply.code(422).render('users/index', { data: { users } });
       }
+      await req.logout(user);
+      req.flash('success', app.t('views.index.users.flash.success.delete'));
+      await app.objection.models.user.query().deleteById(id);
+      return reply.redirect(app.reverse('users'));
     });
 };
