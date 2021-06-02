@@ -10,7 +10,7 @@ export default class Status extends unique(Base) {
   }
 
   static relationMappings = {
-    task: {
+    tasks: {
       relation: Model.HasManyRelation,
       modelClass: 'Task',
       join: {

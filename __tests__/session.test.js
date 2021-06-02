@@ -10,12 +10,15 @@ describe('Session', () => {
   beforeAll(async () => {
     app = await launchApp();
     db = getDatabaseHelpers(app);
-    existingUserData = create.user();
-    await db.model.insert.user(existingUserData);
   });
 
   afterAll(async () => {
     await shutdownApp(app);
+  });
+
+  beforeEach(async () => {
+    existingUserData = create.user();
+    await db.model.insert.user(existingUserData);
   });
 
   afterEach(async () => {
@@ -25,22 +28,22 @@ describe('Session', () => {
   it('should login and logout when using valid credentials', async () => {
     const user = create.user();
     await db.model.insert.user(user);
-    let res = await app.inject({
+    const postResponse = await app.inject({
       method: 'post',
       url: '/session',
       body: { data: user },
     });
-    expect(res.statusCode).toBe(302);
-    const cookie = res.headers['set-cookie'];
+    expect(postResponse.statusCode).toBe(302);
+    const cookie = postResponse.headers['set-cookie'];
     expect(typeof cookie).toBe('string');
-    res = await app.inject({
+    const deleteResponse = await app.inject({
       method: 'delete',
       url: '/session',
       headers: {
         Cookie: cookie,
       },
     });
-    expect(res.statusCode).toBe(302);
+    expect(deleteResponse.statusCode).toBe(302);
   });
 
   describe('when using invalid credentials', () => {

@@ -52,8 +52,13 @@ export default (app) => {
     })
     .delete('/statuses/:id', { name: 'destroyStatus', preValidation: app.formAuth }, async (req, reply) => {
       const { params: { id } } = req;
-      const relatedTasksCount = await app.objection.models.task.query().where('statusId', id).resultSize();
-      if (relatedTasksCount > 0) {
+      const status = await app.objection.models.status.query().findById(id);
+      if (!status) {
+        req.flash('danger', app.t('views.index.statuses.flash.fail.delete'));
+        return reply.redirect(app.reverse('statuses'));
+      }
+      const relatedTasks = await status.$relatedQuery('tasks');
+      if (relatedTasks.length > 0) {
         const statuses = await app.objection.models.status.query();
         req.flash('danger', app.t('views.index.statuses.flash.fail.delete'));
         return reply.code(422).render('/statuses/index', {

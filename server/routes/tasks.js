@@ -81,7 +81,6 @@ export default (app) => {
         req.flash('success', app.t('views.index.tasks.flash.success.new'));
         return reply.redirect(app.reverse('tasks'));
       } catch (error) {
-        console.log(error instanceof ValidationError, error.message, JSON.stringify(error.data));
         if (error instanceof ValidationError) {
           const task = new app.objection.models.task();
           const [statuses, labels, users] = await Promise.all([
@@ -165,9 +164,7 @@ export default (app) => {
       const { params: { id } } = req;
       try {
         const task = await app.objection.models.task.query().findById(id);
-        console.log(req.user.id, task.creatorId);
         if (req.user.id !== task.creatorId) {
-          console.log('its others task');
           const [tasks, statuses, labels, users] = await Promise.all([
             app.objection.models.task.query().withGraphJoined('[status, creator, executor, labels]'),
             app.objection.models.status.query(),
@@ -181,14 +178,11 @@ export default (app) => {
             },
           });
         }
-        console.log('unrelate');
         await task.$relatedQuery('labels').unrelate();
         await app.objection.models.task.query().deleteById(id);
-        console.log('delete');
         req.flash('info', app.t('views.index.tasks.flash.success.delete'));
         return reply.redirect(app.reverse('tasks'));
       } catch (error) {
-        if (error instanceof ValidationError) {
           const [tasks, statuses, labels, users] = await Promise.all([
             app.objection.models.task.query().withGraphJoined('[status, creator, executor, labels]'),
             app.objection.models.status.query(),
@@ -201,8 +195,6 @@ export default (app) => {
               tasks, statuses, labels, users,
             },
           });
-        }
-        throw error;
       }
     });
 };
