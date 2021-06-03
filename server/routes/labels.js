@@ -35,9 +35,9 @@ export default (app) => {
     .patch('/labels/:id', { name: 'updateLabel', preValidation: app.formAuth }, async (req, reply) => {
       const { body: { data: reqData }, params: { id } } = req;
       try {
-        const updatedlabel = app.objection.models.label.fromJson(reqData);
-        const existinglabel = await app.objection.models.label.query().findById(id);
-        await existinglabel.$query().patch(updatedlabel);
+        const updatedLabel = app.objection.models.label.fromJson(reqData);
+        const existingLabel = await app.objection.models.label.query().findById(id);
+        await existingLabel.$query().patch(updatedLabel);
         req.flash('success', app.t('views.index.labels.flash.success.edit'));
         return reply.redirect(app.reverse('labels'));
       } catch (error) {
